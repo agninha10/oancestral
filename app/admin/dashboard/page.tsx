@@ -1,4 +1,14 @@
-export default function AdminDashboardPage() {
+import { prisma } from "@/lib/prisma";
+import { DashboardAnalytics } from "@/components/admin/dashboard-analytics";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Mail } from "lucide-react";
+
+export const dynamic = 'force-dynamic';
+
+export default async function AdminDashboardPage() {
+    const userCount = await prisma.user.count();
+    const subscriberCount = await prisma.newsletterSubscriber.count();
+
     return (
         <div className="space-y-8">
             <div>
@@ -8,56 +18,40 @@ export default function AdminDashboardPage() {
                 </p>
             </div>
 
-            {/* Stats Cards */}
+            {/* Internal Metrics */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <div className="bg-card border border-border rounded-lg p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Total de Posts</p>
-                            <p className="text-2xl font-bold text-foreground mt-1">0</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                            <span className="text-2xl">📝</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Total de Receitas</p>
-                            <p className="text-2xl font-bold text-foreground mt-1">0</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                            <span className="text-2xl">🍳</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Categorias</p>
-                            <p className="text-2xl font-bold text-foreground mt-1">0</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                            <span className="text-2xl">📁</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-card border border-border rounded-lg p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Inscritos Newsletter</p>
-                            <p className="text-2xl font-bold text-foreground mt-1">0</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                            <span className="text-2xl">📧</span>
-                        </div>
-                    </div>
-                </div>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Total de Usuários
+                        </CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{userCount}</div>
+                        <p className="text-xs text-muted-foreground">
+                            Usuários cadastrados
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Newsletter
+                        </CardTitle>
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{subscriberCount}</div>
+                        <p className="text-xs text-muted-foreground">
+                            Inscritos totais
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
+
+            {/* Analytics Dashboard */}
+            <DashboardAnalytics />
 
             {/* Quick Actions */}
             <div className="bg-card border border-border rounded-lg p-6">

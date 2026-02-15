@@ -17,6 +17,7 @@
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@google-analytics/data": "^5.2.1",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^5.19.1",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -27,6 +28,7 @@
     "@tiptap/extension-placeholder": "^3.19.0",
     "@tiptap/react": "^3.19.0",
     "@tiptap/starter-kit": "^3.19.0",
+    "axios": "^1.13.5",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.9.0",
@@ -43,6 +45,7 @@
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
     "react-imask": "^7.6.1",
+    "recharts": "^3.7.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.6"
   },

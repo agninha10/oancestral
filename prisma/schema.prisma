@@ -52,6 +52,9 @@ model User {
   whatsapp           String?
   role               Role               @default(USER)
   subscriptionStatus SubscriptionStatus @default(FREE)
+  subscriptionEndDate DateTime?
+
+  abacateCustomerId  String?            @unique
 
   birthdate DateTime
 
