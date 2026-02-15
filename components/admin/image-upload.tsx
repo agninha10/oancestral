@@ -88,7 +88,7 @@ export function ImageUpload({ value, onChange, onRemove, className }: ImageUploa
     if (value) {
         return (
             <div className={cn('relative group', className)}>
-                <div className="relative aspect-video rounded-lg overflow-hidden border border-neutral-800 bg-neutral-900">
+                <div className="relative aspect-video rounded-lg overflow-hidden border border-border bg-muted">
                     <Image
                         src={value}
                         alt="Upload preview"
@@ -121,7 +121,7 @@ export function ImageUpload({ value, onChange, onRemove, className }: ImageUploa
                     'relative border-2 border-dashed rounded-lg p-8 transition-colors',
                     dragActive
                         ? 'border-orange-500 bg-orange-500/10'
-                        : 'border-neutral-800 hover:border-neutral-700',
+                        : 'border-border hover:border-foreground/50',
                     uploading && 'opacity-50 pointer-events-none'
                 )}
             >
@@ -137,18 +137,18 @@ export function ImageUpload({ value, onChange, onRemove, className }: ImageUploa
                     {uploading ? (
                         <>
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500" />
-                            <p className="text-sm text-neutral-400">Fazendo upload...</p>
+                            <p className="text-sm text-muted-foreground">Fazendo upload...</p>
                         </>
                     ) : (
                         <>
-                            <div className="rounded-full bg-neutral-900 p-4">
-                                <ImageIcon className="h-8 w-8 text-neutral-400" />
+                            <div className="rounded-full bg-muted p-4">
+                                <ImageIcon className="h-8 w-8 text-muted-foreground" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-neutral-200">
+                                <p className="text-sm font-medium text-foreground">
                                     Arraste uma imagem ou clique para selecionar
                                 </p>
-                                <p className="text-xs text-neutral-500 mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     PNG, JPG, GIF até 10MB
                                 </p>
                             </div>

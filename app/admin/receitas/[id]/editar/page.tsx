@@ -222,7 +222,9 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
         return (
             <div className="max-w-4xl">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white">Carregando...</h1>
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-foreground">Carregando...</h1>
+                    </div>
                 </div>
             </div>
         );
@@ -231,16 +233,16 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
     return (
         <div className="max-w-4xl">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-white">Editar Receita</h1>
-                <p className="text-neutral-400 mt-2">
+                <h1 className="text-3xl font-bold text-foreground">Editar Receita</h1>
+                <p className="text-muted-foreground mt-2">
                     Atualize as informações da receita
                 </p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 {/* Basic Info */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 space-y-6">
-                    <h2 className="text-xl font-semibold text-white">Informações Básicas</h2>
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+                    <h2 className="text-xl font-semibold text-foreground">Informações Básicas</h2>
 
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
@@ -296,8 +298,8 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Recipe Details */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 space-y-6">
-                    <h2 className="text-xl font-semibold text-white">Detalhes da Receita</h2>
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+                    <h2 className="text-xl font-semibold text-foreground">Detalhes da Receita</h2>
 
                     <div className="grid gap-6 md:grid-cols-3">
                         <div className="space-y-2">
@@ -390,8 +392,8 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Nutrition */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 space-y-6">
-                    <h2 className="text-xl font-semibold text-white">Informações Nutricionais</h2>
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+                    <h2 className="text-xl font-semibold text-foreground">Informações Nutricionais</h2>
 
                     <div className="grid gap-6 md:grid-cols-4">
                         <div className="space-y-2">
@@ -437,9 +439,9 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Ingredients */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 space-y-6">
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-white">Ingredientes *</h2>
+                        <h2 className="text-xl font-semibold text-foreground">Ingredientes *</h2>
                         <Button
                             type="button"
                             variant="outline"
@@ -483,9 +485,9 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Instructions */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 space-y-6">
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-white">Modo de Preparo *</h2>
+                        <h2 className="text-xl font-semibold text-foreground">Modo de Preparo *</h2>
                         <Button
                             type="button"
                             variant="outline"
@@ -529,8 +531,8 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Additional Content */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 space-y-6">
-                    <h2 className="text-xl font-semibold text-white">Dicas Extras</h2>
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+                    <h2 className="text-xl font-semibold text-foreground">Dicas Extras</h2>
                     <RichTextEditor
                         content={watch('content') || ''}
                         onChange={(html) => setValue('content', html)}
@@ -545,7 +547,7 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                             type="checkbox"
                             id="published"
                             {...register('published')}
-                            className="rounded border-neutral-700"
+                            className="rounded border-border"
                         />
                         <Label htmlFor="published" className="cursor-pointer">
                             Publicar

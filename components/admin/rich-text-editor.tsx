@@ -85,9 +85,9 @@ export function RichTextEditor({
     };
 
     return (
-        <div className={cn('border border-neutral-800 rounded-lg overflow-hidden bg-neutral-950', className)}>
+        <div className={cn('border border-border rounded-lg overflow-hidden bg-card', className)}>
             {/* Toolbar */}
-            <div className="flex flex-wrap gap-1 p-2 border-b border-neutral-800 bg-neutral-900/50">
+            <div className="flex flex-wrap gap-1 p-2 border-b border-border bg-muted/50">
                 <Button
                     type="button"
                     variant="ghost"
@@ -114,7 +114,7 @@ export function RichTextEditor({
                     <Italic className="h-4 w-4" />
                 </Button>
 
-                <div className="w-px h-8 bg-neutral-800 mx-1" />
+                <div className="w-px h-8 bg-border mx-1" />
 
                 <Button
                     type="button"
@@ -247,7 +247,7 @@ export function RichTextEditor({
             </div>
 
             {/* Editor */}
-            <EditorContent editor={editor} className="prose-invert" />
+            <EditorContent editor={editor} className="dark:prose-invert" />
         </div>
     );
 }

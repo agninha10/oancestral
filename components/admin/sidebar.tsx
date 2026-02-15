@@ -51,19 +51,19 @@ export function AdminSidebar() {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    'fixed inset-y-0 left-0 z-40 w-64 bg-neutral-950 border-r border-neutral-800 transform transition-transform duration-200 ease-in-out lg:translate-x-0',
+                    'fixed inset-y-0 left-0 z-40 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out lg:translate-x-0',
                     mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                 )}
             >
                 <div className="flex flex-col h-full">
                     {/* Logo */}
-                    <div className="flex items-center gap-2 px-6 py-6 border-b border-neutral-800">
+                    <div className="flex items-center gap-2 px-6 py-6 border-b border-border">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
                             <span className="text-white font-bold text-sm">OA</span>
                         </div>
                         <div>
-                            <h1 className="text-lg font-bold text-white">O Ancestral</h1>
-                            <p className="text-xs text-neutral-500">Admin Panel</p>
+                            <h1 className="text-lg font-bold text-foreground">O Ancestral</h1>
+                            <p className="text-xs text-muted-foreground">Admin Panel</p>
                         </div>
                     </div>
 
@@ -80,7 +80,7 @@ export function AdminSidebar() {
                                         'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                                         isActive
                                             ? 'bg-orange-500/10 text-orange-500'
-                                            : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                                            : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                                     )}
                                 >
                                     <item.icon className="h-5 w-5" />
@@ -91,10 +91,10 @@ export function AdminSidebar() {
                     </nav>
 
                     {/* Logout */}
-                    <div className="px-4 py-4 border-t border-neutral-800">
+                    <div className="px-4 py-4 border-t border-border">
                         <Button
                             variant="ghost"
-                            className="w-full justify-start text-neutral-400 hover:text-white"
+                            className="w-full justify-start text-muted-foreground hover:text-foreground"
                             onClick={handleLogout}
                         >
                             <LogOut className="h-5 w-5 mr-3" />
