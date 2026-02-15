@@ -53,7 +53,7 @@ export function NewsletterBox({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-900/20 via-neutral-900 to-neutral-950 border border-orange-500/20 p-8"
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/20 dark:via-neutral-900 dark:to-neutral-950 border border-orange-200 dark:border-orange-500/20 p-8"
         >
             {/* Background decoration */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-transparent" />
@@ -69,10 +69,10 @@ export function NewsletterBox({
                             className="text-center py-4"
                         >
                             <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                            <h3 className="text-xl font-bold text-white mb-2">
+                            <h3 className="text-xl font-bold text-foreground mb-2">
                                 Inscrição confirmada!
                             </h3>
-                            <p className="text-neutral-400">
+                            <p className="text-muted-foreground">
                                 Você receberá nossas melhores receitas em breve.
                             </p>
                         </motion.div>
@@ -84,14 +84,14 @@ export function NewsletterBox({
                             exit={{ opacity: 0 }}
                         >
                             <div className="flex items-start gap-4 mb-6">
-                                <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                                <div className="p-3 rounded-xl bg-orange-100 dark:bg-orange-500/10 border border-orange-300 dark:border-orange-500/20">
                                     <Mail className="w-6 h-6 text-orange-500" />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-xl font-bold text-white mb-1">
+                                    <h3 className="text-xl font-bold text-foreground mb-1">
                                         {title}
                                     </h3>
-                                    <p className="text-sm text-neutral-400">
+                                    <p className="text-sm text-muted-foreground">
                                         {description}
                                     </p>
                                 </div>
@@ -105,7 +105,7 @@ export function NewsletterBox({
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="seu@email.com"
                                         required
-                                        className="w-full px-4 py-3 rounded-xl bg-neutral-900 border border-neutral-700 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                        className="w-full px-4 py-3 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                                     />
                                 </div>
 
@@ -122,7 +122,7 @@ export function NewsletterBox({
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-500/20"
+                                    className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-orange-500/20"
                                 >
                                     {loading ? (
                                         <span className="flex items-center justify-center gap-2">

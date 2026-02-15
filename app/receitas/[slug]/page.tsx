@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 import { RecipeSchemaScript } from '@/lib/seo/recipe-schema';
 import { ReadingProgressBar } from '@/components/content/reading-progress-bar';
@@ -8,6 +10,7 @@ import { CookingModeButton } from '@/components/recipe/cooking-mode-button';
 import { NewsletterBox } from '@/components/newsletter/newsletter-box';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { RecipePaywallWrapper } from '@/components/recipe/recipe-paywall-wrapper';
 import { Clock, Users, ChefHat } from 'lucide-react';
 
 type Props = {
@@ -80,6 +83,30 @@ export default async function RecipePage({ params }: Props) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://oancestral.com.br';
 
+    // Get user subscription status for paywall
+    let userSubscriptionStatus: 'FREE' | 'ACTIVE' = 'FREE';
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth-token')?.value;
+
+    if (token) {
+        try {
+            const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+            const { payload } = await jwtVerify(token, secret);
+            const userId = payload.userId as string;
+
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { subscriptionStatus: true },
+            });
+
+            if (user?.subscriptionStatus === 'ACTIVE') {
+                userSubscriptionStatus = 'ACTIVE';
+            }
+        } catch {
+            // Invalid token, user remains FREE
+        }
+    }
+
     return (
         <div className="flex min-h-screen flex-col">
             <Header />
@@ -118,7 +145,7 @@ export default async function RecipePage({ params }: Props) {
                                     </span>
                                 </div>
 
-                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white dark:text-white mb-4">
                                     {recipe.title}
                                 </h1>
 
@@ -153,38 +180,43 @@ export default async function RecipePage({ params }: Props) {
                         <div className="grid lg:grid-cols-3 gap-12">
                             {/* Main Content */}
                             <div className="lg:col-span-2 space-y-12">
-                                {/* Ingredients */}
-                                <div>
-                                    <h2 className="text-2xl font-bold text-white mb-6">Ingredientes</h2>
-                                    <ul className="space-y-3">
-                                        {recipe.ingredients.map((ingredient) => (
-                                            <li
-                                                key={ingredient.id}
-                                                className="flex items-start gap-3 text-neutral-300"
-                                            >
-                                                <span className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0" />
-                                                <span>
-                                                    <strong className="text-white">{ingredient.amount}</strong> {ingredient.name}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                                <RecipePaywallWrapper
+                                    isPremium={recipe.isPremium}
+                                    userSubscriptionStatus={userSubscriptionStatus}
+                                >
+                                    {/* Ingredients */}
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-foreground mb-6">Ingredientes</h2>
+                                        <ul className="space-y-3">
+                                            {recipe.ingredients.map((ingredient) => (
+                                                <li
+                                                    key={ingredient.id}
+                                                    className="flex items-start gap-3 text-muted-foreground"
+                                                >
+                                                    <span className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0" />
+                                                    <span>
+                                                        <strong className="text-foreground">{ingredient.amount}</strong> {ingredient.name}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
 
-                                {/* Instructions */}
-                                <div>
-                                    <h2 className="text-2xl font-bold text-white mb-6">Modo de Preparo</h2>
-                                    <ol className="space-y-6">
-                                        {recipe.instructions.map((instruction) => (
-                                            <li key={instruction.id} className="flex gap-4">
-                                                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500/20 text-orange-500 font-bold flex items-center justify-center text-sm">
-                                                    {instruction.step}
-                                                </span>
-                                                <p className="text-neutral-300 pt-1">{instruction.content}</p>
-                                            </li>
-                                        ))}
-                                    </ol>
-                                </div>
+                                    {/* Instructions */}
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-foreground mb-6">Modo de Preparo</h2>
+                                        <ol className="space-y-6">
+                                            {recipe.instructions.map((instruction) => (
+                                                <li key={instruction.id} className="flex gap-4">
+                                                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500/20 text-orange-500 font-bold flex items-center justify-center text-sm">
+                                                        {instruction.step}
+                                                    </span>
+                                                    <p className="text-muted-foreground pt-1">{instruction.content}</p>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                </RecipePaywallWrapper>
                             </div>
 
                             {/* Sidebar */}
@@ -193,30 +225,30 @@ export default async function RecipePage({ params }: Props) {
                                     {/* Nutrition Info */}
                                     {(recipe.calories || macros) && (
                                         <div className="p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-                                            <h3 className="text-lg font-bold text-white mb-4">Informação Nutricional</h3>
+                                            <h3 className="text-lg font-bold text-foreground mb-4">Informação Nutricional</h3>
                                             <div className="space-y-3 text-sm">
                                                 {recipe.calories && (
                                                     <div className="flex justify-between">
-                                                        <span className="text-neutral-400">Calorias</span>
-                                                        <span className="text-white font-semibold">{recipe.calories} kcal</span>
+                                                        <span className="text-muted-foreground">Calorias</span>
+                                                        <span className="text-foreground font-semibold">{recipe.calories} kcal</span>
                                                     </div>
                                                 )}
                                                 {macros?.protein && (
                                                     <div className="flex justify-between">
-                                                        <span className="text-neutral-400">Proteína</span>
-                                                        <span className="text-white font-semibold">{macros.protein}g</span>
+                                                        <span className="text-muted-foreground">Proteína</span>
+                                                        <span className="text-foreground font-semibold">{macros.protein}g</span>
                                                     </div>
                                                 )}
                                                 {macros?.fat && (
                                                     <div className="flex justify-between">
-                                                        <span className="text-neutral-400">Gordura</span>
-                                                        <span className="text-white font-semibold">{macros.fat}g</span>
+                                                        <span className="text-muted-foreground">Gordura</span>
+                                                        <span className="text-foreground font-semibold">{macros.fat}g</span>
                                                     </div>
                                                 )}
                                                 {macros?.carbs && (
                                                     <div className="flex justify-between">
-                                                        <span className="text-neutral-400">Carboidratos</span>
-                                                        <span className="text-white font-semibold">{macros.carbs}g</span>
+                                                        <span className="text-muted-foreground">Carboidratos</span>
+                                                        <span className="text-foreground font-semibold">{macros.carbs}g</span>
                                                     </div>
                                                 )}
                                             </div>

@@ -158,3 +158,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Paywall blur effect for premium content */
+.paywall-blur {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.6;
+}

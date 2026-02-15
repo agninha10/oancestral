@@ -46,6 +46,14 @@ export function generateRecipeSchema(recipe: RecipeWithRelations, baseUrl: strin
       fatContent: macros?.fat ? `${macros.fat}g` : (recipe.fat ? `${recipe.fat}g` : undefined),
       carbohydrateContent: macros?.carbs ? `${macros.carbs}g` : (recipe.carbs ? `${recipe.carbs}g` : undefined),
     } : undefined,
+    // Anti-cloaking markup for premium content
+    ...(recipe.isPremium ? {
+      hasPart: {
+        '@type': 'WebPageElement',
+        isAccessibleForFree: 'False',
+        cssSelector: '.paywall-blur',
+      },
+    } : {}),
   };
 
   return JSON.parse(JSON.stringify(schema));

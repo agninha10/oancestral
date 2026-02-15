@@ -44,6 +44,8 @@ export async function POST(request: NextRequest) {
             instructions,
             content,
             published,
+            featured,
+            isPremium,
         } = body;
 
         console.log('Creating recipe with body:', JSON.stringify(body, null, 2));
@@ -67,6 +69,8 @@ export async function POST(request: NextRequest) {
                 carbs,
                 content: content || '',
                 published: published || false,
+                featured: featured || false,
+                isPremium: isPremium || false,
                 authorId: userId,
                 ingredients: {
                     create: ingredients.map((ing: any, index: number) => ({

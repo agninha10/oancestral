@@ -64,6 +64,8 @@ const recipeSchema = z.object({
     ).min(1, 'Adicione pelo menos 1 passo'),
     content: z.string().optional(),
     published: z.boolean(),
+    featured: z.boolean(),
+    isPremium: z.boolean(),
 });
 
 type RecipeFormData = z.infer<typeof recipeSchema>;
@@ -107,6 +109,8 @@ export default function NovaReceitaPage() {
             ingredients: [{ amount: '', name: '' }],
             instructions: [{ content: '' }],
             published: false,
+            featured: false,
+            isPremium: false,
             prepTime: 0,
             cookTime: 0,
             servings: 1,
@@ -479,16 +483,42 @@ export default function NovaReceitaPage() {
 
                 {/* Actions */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="published"
-                            {...register('published')}
-                            className="rounded border-neutral-700"
-                        />
-                        <Label htmlFor="published" className="cursor-pointer">
-                            Publicar imediatamente
-                        </Label>
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="published"
+                                {...register('published')}
+                                className="rounded border-neutral-700"
+                            />
+                            <Label htmlFor="published" className="cursor-pointer">
+                                Publicar imediatamente
+                            </Label>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="featured"
+                                {...register('featured')}
+                                className="rounded border-neutral-700"
+                            />
+                            <Label htmlFor="featured" className="cursor-pointer">
+                                Destaque
+                            </Label>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="isPremium"
+                                {...register('isPremium')}
+                                className="rounded border-neutral-700 accent-orange-500"
+                            />
+                            <Label htmlFor="isPremium" className="cursor-pointer font-semibold text-orange-500">
+                                🔒 Conteúdo Premium
+                            </Label>
+                        </div>
                     </div>
 
                     <div className="flex gap-4">
