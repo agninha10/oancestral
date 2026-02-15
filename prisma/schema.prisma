@@ -1,0 +1,271 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// Category model for dynamic categorization
+model Category {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?
+  type        CategoryType
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  recipes   Recipe[]
+  blogPosts BlogPost[]
+
+  @@map("categories")
+  @@index([type])
+}
+
+enum CategoryType {
+  RECIPE
+  BLOG
+}
+
+// User model for authentication
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  password String // bcrypt hashed
+  name     String
+  whatsapp String?
+  role     Role    @default(USER)
+
+  birthdate DateTime
+
+  emailVerified     Boolean   @default(false)
+  verificationToken String?   @unique
+  resetToken        String?   @unique
+  resetTokenExpiry  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  recipes     Recipe[]
+  blogPosts   BlogPost[]
+  enrollments CourseEnrollment[]
+
+  @@map("users")
+}
+
+// Recipe model
+model Recipe {
+  id          String           @id @default(cuid())
+  title       String
+  slug        String           @unique
+  description String
+  content     String           @db.Text
+  coverImage  String? // Renamed from imageUrl for consistency
+  prepTime    Int? // in minutes
+  cookTime    Int? // in minutes
+  servings    Int?
+  difficulty  RecipeDifficulty @default(MEDIUM)
+  cuisine     String?
+
+  // Nutrition info
+  calories       Int?
+  macronutrients Json? // { protein: number, fat: number, carbs: number }
+  // Legacy fields (kept for backward compatibility)
+  protein        Int?
+  fat            Int?
+  carbs          Int?
+
+  // Metadata
+  published Boolean  @default(false)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  authorId     String
+  author       User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId   String?
+  category     Category?           @relation(fields: [categoryId], references: [id])
+  ingredients  RecipeIngredient[]
+  instructions RecipeInstruction[]
+
+  @@index([categoryId])
+  @@index([published])
+  @@index([featured])
+  @@map("recipes")
+}
+
+enum RecipeDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model RecipeIngredient {
+  id       String @id @default(cuid())
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name     String
+  amount   String
+  order    Int
+
+  @@index([recipeId])
+  @@map("recipe_ingredients")
+}
+
+model RecipeInstruction {
+  id       String @id @default(cuid())
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  step     Int
+  content  String @db.Text
+
+  @@index([recipeId])
+  @@map("recipe_instructions")
+}
+
+// Blog Post model
+model BlogPost {
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  excerpt    String // Short description for SEO
+  content    String   @db.Text
+  coverImage String? // Renamed from imageUrl for consistency
+  tags       String[] @default([]) // For filtering and SEO
+  readTime   Int // in minutes
+
+  // Metadata
+  published   Boolean   @default(false)
+  featured    Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  authorId   String
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([published])
+  @@index([featured])
+  @@map("blog_posts")
+}
+
+// Course model
+model Course {
+  id          String  @id @default(cuid())
+  title       String
+  slug        String  @unique
+  description String
+  imageUrl    String?
+  price       Int     @default(0) // in cents
+  isFree      Boolean @default(false)
+
+  // Metadata
+  published Boolean  @default(false)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  lessons     Lesson[]
+  enrollments CourseEnrollment[]
+
+  @@index([published])
+  @@index([featured])
+  @@index([isFree])
+  @@map("courses")
+}
+
+model Lesson {
+  id          String  @id @default(cuid())
+  courseId    String
+  course      Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  videoUrl    String?
+  content     String? @db.Text
+  duration    Int? // in seconds
+  order       Int
+  isFree      Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  progress LessonProgress[]
+
+  @@index([courseId])
+  @@map("lessons")
+}
+
+model CourseEnrollment {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  enrolledAt  DateTime  @default(now())
+  completedAt DateTime?
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("course_enrollments")
+}
+
+model LessonProgress {
+  id       String @id @default(cuid())
+  userId   String
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+// Newsletter Subscriber model for lead capture
+model NewsletterSubscriber {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  source       NewsletterSource @default(OTHER)
+  tags         String[]         @default([]) // Interest tags for segmentation
+  active       Boolean          @default(true)
+  subscribedAt DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([email])
+  @@index([active])
+  @@map("newsletter_subscribers")
+}
+
+enum NewsletterSource {
+  BLOG_FOOTER
+  RECIPE_POPUP
+  INLINE_CTA
+  HOMEPAGE
+  OTHER
+}

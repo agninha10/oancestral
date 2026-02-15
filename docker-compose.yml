@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: oancestral-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: oancestral
+      POSTGRES_PASSWORD: oancestral_dev_2024
+      POSTGRES_DB: oancestral
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U oancestral" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
