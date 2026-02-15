@@ -17,10 +17,12 @@ async function getUserFromToken(request: NextRequest) {
     }
 }
 
+
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    props: { params: Promise<{ id: string }> }
 ) {
+    const params = await props.params;
     try {
         const userId = await getUserFromToken(request);
         if (!userId) {
@@ -43,8 +45,9 @@ export async function DELETE(
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    props: { params: Promise<{ id: string }> }
 ) {
+    const params = await props.params;
     try {
         const userId = await getUserFromToken(request);
         if (!userId) {
@@ -86,8 +89,9 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    props: { params: Promise<{ id: string }> }
 ) {
+    const params = await props.params;
     try {
         const userId = await getUserFromToken(request);
         if (!userId) {
@@ -174,3 +178,4 @@ export async function PUT(
         );
     }
 }
+

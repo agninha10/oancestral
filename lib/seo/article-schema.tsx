@@ -4,6 +4,9 @@ type BlogPostWithAuthor = BlogPost & {
   author: {
     name: string;
   };
+  category?: {
+    name: string;
+  } | null;
 };
 
 export function generateArticleSchema(post: BlogPostWithAuthor, baseUrl: string) {
@@ -32,7 +35,7 @@ export function generateArticleSchema(post: BlogPostWithAuthor, baseUrl: string)
       '@id': `${baseUrl}/blog/${post.slug}`,
     },
     keywords: post.tags.join(', '),
-    articleSection: post.category,
+    articleSection: post.category?.name || 'Blog',
     wordCount: Math.ceil(post.content.length / 5),
   };
 

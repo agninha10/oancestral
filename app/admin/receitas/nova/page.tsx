@@ -63,7 +63,7 @@ const recipeSchema = z.object({
         })
     ).min(1, 'Adicione pelo menos 1 passo'),
     content: z.string().optional(),
-    published: z.boolean().default(false),
+    published: z.boolean(),
 });
 
 type RecipeFormData = z.infer<typeof recipeSchema>;
@@ -101,7 +101,7 @@ export default function NovaReceitaPage() {
         watch,
         setValue,
         formState: { errors },
-    } = useForm<RecipeFormData>({
+    } = useForm({
         resolver: zodResolver(recipeSchema),
         defaultValues: {
             ingredients: [{ amount: '', name: '' }],

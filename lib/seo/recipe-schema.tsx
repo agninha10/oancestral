@@ -6,12 +6,15 @@ type RecipeWithRelations = Recipe & {
   author: {
     name: string;
   };
+  category?: {
+    name: string;
+  } | null;
 };
 
 export function generateRecipeSchema(recipe: RecipeWithRelations, baseUrl: string) {
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
   const macros = recipe.macronutrients as { protein?: number; fat?: number; carbs?: number } | null;
-  
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Recipe',
@@ -27,9 +30,9 @@ export function generateRecipeSchema(recipe: RecipeWithRelations, baseUrl: strin
     cookTime: recipe.cookTime ? `PT${recipe.cookTime}M` : undefined,
     totalTime: totalTime > 0 ? `PT${totalTime}M` : undefined,
     recipeYield: recipe.servings ? `${recipe.servings} porções` : undefined,
-    recipeCategory: recipe.category,
+    recipeCategory: recipe.category?.name || 'Ancestral',
     recipeCuisine: recipe.cuisine || 'Ancestral',
-    keywords: [recipe.category, recipe.cuisine, 'ancestral', 'low carb'].filter(Boolean).join(', '),
+    keywords: [recipe.category?.name, recipe.cuisine, 'ancestral', 'low carb'].filter(Boolean).join(', '),
     recipeIngredient: recipe.ingredients.sort((a, b) => a.order - b.order).map(ing => `${ing.amount} ${ing.name}`),
     recipeInstructions: recipe.instructions.sort((a, b) => a.step - b.step).map(inst => ({
       '@type': 'HowToStep',

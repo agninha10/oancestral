@@ -76,6 +76,7 @@ export default async function BlogPostPage({ params }: Props) {
                     name: true,
                 },
             },
+            category: true,
         },
     });
 
@@ -85,6 +86,14 @@ export default async function BlogPostPage({ params }: Props) {
 
     const publishDate = post.publishedAt || post.createdAt;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://oancestral.com.br';
+
+    // Fallback for color mapping based on simple hashing or default
+    const getCategoryColor = (catName?: string) => {
+        if (!catName) return categoryColors.OTHER;
+        // Try to map based on common terms if needed, otherwise default
+        // For now, simpler to just return a default or random from the set if we don't have exact mapping
+        return categoryColors.OTHER;
+    };
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -113,9 +122,11 @@ export default async function BlogPostPage({ params }: Props) {
                         <div className="absolute bottom-0 left-0 right-0 p-8">
                             <div className="container mx-auto max-w-4xl">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors[post.category]}`}>
-                                        {categoryLabels[post.category]}
-                                    </span>
+                                    {post.category && (
+                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors.OTHER}`}>
+                                            {post.category.name}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <h1 className="font-serif text-4xl font-bold md:text-5xl mb-4">
