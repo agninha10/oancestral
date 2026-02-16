@@ -12,13 +12,14 @@ export const revalidate = 0
 export const runtime = 'nodejs'
 
 interface VerifyPageProps {
-    searchParams?: {
+    searchParams?: Promise<{
         token?: string
-    }
+    }>
 }
 
 export default async function VerifyPage({ searchParams }: VerifyPageProps) {
-    const token = searchParams?.token
+    const params = await searchParams
+    const token = params?.token
 
     if (!token) {
         return <VerifyResult status="invalid" />

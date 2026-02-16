@@ -59,11 +59,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/dashboard/:path*',
-        '/perfil/:path*',
-        '/cursos/meus/:path*',
-        '/admin/:path*',
-        '/auth/login',
-        '/auth/register',
+        '/((?!_next/static|_next/image|public|favicon.ico|sitemap.xml|robots.txt).*)',
     ],
 }
