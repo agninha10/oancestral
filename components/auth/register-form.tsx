@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, CheckCircle2 } from 'lucide-react'
@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { registerSchema, type RegisterFormData } from '@/lib/validations/auth'
 import { FloatingLabelInput } from '@/components/ui/floating-label-input'
 import { PhoneInput } from '@/components/ui/phone-input'
-import { DatePicker } from '@/components/ui/date-picker'
+import { DateInput } from '@/components/ui/date-input'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 
@@ -26,7 +26,6 @@ export function RegisterForm() {
         formState: { errors },
         setValue,
         watch,
-        control,
     } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
         mode: 'onBlur',
@@ -111,18 +110,11 @@ export function RegisterForm() {
                 />
 
                 {/* Birthdate */}
-                <Controller
-                    control={control}
-                    name="birthdate"
-                    render={({ field }) => (
-                        <DatePicker
-                            label="Data de Nascimento"
-                            value={field.value}
-                            onChange={field.onChange}
-                            error={errors.birthdate?.message}
-                            disabled={isLoading}
-                        />
-                    )}
+                <DateInput
+                    label="Data de Nascimento"
+                    {...register('birthdate')}
+                    error={errors.birthdate?.message}
+                    disabled={isLoading}
                 />
 
                 {/* Password */}
