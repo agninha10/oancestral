@@ -166,3 +166,20 @@
   pointer-events: none;
   opacity: 0.6;
 }
+
+/* Teaser effect: blur items after 3rd ingredient and 2nd instruction */
+.paywall-blur-ingredients ul li:nth-child(n + 4) {
+  filter: blur(6px);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.55;
+  transition: all 0.3s ease;
+}
+
+.paywall-blur-ingredients ol li:nth-child(n + 2) {
+  filter: blur(6px);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.55;
+  transition: all 0.3s ease;
+}

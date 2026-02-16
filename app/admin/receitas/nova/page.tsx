@@ -481,6 +481,26 @@ export default function NovaReceitaPage() {
                     />
                 </div>
 
+                {/* Premium Section */}
+                <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-dashed border-orange-500/30 rounded-lg p-6 space-y-3">
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="isPremium"
+                                {...register('isPremium')}
+                                className="w-5 h-5 rounded border-orange-500 accent-orange-500 cursor-pointer"
+                            />
+                            <Label htmlFor="isPremium" className="cursor-pointer">
+                                <span className="text-lg font-semibold text-orange-600">🔒 Conteúdo Exclusivo para Membros</span>
+                            </Label>
+                        </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground ml-7">
+                        Se ativado, usuários gratuitos verão apenas o título e foto, mas ingredientes e modo de preparo estarão borrados até que façam uma assinatura premium.
+                    </p>
+                </div>
+
                 {/* Actions */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
@@ -505,18 +525,6 @@ export default function NovaReceitaPage() {
                             />
                             <Label htmlFor="featured" className="cursor-pointer">
                                 Destaque
-                            </Label>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                id="isPremium"
-                                {...register('isPremium')}
-                                className="rounded border-border accent-orange-500"
-                            />
-                            <Label htmlFor="isPremium" className="cursor-pointer font-semibold text-orange-500">
-                                🔒 Conteúdo Premium
                             </Label>
                         </div>
                     </div>
