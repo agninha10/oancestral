@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { HeroSection } from "@/components/home/hero-section";
 import { FeatureCard } from "@/components/home/feature-card";
 import { BlogCard } from "@/components/home/blog-card";
+import { RecipeCard } from "@/components/recipe/recipe-card";
 import {
   Utensils,
   Dumbbell,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
 const features = [
   {
@@ -53,37 +55,47 @@ const features = [
   },
 ];
 
-const blogPosts = [
-  {
-    title: "Guia Completo da Dieta Carnívora: Benefícios e Como Começar",
-    excerpt:
-      "Descubra como a dieta carnívora pode transformar sua saúde, aumentar energia e melhorar composição corporal através da alimentação ancestral.",
-    category: "Alimentação",
-    readTime: "8 min",
-    imageUrl: "/placeholder-blog-1.svg",
-    slug: "guia-completo-dieta-carnivora",
-  },
-  {
-    title: "Jejum Intermitente: Protocolos Práticos para Iniciantes",
-    excerpt:
-      "Aprenda os diferentes protocolos de jejum intermitente, seus benefícios científicos e como implementar de forma segura e eficaz.",
-    category: "Jejum",
-    readTime: "6 min",
-    imageUrl: "/placeholder-blog-2.svg",
-    slug: "jejum-intermitente-protocolos-praticos",
-  },
-  {
-    title: "Treino Funcional em Casa: 5 Exercícios Essenciais",
-    excerpt:
-      "Desenvolva força e mobilidade com exercícios funcionais que você pode fazer em qualquer lugar, sem equipamentos caros.",
-    category: "Treino",
-    readTime: "5 min",
-    imageUrl: "/placeholder-blog-3.svg",
-    slug: "treino-funcional-casa-exercicios",
-  },
-];
+export default async function HomePage() {
+  // Fetch latest recipes from database
+  const recipes = await prisma.recipe.findMany({
+    where: { published: true },
+    take: 3,
+    orderBy: { createdAt: 'desc' },
+    include: { category: true },
+  });
 
-export default function HomePage() {
+  // Fetch latest blog posts from database
+  const blogPosts = await prisma.blogPost.findMany({
+    where: { published: true },
+    take: 3,
+    orderBy: { publishedAt: 'desc' },
+    include: { category: true },
+  });
+
+  // Transform recipes data for RecipeCard component
+  const recipesForDisplay = recipes.map((recipe) => ({
+    id: recipe.id,
+    title: recipe.title,
+    slug: recipe.slug,
+    description: recipe.description,
+    coverImage: recipe.coverImage,
+    prepTime: recipe.prepTime,
+    cookTime: recipe.cookTime,
+    servings: recipe.servings,
+    difficulty: recipe.difficulty,
+    category: recipe.category?.slug || 'OTHER',
+  }));
+
+  // Transform blog posts data for BlogCard component
+  const blogPostsForDisplay = blogPosts.map((post) => ({
+    title: post.title,
+    excerpt: post.excerpt,
+    category: post.category?.name || 'Nutrição',
+    readTime: `${post.readTime} min`,
+    imageUrl: post.coverImage || '/placeholder-blog-1.svg',
+    slug: post.slug,
+  }));
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -116,41 +128,83 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Blog Highlights Section */}
-        <section className="border-t border-border/40 bg-muted/30">
-          <div className="container px-4 py-16 md:py-24">
-            <div className="mx-auto max-w-6xl space-y-12">
-              {/* Section Header */}
-              <div className="flex items-end justify-between">
-                <div className="space-y-4">
-                  <h2 className="font-serif text-3xl font-bold md:text-4xl">
-                    Últimos do Blog
-                  </h2>
-                  <p className="max-w-2xl text-muted-foreground md:text-lg">
-                    Conteúdos aprofundados sobre alimentação, treino e estilo de
-                    vida ancestral.
-                  </p>
+        {/* Featured Recipes Section */}
+        {recipesForDisplay.length > 0 && (
+          <section className="border-t border-border/40 bg-accent/5">
+            <div className="container px-4 py-16 md:py-24">
+              <div className="mx-auto max-w-6xl space-y-12">
+                {/* Section Header */}
+                <div className="flex items-end justify-between">
+                  <div className="space-y-4">
+                    <h2 className="font-serif text-3xl font-bold md:text-4xl">
+                      Nutrição Ancestral
+                    </h2>
+                    <p className="max-w-2xl text-muted-foreground md:text-lg">
+                      Receitas densas em nutrientes para alimentar seu corpo e mente.
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" className="hidden md:flex">
+                    <Link href="/receitas">Ver todas as receitas</Link>
+                  </Button>
                 </div>
-                <Button asChild variant="outline" className="hidden md:flex">
-                  <Link href="/blog">Ver todos os artigos</Link>
-                </Button>
-              </div>
 
-              {/* Blog Grid */}
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {blogPosts.map((post) => (
-                  <BlogCard key={post.slug} {...post} />
-                ))}
-              </div>
+                {/* Recipes Grid */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {recipesForDisplay.map((recipe) => (
+                    <RecipeCard
+                      key={recipe.id}
+                      recipe={recipe}
+                    />
+                  ))}
+                </div>
 
-              <div className="flex md:hidden">
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/blog">Ver todos os artigos</Link>
-                </Button>
+                <div className="flex md:hidden">
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/receitas">Ver todas as receitas</Link>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
+
+        {/* Blog Highlights Section */}
+        {blogPostsForDisplay.length > 0 && (
+          <section className="border-t border-border/40 bg-muted/30">
+            <div className="container px-4 py-16 md:py-24">
+              <div className="mx-auto max-w-6xl space-y-12">
+                {/* Section Header */}
+                <div className="flex items-end justify-between">
+                  <div className="space-y-4">
+                    <h2 className="font-serif text-3xl font-bold md:text-4xl">
+                      Últimos do Blog
+                    </h2>
+                    <p className="max-w-2xl text-muted-foreground md:text-lg">
+                      Conteúdos aprofundados sobre alimentação, treino e estilo de
+                      vida ancestral.
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" className="hidden md:flex">
+                    <Link href="/blog">Ver todos os artigos</Link>
+                  </Button>
+                </div>
+
+                {/* Blog Grid */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {blogPostsForDisplay.map((post) => (
+                    <BlogCard key={post.slug} {...post} />
+                  ))}
+                </div>
+
+                <div className="flex md:hidden">
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/blog">Ver todos os artigos</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* CTA Section */}
         <section className="container px-4 py-16 md:py-24">
