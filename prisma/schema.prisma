@@ -183,10 +183,9 @@ model Course {
   id          String  @id @default(cuid())
   title       String
   slug        String  @unique
-  description String
-  imageUrl    String?
-  price       Int     @default(0) // in cents
-  isFree      Boolean @default(false)
+  description String  @db.Text
+  coverImage  String?
+  isPremium   Boolean @default(true)
 
   // Metadata
   published Boolean  @default(false)
@@ -195,34 +194,51 @@ model Course {
   updatedAt DateTime @updatedAt
 
   // Relations
-  lessons     Lesson[]
+  modules     Module[]
   enrollments CourseEnrollment[]
 
   @@index([published])
   @@index([featured])
-  @@index([isFree])
+  @@index([isPremium])
   @@map("courses")
 }
 
-model Lesson {
-  id          String  @id @default(cuid())
-  courseId    String
-  course      Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
-  videoUrl    String?
-  content     String? @db.Text
-  duration    Int? // in seconds
-  order       Int
-  isFree      Boolean @default(false)
+model Module {
+  id       String @id @default(cuid())
+  title    String
+  order    Int
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  progress LessonProgress[]
+  lessons Lesson[]
 
   @@index([courseId])
+  @@map("modules")
+}
+
+model Lesson {
+  id       String  @id @default(cuid())
+  title    String
+  slug     String
+  videoUrl String? // YouTube/Vimeo/Panda embed URL
+  content  String? @db.Text // Rich text for summaries
+  order    Int
+  isFree   Boolean @default(false) // Free preview lessons
+  moduleId String
+  module   Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  progress UserProgress[]
+
+  @@unique([moduleId, slug])
+  @@index([moduleId])
   @@map("lessons")
 }
 
@@ -242,13 +258,13 @@ model CourseEnrollment {
   @@map("course_enrollments")
 }
 
-model LessonProgress {
-  id       String @id @default(cuid())
-  userId   String
-  lessonId String
-  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+model UserProgress {
+  id          String  @id @default(cuid())
+  userId      String
+  lessonId    String
+  lesson      Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  isCompleted Boolean @default(false)
 
-  completed   Boolean   @default(false)
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -256,7 +272,7 @@ model LessonProgress {
   @@unique([userId, lessonId])
   @@index([userId])
   @@index([lessonId])
-  @@map("lesson_progress")
+  @@map("user_progress")
 }
 
 // Newsletter Subscriber model for lead capture

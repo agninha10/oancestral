@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth/session'
+import { clearSession, getSession } from '@/lib/auth/session'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
@@ -28,9 +28,10 @@ export async function GET() {
         })
 
         if (!user) {
+            await clearSession()
             return NextResponse.json(
                 { error: 'Usuário não encontrado' },
-                { status: 404 }
+                { status: 401 }
             )
         }
 

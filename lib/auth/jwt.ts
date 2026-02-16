@@ -5,6 +5,7 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 export interface JWTPayload extends JoseJWTPayload {
     userId: string
     email: string
+    role: string
 }
 
 export async function signToken(payload: Omit<JWTPayload, keyof JoseJWTPayload>): Promise<string> {

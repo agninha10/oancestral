@@ -183,3 +183,16 @@
   opacity: 0.55;
   transition: all 0.3s ease;
 }
+
+/* Hide scrollbar for Netflix-style course carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari and Opera */
+}

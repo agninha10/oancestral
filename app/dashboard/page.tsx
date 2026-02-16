@@ -1,6 +1,10 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { getSession } from '@/lib/auth/session'
 import { prisma } from '@/lib/prisma'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { BookOpen, PlayCircle, TrendingUp, Award } from 'lucide-react'
 
 export default async function DashboardPage() {
     const session = await getSession()
@@ -15,91 +19,167 @@ export default async function DashboardPage() {
             id: true,
             name: true,
             email: true,
-            whatsapp: true,
-            birthdate: true,
-            emailVerified: true,
+            subscriptionStatus: true,
             createdAt: true,
+            enrollments: {
+                select: {
+                    courseId: true,
+                },
+            },
         },
     })
 
     if (!user) {
-        redirect('/auth/login')
+        redirect('/api/auth/logout?redirect=/auth/login')
     }
 
+    // Estatísticas do usuário
+    const enrolledCoursesCount = user.enrollments.length;
+    
+    const completedLessonsCount = await prisma.userProgress.count({
+        where: {
+            userId: session.userId,
+            isCompleted: true,
+        },
+    });
+
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <div className="space-y-8">
-                <div>
-                    <h1 className="text-4xl font-bold">
-                        Olá, {user.name}!
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Bem-vindo ao seu painel do O Ancestral
-                    </p>
-                </div>
+        <div className="p-6 lg:p-8 space-y-8">
+            {/* Welcome Section */}
+            <div>
+                <h1 className="text-3xl lg:text-4xl font-bold font-serif">
+                    Olá, {user.name.split(' ')[0]}!
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                    Bem-vindo de volta ao seu painel de aprendizado
+                </p>
+            </div>
 
-                <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-                    <h2 className="text-2xl font-semibold">Suas Informações</h2>
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Nome</p>
-                            <p className="font-medium">{user.name}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-muted-foreground">E-mail</p>
-                            <p className="font-medium">{user.email}</p>
-                        </div>
-                        {user.whatsapp && (
-                            <div>
-                                <p className="text-sm text-muted-foreground">WhatsApp</p>
-                                <p className="font-medium">{user.whatsapp}</p>
-                            </div>
-                        )}
-                        <div>
-                            <p className="text-sm text-muted-foreground">Data de Nascimento</p>
-                            <p className="font-medium">
-                                {new Date(user.birthdate).toLocaleDateString('pt-BR')}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-muted-foreground">Status da Conta</p>
-                            <p className="font-medium">
-                                {user.emailVerified ? (
-                                    <span className="text-green-600 dark:text-green-400">Verificado</span>
-                                ) : (
-                                    <span className="text-yellow-600 dark:text-yellow-400">Pendente</span>
-                                )}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-muted-foreground">Membro desde</p>
-                            <p className="font-medium">
-                                {new Date(user.createdAt).toLocaleDateString('pt-BR')}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            {/* Stats Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Cursos Matriculados
+                        </CardTitle>
+                        <PlayCircle className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{enrolledCoursesCount}</div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Total de cursos ativos
+                        </p>
+                    </CardContent>
+                </Card>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <div className="bg-card border border-border rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-2">Receitas</h3>
-                        <p className="text-muted-foreground text-sm">
-                            Suas receitas ancestrais favoritas
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Aulas Concluídas
+                        </CardTitle>
+                        <Award className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{completedLessonsCount}</div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Continue aprendendo!
                         </p>
-                    </div>
-                    <div className="bg-card border border-border rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-2">Cursos</h3>
-                        <p className="text-muted-foreground text-sm">
-                            Continue seu aprendizado
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Status
+                        </CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {user.subscriptionStatus === 'ACTIVE' ? 'Premium' : 'Gratuito'}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Seu plano atual
                         </p>
-                    </div>
-                    <div className="bg-card border border-border rounded-lg p-6">
-                        <h3 className="text-lg font-semibold mb-2">Progresso</h3>
-                        <p className="text-muted-foreground text-sm">
-                            Acompanhe sua jornada
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Membro desde
+                        </CardTitle>
+                        <BookOpen className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {new Date(user.createdAt).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Obrigado por estar conosco!
                         </p>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <Card className="border-2 border-primary/20 hover:border-primary/40 transition-colors">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <PlayCircle className="h-5 w-5 text-primary" />
+                            Meus Cursos
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Continue aprendendo de onde parou
+                        </p>
+                        <Button asChild className="w-full">
+                            <Link href="/dashboard/cursos">
+                                Acessar Cursos
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-2 border-accent/20 hover:border-accent/40 transition-colors">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5 text-accent" />
+                            Receitas
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Explore receitas ancestrais deliciosas
+                        </p>
+                        <Button asChild variant="outline" className="w-full">
+                            <Link href="/receitas">
+                                Ver Receitas
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-2 border-muted hover:border-muted-foreground/40 transition-colors">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5 text-muted-foreground" />
+                            Blog
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Artigos sobre saúde e bem-estar
+                        </p>
+                        <Button asChild variant="outline" className="w-full">
+                            <Link href="/blog">
+                                Ler Blog
+                            </Link>
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )
