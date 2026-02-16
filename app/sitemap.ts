@@ -1,45 +1,55 @@
 import { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = "https://oancestral.com.br";
-    const currentDate = new Date();
+import { prisma } from "@/lib/prisma";
 
-    return [
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://oancestral.com.br").replace(/\/$/, "");
+
+    const [posts, recipes] = await Promise.all([
+        prisma.post.findMany({
+            select: {
+                slug: true,
+                updatedAt: true,
+            },
+        }),
+        prisma.recipe.findMany({
+            select: {
+                slug: true,
+                updatedAt: true,
+            },
+        }),
+    ]);
+
+    const staticRoutes: MetadataRoute.Sitemap = [
         {
-            url: baseUrl,
-            lastModified: currentDate,
-            changeFrequency: "daily",
-            priority: 1,
-        },
-        {
-            url: `${baseUrl}/receitas`,
-            lastModified: currentDate,
-            changeFrequency: "daily",
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/cursos`,
-            lastModified: currentDate,
-            changeFrequency: "weekly",
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/blog`,
-            lastModified: currentDate,
-            changeFrequency: "daily",
-            priority: 0.8,
+            url: `${baseUrl}/`,
+            priority: 1.0,
         },
         {
             url: `${baseUrl}/sobre`,
-            lastModified: currentDate,
-            changeFrequency: "monthly",
-            priority: 0.5,
+            priority: 0.8,
         },
         {
-            url: `${baseUrl}/contato`,
-            lastModified: currentDate,
-            changeFrequency: "monthly",
-            priority: 0.5,
+            url: `${baseUrl}/blog`,
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/receitas`,
+            priority: 0.8,
         },
     ];
+
+    const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: post.updatedAt,
+        priority: 0.7,
+    }));
+
+    const recipeRoutes: MetadataRoute.Sitemap = recipes.map((recipe) => ({
+        url: `${baseUrl}/receitas/${recipe.slug}`,
+        lastModified: recipe.updatedAt,
+        priority: 0.7,
+    }));
+
+    return [...staticRoutes, ...blogRoutes, ...recipeRoutes];
 }
