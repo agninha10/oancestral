@@ -74,6 +74,18 @@ const normalizeContent = (rawContent: string) => {
         return trimmed;
     }
 
+    const decoded = trimmed
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, '&');
+
+    const hasDecodedHtml = /<\/?[a-z][\s\S]*>/i.test(decoded);
+    if (hasDecodedHtml) {
+        return decoded;
+    }
+
     const escaped = trimmed
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
