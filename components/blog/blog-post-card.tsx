@@ -53,9 +53,9 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
             className="group h-full"
         >
             <Link href={`/blog/${post.slug}`} className="block h-full">
-                <div className="h-full relative overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 hover:border-orange-500/50 transition-all duration-300 shadow-lg hover:shadow-orange-500/20 flex flex-col">
+                <div className="h-full relative overflow-hidden rounded-2xl bg-gradient-to-br from-background to-muted border border-border hover:border-orange-500/50 transition-all duration-300 shadow-lg hover:shadow-orange-500/20 flex flex-col">
                     {/* Image */}
-                    <div className="relative aspect-[16/9] overflow-hidden bg-neutral-800">
+                    <div className="relative aspect-[16/9] overflow-hidden bg-muted">
                         {post.coverImage ? (
                             <Image
                                 src={post.coverImage}
@@ -65,11 +65,11 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                         ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-orange-900/20 to-neutral-900" />
+                            <div className="w-full h-full bg-gradient-to-br from-orange-500/10 to-muted" />
                         )}
 
                         {/* Gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent opacity-60" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
 
                         {/* Category badge */}
                         <div className="absolute top-3 left-3">
@@ -82,12 +82,12 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
                     {/* Content */}
                     <div className="p-5 space-y-3 flex-1 flex flex-col">
                         {/* Title */}
-                        <h3 className="text-xl font-bold text-white line-clamp-2 group-hover:text-orange-400 transition-colors">
+                        <h3 className="text-xl font-bold text-foreground line-clamp-2 group-hover:text-orange-400 transition-colors">
                             {post.title}
                         </h3>
 
                         {/* Excerpt */}
-                        <p className="text-sm text-neutral-400 line-clamp-3 flex-1">
+                        <p className="text-sm text-muted-foreground line-clamp-3 flex-1">
                             {post.excerpt}
                         </p>
 

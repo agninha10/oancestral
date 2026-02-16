@@ -19,15 +19,15 @@ export function FilterBar({ options, activeFilter, onFilterChange, label = 'Filt
     return (
         <div className="w-full">
             {label && (
-                <p className="text-sm font-semibold text-neutral-400 mb-3 uppercase tracking-wider">
+                <p className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                     {label}
                 </p>
             )}
 
             <div className="relative">
                 {/* Gradient fade on edges for mobile scroll */}
-                <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-neutral-950 to-transparent z-10 pointer-events-none lg:hidden" />
-                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-neutral-950 to-transparent z-10 pointer-events-none lg:hidden" />
+                <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none lg:hidden" />
+                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none lg:hidden" />
 
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide lg:flex-wrap">
                     {options.map((option) => (
@@ -41,7 +41,7 @@ export function FilterBar({ options, activeFilter, onFilterChange, label = 'Filt
                 transition-all duration-200
                 ${activeFilter === option.value
                                     ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/30'
-                                    : 'bg-neutral-900 text-neutral-400 border border-neutral-800 hover:border-orange-500/50 hover:text-white'
+                                    : 'bg-muted text-muted-foreground border border-border hover:border-orange-500/50 hover:text-foreground'
                                 }
               `}
                         >

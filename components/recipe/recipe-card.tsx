@@ -53,9 +53,9 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             className="group"
         >
             <Link href={`/receitas/${recipe.slug}`} className="block">
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 hover:border-orange-500/50 transition-all duration-300 shadow-lg hover:shadow-orange-500/20">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-background to-muted border border-border hover:border-orange-500/50 transition-all duration-300 shadow-lg hover:shadow-orange-500/20">
                     {/* Image */}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-neutral-800">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                         {recipe.coverImage ? (
                             <Image
                                 src={recipe.coverImage}
@@ -66,12 +66,12 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                                <ChefHat className="w-16 h-16 text-neutral-700" />
+                                <ChefHat className="w-16 h-16 text-muted-foreground" />
                             </div>
                         )}
 
                         {/* Gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent opacity-60" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
 
                         {/* Difficulty badge */}
                         <div className="absolute top-3 right-3">
@@ -91,17 +91,17 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-xl font-bold text-white line-clamp-2 group-hover:text-orange-400 transition-colors">
+                        <h3 className="text-xl font-bold text-foreground line-clamp-2 group-hover:text-orange-400 transition-colors">
                             {recipe.title}
                         </h3>
 
                         {/* Description */}
-                        <p className="text-sm text-neutral-400 line-clamp-2">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
                             {recipe.description}
                         </p>
 
                         {/* Meta info */}
-                        <div className="flex items-center gap-4 pt-2 text-xs text-neutral-500">
+                        <div className="flex items-center gap-4 pt-2 text-xs text-muted-foreground">
                             {totalTime > 0 && (
                                 <div className="flex items-center gap-1.5">
                                     <Clock className="w-4 h-4" />

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Eye, Trash2, FileText, Star, Lock } from 'lucide-react';
+import { Plus, Eye, Trash2, FileText, Star, Lock, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -166,6 +166,11 @@ export default function BlogAdminPage() {
                                 </div>
 
                                 <div className="flex items-center gap-2">
+                                    <Link href={`/admin/blog/${post.id}/editar`}>
+                                        <Button variant="outline" size="sm">
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                    </Link>
                                     <Link href={`/blog/${post.slug}`} target="_blank">
                                         <Button variant="outline" size="sm">
                                             <Eye className="h-4 w-4" />
