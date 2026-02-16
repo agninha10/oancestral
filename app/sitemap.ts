@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://oancestral.com.br").replace(/\/$/, "");
 
     const [posts, recipes] = await Promise.all([
-        prisma.post.findMany({
+        prisma.blogPost.findMany({
             select: {
                 slug: true,
                 updatedAt: true,
