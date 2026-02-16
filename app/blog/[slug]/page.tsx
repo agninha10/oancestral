@@ -74,16 +74,25 @@ const normalizeContent = (rawContent: string) => {
         return trimmed;
     }
 
-    const decoded = trimmed
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&amp;/g, '&');
+    const decodeHtml = (value: string) =>
+        value
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&amp;/g, '&');
 
-    const hasDecodedHtml = /<\/?[a-z][\s\S]*>/i.test(decoded);
+    const decodedOnce = decodeHtml(trimmed);
+    const decodedTwice = decodeHtml(decodedOnce);
+
+    const hasDecodedHtml = /<\/?[a-z][\s\S]*>/i.test(decodedOnce);
     if (hasDecodedHtml) {
-        return decoded;
+        return decodedOnce;
+    }
+
+    const hasDoubleDecodedHtml = /<\/?[a-z][\s\S]*>/i.test(decodedTwice);
+    if (hasDoubleDecodedHtml) {
+        return decodedTwice;
     }
 
     const escaped = trimmed
