@@ -75,7 +75,7 @@ async function main() {
             password: adminPassword,
             role: 'ADMIN',
             birthdate: new Date('1990-01-01'),
-            emailVerified: true,
+            emailVerified: new Date(),
         },
     });
 

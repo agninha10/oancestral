@@ -1,4 +1,6 @@
 import crypto from 'crypto'
+import { Resend } from 'resend'
+import VerifyEmail from '@/emails/VerifyEmail'
 
 export function generateToken(): string {
     return crypto.randomBytes(32).toString('hex')
@@ -8,15 +10,20 @@ export async function sendVerificationEmail(
     email: string,
     token: string
 ): Promise<void> {
-    // TODO: Implement with Resend or Nodemailer
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify?token=${token}`
+    const apiKey = process.env.RESEND_API_KEY
 
-    console.log('📧 Verification Email')
-    console.log('To:', email)
-    console.log('Link:', verificationUrl)
-    console.log('---')
+    if (!apiKey) {
+        throw new Error('RESEND_API_KEY não configurada')
+    }
 
-    // For now, just log. In production, send actual email
+    const resend = new Resend(apiKey)
+
+    await resend.emails.send({
+        from: 'O Ancestral <onboarding@resend.dev>',
+        to: email,
+        subject: 'Confirme seu e-mail no O Ancestral',
+        react: VerifyEmail({ token }),
+    })
 }
 
 export async function sendPasswordResetEmail(

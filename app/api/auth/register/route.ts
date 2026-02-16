@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
 
         // Generate verification token
         const verificationToken = generateToken()
+        const verificationTokenExpires = new Date(
+            Date.now() + 1000 * 60 * 60 * 24
+        )
 
         // Normalize phone (remove formatting)
         const normalizedWhatsapp = whatsapp ? whatsapp.replace(/\D/g, '') : null
@@ -49,6 +52,7 @@ export async function POST(request: NextRequest) {
                 whatsapp: normalizedWhatsapp,
                 birthdate: new Date(birthdate), // Already ISO from Zod transform
                 verificationToken,
+                verificationTokenExpires,
             },
             select: {
                 id: true,

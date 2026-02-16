@@ -37,7 +37,7 @@ async function main() {
                 password: '$2b$10$EpRnTzVlqHNP0.fKbXTn3.E9Geb/1ZNSInv8uYEf.K.j.',
                 birthdate: new Date(),
                 role: Role.ADMIN,
-                emailVerified: true
+                emailVerified: new Date()
             }
         })
     }
