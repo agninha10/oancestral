@@ -69,11 +69,6 @@ const normalizeContent = (rawContent: string) => {
         return '';
     }
 
-    const hasHtml = /<\/?[a-z][\s\S]*>/i.test(trimmed);
-    if (hasHtml) {
-        return trimmed;
-    }
-
     const decodeHtml = (value: string) =>
         value
             .replace(/&lt;/g, '<')
@@ -82,19 +77,21 @@ const normalizeContent = (rawContent: string) => {
             .replace(/&#39;/g, "'")
             .replace(/&amp;/g, '&');
 
-    const decodedOnce = decodeHtml(trimmed);
-    const decodedTwice = decodeHtml(decodedOnce);
+    // Check for HTML tags (either raw or encoded)
+    const hasHtml = /<\/?[a-z][\s\S]*>/i.test(trimmed);
+    const hasEncodedHtml = /&lt;|&gt;/.test(trimmed);
 
-    const hasDecodedHtml = /<\/?[a-z][\s\S]*>/i.test(decodedOnce);
-    if (hasDecodedHtml) {
-        return decodedOnce;
+    // If we have encoded HTML, decode it
+    if (hasEncodedHtml && !hasHtml) {
+        return decodeHtml(trimmed);
     }
 
-    const hasDoubleDecodedHtml = /<\/?[a-z][\s\S]*>/i.test(decodedTwice);
-    if (hasDoubleDecodedHtml) {
-        return decodedTwice;
+    // If we have raw HTML, return as-is
+    if (hasHtml) {
+        return trimmed;
     }
 
+    // Plain text - wrap in paragraphs
     const escaped = trimmed
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
