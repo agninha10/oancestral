@@ -64,39 +64,37 @@ const categoryColors = {
 };
 
 const normalizeContent = (rawContent: string) => {
-    const trimmed = rawContent.trim();
-    if (!trimmed) {
+    let content = rawContent.trim();
+    
+    if (!content) {
         return '';
     }
-
-    const decodeHtml = (value: string) =>
-        value
+    
+    // Recursively decode HTML entities until no more are found
+    // This handles double-encoded content
+    while (/&lt;|&gt;/.test(content)) {
+        const decoded = content
             .replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>')
             .replace(/&quot;/g, '"')
             .replace(/&#39;/g, "'")
             .replace(/&amp;/g, '&');
-
-    // Check for HTML tags (either raw or encoded)
-    const hasHtml = /<\/?[a-z][\s\S]*>/i.test(trimmed);
-    const hasEncodedHtml = /&lt;|&gt;/.test(trimmed);
-
-    // If we have encoded HTML, decode it
-    if (hasEncodedHtml && !hasHtml) {
-        return decodeHtml(trimmed);
+        
+        if (decoded === content) break; // No changes, exit loop
+        content = decoded;
     }
-
-    // If we have raw HTML, return as-is
-    if (hasHtml) {
-        return trimmed;
+    
+    // If it looks like HTML, return as-is
+    if (/<\/?[a-z][\s\S]*>/i.test(content)) {
+        return content;
     }
-
+    
     // Plain text - wrap in paragraphs
-    const escaped = trimmed
+    const escaped = content
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
-
+    
     return escaped
         .split(/\n\s*\n/)
         .map((paragraph) => `<p>${paragraph.replace(/\n/g, '<br />')}</p>`)
