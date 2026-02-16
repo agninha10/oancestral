@@ -19,7 +19,7 @@ export async function sendVerificationEmail(
     const resend = new Resend(apiKey)
 
     await resend.emails.send({
-        from: 'O Ancestral <onboarding@resend.dev>',
+        from: 'O Ancestral <no-reply@oancestral.com.br>',
         to: email,
         subject: 'Confirme seu e-mail no O Ancestral',
         react: VerifyEmail({ token }),
