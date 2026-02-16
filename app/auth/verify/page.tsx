@@ -7,6 +7,10 @@ export const metadata: Metadata = {
     description: 'Confirme seu cadastro para ativar sua conta',
 }
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const runtime = 'nodejs'
+
 interface VerifyPageProps {
     searchParams?: {
         token?: string
