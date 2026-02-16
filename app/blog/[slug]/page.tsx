@@ -63,6 +63,28 @@ const categoryColors = {
     OTHER: 'bg-neutral-500/20 text-neutral-400 border-neutral-500/30',
 };
 
+const normalizeContent = (rawContent: string) => {
+    const trimmed = rawContent.trim();
+    if (!trimmed) {
+        return '';
+    }
+
+    const hasHtml = /<\/?[a-z][\s\S]*>/i.test(trimmed);
+    if (hasHtml) {
+        return trimmed;
+    }
+
+    const escaped = trimmed
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    return escaped
+        .split(/\n\s*\n/)
+        .map((paragraph) => `<p>${paragraph.replace(/\n/g, '<br />')}</p>`)
+        .join('');
+};
+
 export default async function BlogPostPage({ params }: Props) {
     const { slug } = await params;
     const post = await prisma.blogPost.findUnique({
@@ -161,7 +183,7 @@ export default async function BlogPostPage({ params }: Props) {
                         <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
                             <div
                                 className="leading-relaxed"
-                                dangerouslySetInnerHTML={{ __html: post.content }}
+                                dangerouslySetInnerHTML={{ __html: normalizeContent(post.content) }}
                             />
                         </div>
 
