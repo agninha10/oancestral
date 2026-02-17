@@ -13,6 +13,7 @@ import {
     Mail,
     Users,
     GraduationCap,
+    DollarSign,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ import { cn } from '@/lib/utils';
 
 const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Vendas', href: '/admin/vendas', icon: DollarSign },
     { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
     { name: 'Receitas', href: '/admin/receitas', icon: ChefHat },
     { name: 'Cursos', href: '/admin/cursos', icon: GraduationCap },

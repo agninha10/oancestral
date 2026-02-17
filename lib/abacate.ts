@@ -1,64 +1,103 @@
-import axios from 'axios';
+import AbacatePay from "abacatepay-nodejs-sdk";
 
-const ABACATE_API_URL = 'https://api.abacatepay.com/v1';
+// Inicializa o SDK com a chave do .env
+export const abacate = AbacatePay(process.env.ABACATE_API_KEY!);
 
-export const abacate = axios.create({
-    baseURL: ABACATE_API_URL,
-    headers: {
-        'Authorization': `Bearer ${process.env.ABACATE_API_KEY}`,
-        'Content-Type': 'application/json',
-    },
-});
-
-export async function createCustomer(name: string, email: string, taxId?: string) {
-    try {
-        const response = await abacate.post('/customer/create', {
-            name,
-            email,
-            taxId, // Optional CPF/CNPJ
-        });
-        return response.data.data.id;
-    } catch (error: any) {
-        console.error('Error creating Abacate customer:', error.response?.data || error.message);
-        throw new Error('Falha ao criar cliente no AbacatePay');
+/**
+ * Função helper para criar o cliente e a cobrança em um passo só (Vibe Code)
+ */
+export async function createSubscription({
+  email,
+  name,
+  taxId, // CPF/CNPJ (Opcional, mas bom para Pix)
+  cellphone, // WhatsApp para notificações
+  frequency = "monthly", // Plano: monthly ou yearly (minúsculos)
+}: {
+  email: string;
+  name: string;
+  taxId?: string;
+  cellphone?: string;
+  frequency?: string;
+}) {
+  try {
+    // Limpar o número de telefone - remover +55 e formatar
+    let formattedCellphone = cellphone;
+    if (cellphone) {
+      // Remover +55 do início se existir
+      formattedCellphone = cellphone.replace(/^\+55\s*/, '');
+      // Formatar para (XX) XXXXX-XXXX se ainda não estiver formatado
+      const digitsOnly = formattedCellphone.replace(/\D/g, '');
+      if (digitsOnly.length === 11) {
+        formattedCellphone = `(${digitsOnly.slice(0, 2)}) ${digitsOnly.slice(2, 7)}-${digitsOnly.slice(7)}`;
+      }
+      console.log("[ABACATE] Phone formatting: ", cellphone, "→", formattedCellphone);
     }
-}
 
-interface CreateSubscriptionParams {
-    customerId: string;
-    priceId?: string; // Optional if we hardcode amount/frequency here or if required by API
-    // According to prompt: "Frequency: MONTHLY, Methods: ['PIX', 'CREDIT_CARD']"
-    // Assuming standard "Billing" creation flow if specific subscription endpoint exists or via billings
-}
+    // Definir preço e produto baseado no plano escolhido
+    const planConfig = {
+      monthly: {
+        externalId: "plano-ancestral-mensal",
+        name: "Assinatura Mensal - Clã Ancestral",
+        price: 2900, // R$ 29,00 em centavos
+      },
+      yearly: {
+        externalId: "plano-ancestral-anual",
+        name: "Assinatura Anual - Clã Ancestral",
+        price: 19000, // R$ 190,00 em centavos (economiza 45%)
+      },
+    };
 
-export async function createSubscription(customerId: string) {
-    try {
-        // Based on prompt: "Fluxo: Criar Cliente -> Criar Billing (Cobrança) -> Redirecionar Usuário"
-        // And "Frequency: MONTHLY" suggests a subscription model.
-        // If AbacatePay uses "Billing" for everything, we might need to set frequency there.
-        // Assuming /billing/create or similar. 
-        // Docs usually have: frequency, methods, returnUrl, completionUrl.
+    const plan = planConfig[frequency as keyof typeof planConfig];
 
-        const response = await abacate.post('/billing/create', {
-            customerId,
-            frequency: 'MONTHLY',
-            methods: ['PIX', 'CREDIT_CARD'],
-            products: [
-                {
-                    externalId: 'plano-ancestral-mensal',
-                    name: 'Assinatura O Ancestral',
-                    description: 'Acesso completo a receitas e conteúdos exclusivos.',
-                    quantity: 1,
-                    price: 2990, // R$ 29,90 in cents
-                }
-            ],
-            returnUrl: 'https://oancestral.com.br/sucesso',
-            completionUrl: 'https://oancestral.com.br/sucesso',
-        });
+    // Mapear frequência para o formato correto da API Abacate
+    const apiFrequency = frequency === "monthly" ? "MONTHLY" : "ONE_TIME";
 
-        return response.data.data;
-    } catch (error: any) {
-        console.error('Error creating Abacate subscription:', error.response?.data || error.message);
-        throw new Error('Falha ao criar assinatura no AbacatePay');
+    const billingData = {
+      frequency: apiFrequency, // MONTHLY para mensal, ONE_TIME para anual
+      methods: ["PIX", "CARD"], // Aceita PIX e Cartão (CARD em beta)
+      products: [
+        {
+          externalId: plan.externalId,
+          name: plan.name,
+          quantity: 1,
+          price: plan.price,
+        },
+      ],
+      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/sucesso`,
+      completionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/sucesso`,
+      customer: {
+        name,
+        email,
+        ...(formattedCellphone && { cellphone: formattedCellphone }),
+        ...(taxId && { taxId }),
+      },
+    };
+
+    console.log("[ABACATE] Creating billing with:", billingData);
+    console.log("[ABACATE] API Key:", process.env.ABACATE_API_KEY?.substring(0, 15) + "...");
+
+    // Fazer um teste direto da API para debug
+    const testResponse = await fetch("https://api.abacatepay.com/v1/billing/create", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.ABACATE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(billingData),
+    });
+
+    const testData = await testResponse.json();
+    console.log("[ABACATE] Direct API call - Status:", testResponse.status);
+    console.log("[ABACATE] Direct API call - Response:", JSON.stringify(testData, null, 2));
+
+    if (!testResponse.ok) {
+      throw new Error(`API Error (${testResponse.status}): ${JSON.stringify(testData)}`);
     }
+
+    // Retornar apenas o data, que contém a URL e outras informações
+    return testData.data;
+  } catch (error) {
+    console.error("Erro ao criar assinatura Abacate:", error);
+    throw error;
+  }
 }

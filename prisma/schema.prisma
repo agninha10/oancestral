@@ -71,6 +71,7 @@ model User {
   recipes     Recipe[]
   blogPosts   BlogPost[]
   enrollments CourseEnrollment[]
+  transactions Transaction[]
 
   @@map("users")
 }
@@ -296,4 +297,25 @@ enum NewsletterSource {
   INLINE_CTA
   HOMEPAGE
   OTHER
+}
+
+// Transaction model for payment tracking
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  billingId   String   @unique // ID retornado pelo AbacatePay
+  amount      Int      // Valor em centavos
+  frequency   String   // 'monthly' ou 'yearly'
+  status      String   // 'PENDING', 'PAID', 'FAILED', 'CANCELED'
+  paymentUrl  String?  // Link do pagamento
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([billingId])
+  @@map("transactions")
 }
