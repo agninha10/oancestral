@@ -59,7 +59,10 @@ export async function POST(request: NextRequest) {
         // Set session cookie
         await setSession(token)
 
-        return NextResponse.json({
+        console.log('[LOGIN] User logged in successfully:', user.email)
+        console.log('[LOGIN] Cookie should be set for userId:', user.id)
+
+        const response = NextResponse.json({
             message: 'Login realizado com sucesso',
             user: {
                 id: user.id,
@@ -70,6 +73,12 @@ export async function POST(request: NextRequest) {
             },
             token, // For mobile app usage
         })
+
+        // Adicionar headers para evitar cache
+        response.headers.set('Cache-Control', 'no-store, must-revalidate')
+        response.headers.set('Pragma', 'no-cache')
+        
+        return response
     } catch (error) {
         console.error('Login error:', error)
         return NextResponse.json(

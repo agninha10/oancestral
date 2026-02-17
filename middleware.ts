@@ -23,8 +23,19 @@ export async function middleware(request: NextRequest) {
             isAuthenticated = true
             userRole = payload.role as string
         } catch (error) {
-            console.warn('[AUTH] Token verification failed:', error instanceof Error ? error.message : 'Unknown error')
-            // Invalid token - clear it
+            // Token inválido - se estiver em rota protegida, redirecionar para login
+            if (isProtectedPath) {
+                console.warn('[MIDDLEWARE] Invalid token in protected path, redirecting to login')
+                const url = request.nextUrl.clone()
+                url.pathname = '/auth/login'
+                url.searchParams.set('redirect', request.nextUrl.pathname)
+                const response = NextResponse.redirect(url)
+                response.cookies.delete('auth-token')
+                return response
+            }
+            
+            // Em outras rotas, apenas deletar o cookie inválido
+            console.warn('[MIDDLEWARE] Token verification failed:', error instanceof Error ? error.message : 'Unknown error')
             const response = NextResponse.next()
             response.cookies.delete('auth-token')
             return response

@@ -34,6 +34,7 @@ export function LoginForm() {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Importante para cookies
                 body: JSON.stringify(data),
             })
 
@@ -41,15 +42,20 @@ export function LoginForm() {
 
             if (!response.ok) {
                 setServerError(result.error || 'Erro ao fazer login')
+                setIsLoading(false)
                 return
             }
 
-            // Redirect to dashboard
-            router.push('/dashboard')
-            router.refresh()
+            console.log('[LOGIN_FORM] Login successful, redirecting...')
+            
+            // Aguardar um pouco para garantir que o cookie foi setado
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            // Redirecionar para dashboard com hard reload para garantir que o cookie seja lido
+            window.location.href = '/dashboard'
         } catch (error) {
+            console.error('[LOGIN_FORM] Error:', error)
             setServerError('Erro ao fazer login. Tente novamente.')
-        } finally {
             setIsLoading(false)
         }
     }
