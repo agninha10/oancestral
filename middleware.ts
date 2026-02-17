@@ -6,6 +6,14 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value
+    const pathname = request.nextUrl.pathname
+    
+    // Log apenas para rotas importantes
+    const shouldLog = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/auth')
+    
+    if (shouldLog) {
+        console.log(`[MIDDLEWARE] ${pathname} - Token present: ${!!token}`)
+    }
 
     const protectedPaths = ['/dashboard', '/perfil', '/cursos/meus', '/admin']
     const isProtectedPath = protectedPaths.some((path) =>
@@ -22,10 +30,14 @@ export async function middleware(request: NextRequest) {
             const { payload } = await jwtVerify(token, secret)
             isAuthenticated = true
             userRole = payload.role as string
+            
+            if (shouldLog) {
+                console.log(`[MIDDLEWARE] ${pathname} - Token valid, userId: ${payload.userId}, role: ${userRole}`)
+            }
         } catch (error) {
             // Token inválido - se estiver em rota protegida, redirecionar para login
             if (isProtectedPath) {
-                console.warn('[MIDDLEWARE] Invalid token in protected path, redirecting to login')
+                console.warn(`[MIDDLEWARE] ${pathname} - Invalid token in protected path, redirecting to login`)
                 const url = request.nextUrl.clone()
                 url.pathname = '/auth/login'
                 url.searchParams.set('redirect', request.nextUrl.pathname)
@@ -44,6 +56,7 @@ export async function middleware(request: NextRequest) {
 
     // Redirect to login if accessing protected route without auth
     if (isProtectedPath && !isAuthenticated) {
+        console.log(`[MIDDLEWARE] ${pathname} - No valid auth, redirecting to login (had token: ${!!token})`)
         const url = request.nextUrl.clone()
         url.pathname = '/auth/login'
         url.searchParams.set('redirect', request.nextUrl.pathname)

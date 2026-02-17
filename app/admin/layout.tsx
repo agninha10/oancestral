@@ -1,6 +1,10 @@
 import { AdminSidebar } from '@/components/admin/sidebar';
 import { AdminClient } from '@/components/admin/admin-client';
 
+// Força renderização dinâmica para sempre verificar autenticação
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function AdminLayout({
     children,
 }: {

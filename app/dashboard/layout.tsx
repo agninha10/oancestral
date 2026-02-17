@@ -5,6 +5,10 @@ import { DashboardSidebar } from '@/components/dashboard/sidebar';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
 
+// Força renderização dinâmica para sempre verificar autenticação
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DashboardLayout({
     children,
 }: {

@@ -26,17 +26,27 @@ export async function getSession(): Promise<JWTPayload | null> {
 
 export async function setSession(token: string): Promise<void> {
     const cookieStore = await cookies()
+    
+    const isProduction = process.env.NODE_ENV === 'production'
 
     cookieStore.set(COOKIE_NAME, token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: isProduction,
         sameSite: 'lax',
         maxAge: COOKIE_MAX_AGE,
         path: '/',
         // Não definir domain - deixa o cookie válido apenas para o hostname atual
     })
     
-    console.log('[SESSION] Cookie set successfully. httpOnly=true, secure=' + (process.env.NODE_ENV === 'production') + ', maxAge=' + COOKIE_MAX_AGE)
+    console.log('[SESSION] Cookie set successfully:', {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'lax',
+        maxAge: COOKIE_MAX_AGE,
+        path: '/',
+        nodeEnv: process.env.NODE_ENV,
+        tokenLength: token.length
+    })
 }
 
 export async function clearSession(): Promise<void> {

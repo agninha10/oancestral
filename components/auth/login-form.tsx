@@ -48,8 +48,14 @@ export function LoginForm() {
 
             console.log('[LOGIN_FORM] Login successful, redirecting...')
             
+            // Debug: verificar se o cookie foi setado
+            console.log('[LOGIN_FORM] Cookies:', document.cookie)
+            
             // Aguardar um pouco para garantir que o cookie foi setado
             await new Promise(resolve => setTimeout(resolve, 500))
+            
+            // Debug: verificar novamente após aguardar
+            console.log('[LOGIN_FORM] Cookies after wait:', document.cookie)
             
             // Redirecionar para dashboard com hard reload para garantir que o cookie seja lido
             window.location.href = '/dashboard'
