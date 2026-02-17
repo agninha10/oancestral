@@ -7,10 +7,15 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value
     const pathname = request.nextUrl.pathname
-    
+
+    // Ignorar requests RSC (React Server Components) e prefetch
+    if (request.headers.get('next-router-prefetch') || request.headers.get('rsc')) {
+        return NextResponse.next()
+    }
+
     // Log apenas para rotas importantes
     const shouldLog = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/auth')
-    
+
     if (shouldLog) {
         console.log(`[MIDDLEWARE] ${pathname} - Token present: ${!!token}`)
     }
@@ -30,27 +35,26 @@ export async function middleware(request: NextRequest) {
             const { payload } = await jwtVerify(token, secret)
             isAuthenticated = true
             userRole = payload.role as string
-            
+
             if (shouldLog) {
                 console.log(`[MIDDLEWARE] ${pathname} - Token valid, userId: ${payload.userId}, role: ${userRole}`)
             }
         } catch (error) {
-            // Token inválido - se estiver em rota protegida, redirecionar para login
+            console.warn(`[MIDDLEWARE] ${pathname} - Token invalid: ${error instanceof Error ? error.message : 'Unknown'}`)
+
             if (isProtectedPath) {
-                console.warn(`[MIDDLEWARE] ${pathname} - Invalid token in protected path, redirecting to login`)
+                // Rota protegida com token inválido → redireciona para login e limpa cookie
                 const url = request.nextUrl.clone()
                 url.pathname = '/auth/login'
-                url.searchParams.set('redirect', request.nextUrl.pathname)
+                url.searchParams.set('redirect', pathname)
                 const response = NextResponse.redirect(url)
                 response.cookies.delete('auth-token')
                 return response
             }
-            
-            // Em outras rotas, apenas deletar o cookie inválido
-            console.warn('[MIDDLEWARE] Token verification failed:', error instanceof Error ? error.message : 'Unknown error')
-            const response = NextResponse.next()
-            response.cookies.delete('auth-token')
-            return response
+
+            // Rota pública com token inválido → continua sem deletar cookie
+            // (evita race conditions onde requests paralelas limpam o cookie)
+            return NextResponse.next()
         }
     }
 
@@ -59,7 +63,7 @@ export async function middleware(request: NextRequest) {
         console.log(`[MIDDLEWARE] ${pathname} - No valid auth, redirecting to login (had token: ${!!token})`)
         const url = request.nextUrl.clone()
         url.pathname = '/auth/login'
-        url.searchParams.set('redirect', request.nextUrl.pathname)
+        url.searchParams.set('redirect', pathname)
         return NextResponse.redirect(url)
     }
 
@@ -83,8 +87,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const response = NextResponse.next()
-    
-    // Add cache control headers for protected routes
+
     if (isProtectedPath) {
         response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
         response.headers.set('Pragma', 'no-cache')
@@ -96,6 +99,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|public|favicon.ico|sitemap.xml|robots.txt).*)',
+        '/((?!_next/static|_next/image|public|favicon.ico|sitemap.xml|robots.txt|_rsc).*)',
     ],
 }
+
