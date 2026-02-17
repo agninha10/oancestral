@@ -22,8 +22,12 @@ export async function middleware(request: NextRequest) {
             const { payload } = await jwtVerify(token, secret)
             isAuthenticated = true
             userRole = payload.role as string
-        } catch {
-            // Invalid token
+        } catch (error) {
+            console.warn('[AUTH] Token verification failed:', error instanceof Error ? error.message : 'Unknown error')
+            // Invalid token - clear it
+            const response = NextResponse.next()
+            response.cookies.delete('auth-token')
+            return response
         }
     }
 
@@ -54,7 +58,16 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(url)
     }
 
-    return NextResponse.next()
+    const response = NextResponse.next()
+    
+    // Add cache control headers for protected routes
+    if (isProtectedPath) {
+        response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+        response.headers.set('Pragma', 'no-cache')
+        response.headers.set('Expires', '0')
+    }
+
+    return response
 }
 
 export const config = {

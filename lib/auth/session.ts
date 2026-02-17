@@ -24,10 +24,11 @@ export async function setSession(token: string): Promise<void> {
 
     cookieStore.set(COOKIE_NAME, token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'lax',
         maxAge: COOKIE_MAX_AGE,
         path: '/',
+        domain: process.env.NODE_ENV === 'production' ? '.oancestral.com.br' : undefined,
     })
 }
 
