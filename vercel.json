@@ -1,4 +1,5 @@
 {
     "installCommand": "npm install",
+    "buildCommand": "prisma generate && prisma migrate deploy && npm run db:seed:all && next build",
     "framework": "nextjs"
 }
