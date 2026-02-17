@@ -48,10 +48,3 @@ export default async function DashboardLayout({
         </DashboardClient>
     );
 }
-                <main className="flex-1 bg-background">
-                    {children}
-                </main>
-            </div>
-        </div>
-    );
-}
