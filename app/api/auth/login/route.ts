@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { loginSchema } from '@/lib/validations/auth'
 import { verifyPassword } from '@/lib/auth/password'
 import { signToken } from '@/lib/auth/jwt'
-import { setSession } from '@/lib/auth/session'
+import { setSessionOnResponse } from '@/lib/auth/session'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
 
-        // Validate input
         const result = loginSchema.safeParse(body)
         if (!result.success) {
             return NextResponse.json(
@@ -20,7 +19,6 @@ export async function POST(request: NextRequest) {
 
         const { email, password } = result.data
 
-        // Find user
         const user = await prisma.user.findUnique({
             where: { email },
             select: {
@@ -40,7 +38,6 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Verify password
         const isValidPassword = await verifyPassword(password, user.password)
         if (!isValidPassword) {
             return NextResponse.json(
@@ -49,19 +46,15 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        // Generate JWT token
         const token = await signToken({
             userId: user.id,
             email: user.email,
             role: user.role,
         })
 
-        // Set session cookie
-        await setSession(token)
+        console.log('[LOGIN] Generating token for:', user.email, 'role:', user.role)
 
-        console.log('[LOGIN] User logged in successfully:', user.email)
-        console.log('[LOGIN] Cookie should be set for userId:', user.id)
-
+        // Criar a response e setar o cookie DIRETAMENTE nela
         const response = NextResponse.json({
             message: 'Login realizado com sucesso',
             user: {
@@ -71,12 +64,14 @@ export async function POST(request: NextRequest) {
                 emailVerified: user.emailVerified,
                 role: user.role,
             },
-            token, // For mobile app usage
         })
 
-        // Adicionar headers para evitar cache
+        setSessionOnResponse(response, token)
+
         response.headers.set('Cache-Control', 'no-store, must-revalidate')
         response.headers.set('Pragma', 'no-cache')
+
+        console.log('[LOGIN] Response ready with cookie for userId:', user.id)
         
         return response
     } catch (error) {
