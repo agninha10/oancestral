@@ -6,9 +6,16 @@ export async function GET(request: NextRequest) {
         await clearSession()
 
         const url = new URL(request.url)
-        const redirectTo = url.searchParams.get('redirect') || '/'
+        const redirectTo = url.searchParams.get('redirect') || '/auth/login'
 
-        return NextResponse.redirect(new URL(redirectTo, request.url))
+        const response = NextResponse.redirect(new URL(redirectTo, request.url))
+        
+        // Adicionar headers para desabilitar cache
+        response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+        response.headers.set('Pragma', 'no-cache')
+        response.headers.set('Expires', '0')
+        
+        return response
     } catch (error) {
         console.error('Logout error:', error)
         return NextResponse.json(
@@ -18,13 +25,20 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
     try {
         await clearSession()
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             message: 'Logout realizado com sucesso',
         })
+        
+        // Adicionar headers para desabilitar cache
+        response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
+        response.headers.set('Pragma', 'no-cache')
+        response.headers.set('Expires', '0')
+        
+        return response
     } catch (error) {
         console.error('Logout error:', error)
         return NextResponse.json(
@@ -33,3 +47,4 @@ export async function POST() {
         )
     }
 }
+

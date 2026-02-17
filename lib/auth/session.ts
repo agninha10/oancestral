@@ -34,7 +34,16 @@ export async function setSession(token: string): Promise<void> {
 
 export async function clearSession(): Promise<void> {
     const cookieStore = await cookies()
-    cookieStore.delete(COOKIE_NAME)
+    
+    // Deletar o cookie de forma mais robusta
+    cookieStore.set(COOKIE_NAME, '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: 0, // Expira imediatamente
+        path: '/',
+        domain: process.env.NODE_ENV === 'production' ? '.oancestral.com.br' : undefined,
+    })
 }
 
 export async function getUserId(): Promise<string | null> {

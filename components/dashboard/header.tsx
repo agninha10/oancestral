@@ -11,8 +11,8 @@ import {
     PlayCircle,
     BookOpen,
     User,
-    LogOut,
 } from 'lucide-react';
+import { LogoutButton } from '@/components/auth/logout-button';
 
 interface User {
     id: string;
@@ -143,13 +143,11 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                                                 </span>
                                             </div>
                                         )}
-                                        <Link
-                                            href="/api/auth/logout"
-                                            className="flex items-center justify-center gap-2 rounded-md border border-border py-2 px-3 text-sm font-medium hover:bg-muted transition-colors"
-                                        >
-                                            <LogOut className="h-4 w-4" />
-                                            Sair
-                                        </Link>
+                                        <LogoutButton
+                                            variant="outline"
+                                            size="default"
+                                            className="w-full justify-center"
+                                        />
                                     </div>
                                 </div>
                             </div>

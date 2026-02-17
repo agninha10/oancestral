@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LogOut, User, Settings, Home } from 'lucide-react';
+import { User, Settings, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -13,6 +13,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LogoutButton } from '@/components/auth/logout-button';
 
 interface UserData {
     id: string;
@@ -45,16 +46,6 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
             console.error('Auth check failed:', error);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleLogout = async () => {
-        try {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            setUser(null);
-            window.location.href = '/';
-        } catch (error) {
-            console.error('Logout failed:', error);
         }
     };
 
@@ -135,15 +126,11 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
                         </Button>
                     )}
 
-                    <Button 
-                        onClick={handleLogout} 
-                        variant="ghost" 
-                        size="lg" 
+                    <LogoutButton
+                        variant="ghost"
+                        size="lg"
                         className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Sair
-                    </Button>
+                    />
                 </div>
             </div>
         );
@@ -194,9 +181,14 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
                         </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Sair
+                    <DropdownMenuItem asChild>
+                        <LogoutButton
+                            variant="ghost"
+                            size="default"
+                            className="w-full justify-start cursor-pointer"
+                            showIcon={true}
+                            showText={true}
+                        />
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
