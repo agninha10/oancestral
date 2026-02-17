@@ -43,6 +43,8 @@ interface CheckoutFormDialogProps {
   frequency: "monthly" | "yearly";
   onSubmit: (data: CheckoutFormData) => Promise<void>;
   isLoggedIn: boolean;
+  error?: string | null;
+  onErrorChange?: (error: string | null) => void;
 }
 
 export function CheckoutFormDialog({
@@ -52,8 +54,17 @@ export function CheckoutFormDialog({
   frequency,
   onSubmit,
   isLoggedIn,
+  error,
+  onErrorChange,
 }: CheckoutFormDialogProps) {
   const [loading, setLoading] = useState(false);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && onErrorChange) {
+      onErrorChange(null);
+    }
+    onOpenChange(newOpen);
+  };
 
   const {
     register,
@@ -108,7 +119,7 @@ export function CheckoutFormDialog({
   const planName = frequency === "monthly" ? "Mensal (R$ 29/mês)" : "Anual (R$ 190/ano)";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-stone-900 border-stone-800">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-stone-50">
@@ -118,6 +129,16 @@ export function CheckoutFormDialog({
             Plano selecionado: <span className="font-semibold text-amber-500">{planName}</span>
           </DialogDescription>
         </DialogHeader>
+
+        {error && (
+          <div className="mt-4 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3">
+            <ShieldAlert className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-red-400">{error}</p>
+              <p className="text-xs text-red-400/70 mt-1">Por favor, tente novamente ou entre em contato com suporte.</p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
           {/* Nome */}

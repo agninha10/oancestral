@@ -76,35 +76,60 @@ export async function POST(req: Request) {
       taxId: taxId ? "***" : undefined,
     });
 
-    const billing = await createSubscription({
-      email: user.email,
-      name,
-      cellphone,
-      taxId,
-      frequency,
-    });
+    let billing;
+    try {
+      billing = await createSubscription({
+        email: user.email,
+        name,
+        cellphone,
+        taxId,
+        frequency,
+      });
 
-    // Debug: Ver a resposta completa
-    console.log("[CHECKOUT] Billing response:", JSON.stringify(billing, null, 2));
+      // Debug: Ver a resposta completa
+      console.log("[CHECKOUT] Billing response:", JSON.stringify(billing, null, 2));
+    } catch (billingError) {
+      console.error("[CHECKOUT] Billing creation error:", billingError);
+      return NextResponse.json(
+        { error: "Erro ao criar pagamento. Tente novamente." },
+        { status: 500 }
+      );
+    }
+
+    if (!billing || !billing.id) {
+      console.error("[CHECKOUT] Invalid billing response - missing ID");
+      return NextResponse.json(
+        { error: "Erro ao criar pagamento. Resposta inválida." },
+        { status: 500 }
+      );
+    }
 
     // 6. Salvar transação no banco de dados
     const amount = frequency === "yearly" ? 19000 : 2900;
     
-    const transaction = await prisma.transaction.create({
-      data: {
-        userId: user.id,
-        billingId: billing.id,
-        amount,
-        frequency,
-        status: "PENDING",
-        paymentUrl: billing.url,
-      },
-    });
+    let transaction;
+    try {
+      transaction = await prisma.transaction.create({
+        data: {
+          userId: user.id,
+          billingId: billing.id,
+          amount,
+          frequency,
+          status: "PENDING",
+          paymentUrl: billing.url,
+        },
+      });
 
-    console.log("[CHECKOUT] Transaction created:", transaction.id);
+      console.log("[CHECKOUT] Transaction created:", transaction.id);
+    } catch (transactionError) {
+      console.error("[CHECKOUT] Transaction creation error:", transactionError);
+      return NextResponse.json(
+        { error: "Erro ao salvar transação. Tente novamente." },
+        { status: 500 }
+      );
+    }
 
     // 7. Retornar a URL de pagamento
-    // O webhook vai confirmar o pagamento depois.
     console.log("[CHECKOUT] Returning URL:", billing.url);
     
     return NextResponse.json({ url: billing.url });

@@ -19,6 +19,7 @@ export default function AssinaturaPage() {
   const [selectedFrequency, setSelectedFrequency] = useState<"monthly" | "yearly">("yearly");
   const [userData, setUserData] = useState({ name: "", email: "", cellphone: "" });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const router = useRouter();
 
   // Carregar dados do usuário ao montar o componente
@@ -52,6 +53,7 @@ export default function AssinaturaPage() {
   }, []);
 
   const handleCheckoutClick = (frequency: "monthly" | "yearly") => {
+    setCheckoutError(null);
     setSelectedFrequency(frequency);
     setShowCheckoutForm(true);
   };
@@ -64,6 +66,7 @@ export default function AssinaturaPage() {
     password?: string;
   }) => {
     setLoading(true);
+    setCheckoutError(null);
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
@@ -80,16 +83,29 @@ export default function AssinaturaPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Erro ao criar checkout");
+        const errorMessage = errorData.error || "Erro ao criar checkout";
+        console.error("[CHECKOUT_ERROR]", errorMessage);
+        setCheckoutError(errorMessage);
+        setLoading(false);
+        return;
       }
 
       const data = await response.json();
+      
+      if (!data.url) {
+        console.error("[CHECKOUT_ERROR] No payment URL received");
+        setCheckoutError("Erro ao obter link de pagamento. Tente novamente.");
+        setLoading(false);
+        return;
+      }
+
+      // Redirecionar para o pagamento
       window.location.href = data.url;
     } catch (error) {
-      console.error(error);
-      alert("Erro ao processar pagamento. Tente novamente.");
+      const errorMessage = error instanceof Error ? error.message : "Erro inesperado ao processar pagamento. Tente novamente.";
+      console.error("[CHECKOUT_ERROR]", error);
+      setCheckoutError(errorMessage);
       setLoading(false);
-      setShowCheckoutForm(false);
     }
   };
 
@@ -365,6 +381,8 @@ export default function AssinaturaPage() {
         frequency={selectedFrequency}
         onSubmit={handleCheckoutSubmit}
         isLoggedIn={isLoggedIn}
+        error={checkoutError}
+        onErrorChange={setCheckoutError}
       />
     </div>
   );
