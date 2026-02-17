@@ -54,7 +54,7 @@ export async function createSubscription({
 
     const billingData = {
       frequency: apiFrequency, // MONTHLY para mensal, ONE_TIME para anual
-      methods: ["PIX", "CARD"], // Aceita PIX e Cartão (CARD em beta)
+      methods: ["PIX"], // Apenas PIX disponível
       products: [
         {
           externalId: plan.externalId,
