@@ -11,6 +11,7 @@ import {
     Settings,
     LogOut,
 } from 'lucide-react';
+import { LogoutButton } from '@/components/auth/logout-button';
 
 interface User {
     id: string;
@@ -115,13 +116,13 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                                             </span>
                                         </div>
                                     )}
-                                    <Link
-                                        href="/api/auth/logout"
-                                        className="flex items-center justify-center gap-2 rounded-md border border-border py-1.5 px-3 text-sm font-medium hover:bg-muted transition-colors"
-                                    >
-                                        <LogOut className="h-4 w-4" />
-                                        Sair
-                                    </Link>
+                                    <LogoutButton
+                                        variant="outline"
+                                        size="sm"
+                                        className="w-full justify-center"
+                                        showIcon={true}
+                                        showText={true}
+                                    />
                                 </div>
                             </li>
                         </ul>
