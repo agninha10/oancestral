@@ -13,6 +13,7 @@ const navItems = [
     { href: "/", label: "Início" },
     { href: "/receitas", label: "Receitas" },
     { href: "/cursos", label: "Cursos" },
+    { href: "/jejum", label: "Jejum" },
     { href: "/blog", label: "Blog" },
     { href: "/sobre", label: "Sobre" },
 ];
@@ -20,16 +21,16 @@ const navItems = [
 export function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-                {/* Logo */}
-                <Link href="/" className="flex items-center space-x-2">
+            <div className="container relative flex h-16 items-center justify-between px-4 md:px-6">
+                {/* Logo - Centered on mobile, left on desktop */}
+                <Link href="/" className="absolute left-1/2 -translate-x-1/2 md:relative md:left-auto md:translate-x-0 flex items-center space-x-2">
                     <span className="font-serif text-2xl font-bold text-primary">
                         O Ancestral
                     </span>
                 </Link>
 
                 {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-auto">
                     {navItems.map((item) => (
                         <Link
                             key={item.href}
@@ -44,11 +45,11 @@ export function Header() {
                 {/* Desktop Actions */}
                 <div className="hidden md:flex items-center space-x-4">
                     <ThemeToggle />
-                    <UserNav />
+                    <UserNav showDashboardButton />
                 </div>
 
                 {/* Mobile Menu */}
-                <div className="flex md:hidden items-center space-x-2">
+                <div className="flex md:hidden items-center space-x-2 ml-auto z-10">
                     <ThemeToggle />
                     <Sheet>
                         <SheetTrigger asChild>
@@ -59,9 +60,9 @@ export function Header() {
                         </SheetTrigger>
                         <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                             {/* Mobile Menu Header */}
-                            <div className="mb-8">
+                            <div className="mb-8 flex justify-center py-4 border-b border-border">
                                 <Link href="/" className="inline-block">
-                                    <span className="font-serif text-2xl font-bold text-primary">
+                                    <span className="font-serif text-3xl font-bold text-primary">
                                         O Ancestral
                                     </span>
                                 </Link>
@@ -82,7 +83,7 @@ export function Header() {
 
                             {/* User Navigation */}
                             <div className="mt-8 border-t border-border pt-6">
-                                <UserNav />
+                                <UserNav isMobile />
                             </div>
                         </SheetContent>
                     </Sheet>

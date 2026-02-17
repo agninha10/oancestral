@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LogOut, User, Settings } from 'lucide-react';
+import { LogOut, User, Settings, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -21,7 +21,12 @@ interface UserData {
     role?: string;
 }
 
-export function UserNav() {
+interface UserNavProps {
+    isMobile?: boolean;
+    showDashboardButton?: boolean;
+}
+
+export function UserNav({ isMobile = false, showDashboardButton = false }: UserNavProps) {
     const [user, setUser] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -54,13 +59,30 @@ export function UserNav() {
     };
 
     if (loading) {
-        return (
-            <div className="h-8 w-8 rounded-full bg-neutral-800 animate-pulse" />
+        return isMobile ? (
+            <div className="flex items-center space-x-3 px-4 py-3">
+                <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                    <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+                </div>
+            </div>
+        ) : (
+            <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
         );
     }
 
     if (!user) {
-        return (
+        return isMobile ? (
+            <div className="flex flex-col space-y-3 px-4">
+                <Button asChild variant="outline" size="lg" className="w-full justify-center">
+                    <Link href="/auth/login">Entrar</Link>
+                </Button>
+                <Button asChild size="lg" className="w-full justify-center">
+                    <Link href="/auth/register">Começar Grátis</Link>
+                </Button>
+            </div>
+        ) : (
             <>
                 <Button asChild variant="ghost">
                     <Link href="/auth/login">Entrar</Link>
@@ -79,46 +101,105 @@ export function UserNav() {
         .toUpperCase()
         .slice(0, 2);
 
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10">
+    // Mobile view - show user card with actions
+    if (isMobile) {
+        return (
+            <div className="flex flex-col space-y-4">
+                {/* User Info Card */}
+                <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-muted/50">
+                    <Avatar className="h-12 w-12">
                         <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} alt={user.name} />
                         <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                            {user.email}
-                        </p>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        Dashboard
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col space-y-2 px-4">
+                    <Button asChild variant="default" size="lg" className="w-full justify-start">
+                        <Link href="/dashboard">
+                            <Home className="mr-2 h-4 w-4" />
+                            Acessar o Clã Ancestral
+                        </Link>
+                    </Button>
+                    
+                    {user.role === 'ADMIN' && (
+                        <Button asChild variant="outline" size="lg" className="w-full justify-start">
+                            <Link href="/admin/dashboard">
+                                <Settings className="mr-2 h-4 w-4" />
+                                Admin
+                            </Link>
+                        </Button>
+                    )}
+
+                    <Button 
+                        onClick={handleLogout} 
+                        variant="ghost" 
+                        size="lg" 
+                        className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sair
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    // Desktop view - show dropdown or dashboard button
+    return (
+        <>
+            {showDashboardButton && (
+                <Button asChild variant="default">
+                    <Link href="/dashboard">
+                        <Home className="mr-2 h-4 w-4" />
+                        Acessar o Clã Ancestral
                     </Link>
-                </DropdownMenuItem>
-                {user.role === 'ADMIN' && (
+                </Button>
+            )}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                        <Avatar className="h-10 w-10">
+                            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} alt={user.name} />
+                            <AvatarFallback>{initials}</AvatarFallback>
+                        </Avatar>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{user.name}</p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                                {user.email}
+                            </p>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                        <Link href="/admin/dashboard" className="cursor-pointer">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Admin
+                        <Link href="/dashboard" className="cursor-pointer">
+                            <User className="mr-2 h-4 w-4" />
+                            Dashboard
                         </Link>
                     </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sair
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                    {user.role === 'ADMIN' && (
+                        <DropdownMenuItem asChild>
+                            <Link href="/admin/dashboard" className="cursor-pointer">
+                                <Settings className="mr-2 h-4 w-4" />
+                                Admin
+                            </Link>
+                        </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sair
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </>
     );
 }
