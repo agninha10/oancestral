@@ -64,40 +64,18 @@ const categoryColors = {
 };
 
 const normalizeContent = (rawContent: string) => {
-    let content = rawContent.trim();
-    
-    if (!content) {
-        return '';
-    }
-    
-    // Recursively decode HTML entities until no more are found
-    // This handles double-encoded content
-    while (/&lt;|&gt;/.test(content)) {
-        const decoded = content
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'")
-            .replace(/&amp;/g, '&');
-        
-        if (decoded === content) break; // No changes, exit loop
-        content = decoded;
-    }
-    
-    // If it looks like HTML, return as-is
+    const content = rawContent.trim();
+    if (!content) return '';
+
+    // If the content looks like HTML (from Tiptap editor), return as-is
     if (/<\/?[a-z][\s\S]*>/i.test(content)) {
         return content;
     }
-    
-    // Plain text - wrap in paragraphs
-    const escaped = content
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    
-    return escaped
+
+    // Plain text fallback - wrap paragraphs
+    return content
         .split(/\n\s*\n/)
-        .map((paragraph) => `<p>${paragraph.replace(/\n/g, '<br />')}</p>`)
+        .map((p) => `<p>${p.replace(/\n/g, '<br />')}</p>`)
         .join('');
 };
 
@@ -141,9 +119,9 @@ export default async function BlogPostPage({ params }: Props) {
 
             <main className="flex-1">
                 <article className="bg-background">
-                    {/* Hero Section */}
-                    <section className="relative h-[50vh] min-h-[400px] max-h-[500px] border-b border-border/40">
-                        {post.coverImage ? (
+                    {/* Cover Image */}
+                    {post.coverImage && (
+                        <div className="relative w-full h-[55vh] min-h-[360px] max-h-[560px]">
                             <Image
                                 src={post.coverImage}
                                 alt={post.title}
@@ -151,44 +129,39 @@ export default async function BlogPostPage({ params }: Props) {
                                 className="object-cover"
                                 priority
                             />
-                        ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10" />
-                        )}
+                        </div>
+                    )}
 
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+                    {/* Header */}
+                    <section className="container mx-auto max-w-4xl px-4 pt-10 pb-6 border-b border-border/40">
+                        <div className="flex items-center gap-3 mb-5">
+                            {post.category && (
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors.OTHER}`}>
+                                    {post.category.name}
+                                </span>
+                            )}
+                        </div>
 
-                        <div className="absolute bottom-0 left-0 right-0 p-8">
-                            <div className="container mx-auto max-w-4xl">
-                                <div className="flex items-center gap-3 mb-4">
-                                    {post.category && (
-                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${categoryColors.OTHER}`}>
-                                            {post.category.name}
-                                        </span>
-                                    )}
-                                </div>
+                        <h1 className="font-serif text-4xl font-bold md:text-5xl mb-4">
+                            {post.title}
+                        </h1>
 
-                                <h1 className="font-serif text-4xl font-bold md:text-5xl mb-4">
-                                    {post.title}
-                                </h1>
+                        <p className="text-lg text-muted-foreground mb-6">
+                            {post.excerpt}
+                        </p>
 
-                                <p className="text-lg text-muted-foreground mb-6">
-                                    {post.excerpt}
-                                </p>
-
-                                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-2">
-                                        <User className="w-4 h-4" />
-                                        <span>{post.author.name}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" />
-                                        <span>{format(publishDate, "d 'de' MMMM, yyyy", { locale: ptBR })}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4" />
-                                        <span>{post.readTime} min de leitura</span>
-                                    </div>
-                                </div>
+                        <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                                <User className="w-4 h-4" />
+                                <span>{post.author.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{format(publishDate, "d 'de' MMMM, yyyy", { locale: ptBR })}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4" />
+                                <span>{post.readTime} min de leitura</span>
                             </div>
                         </div>
                     </section>
@@ -196,12 +169,10 @@ export default async function BlogPostPage({ params }: Props) {
                     {/* Content */}
                     <section className="container mx-auto max-w-4xl px-4 py-12">
                         {/* Article Content */}
-                        <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
-                            <div
-                                className="leading-relaxed"
-                                dangerouslySetInnerHTML={{ __html: normalizeContent(post.content) }}
-                            />
-                        </div>
+                        <div
+                            className="prose prose-lg dark:prose-invert max-w-none mb-12"
+                            dangerouslySetInnerHTML={{ __html: normalizeContent(post.content) }}
+                        />
 
                         {/* Inline CTA */}
                         <InlineCTA />

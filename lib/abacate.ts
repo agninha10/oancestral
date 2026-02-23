@@ -90,8 +90,10 @@ export async function createSubscription({
     console.log("[ABACATE] Direct API call - Status:", testResponse.status);
     console.log("[ABACATE] Direct API call - Response:", JSON.stringify(testData, null, 2));
 
-    if (!testResponse.ok) {
-      throw new Error(`API Error (${testResponse.status}): ${JSON.stringify(testData)}`);
+    // A API Abacate retorna status 200 mesmo com erro, verificar o campo success
+    if (!testResponse.ok || !testData.success) {
+      const errorMsg = testData.error || "Unknown error";
+      throw new Error(`API Error (${testResponse.status}): ${errorMsg}`);
     }
 
     // Retornar apenas o data, que contém a URL e outras informações
