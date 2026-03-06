@@ -12,6 +12,8 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { RecipePaywallWrapper } from '@/components/recipe/recipe-paywall-wrapper';
 import { Clock, Users, ChefHat } from 'lucide-react';
+import { Suspense } from 'react';
+import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -272,6 +274,15 @@ export default async function RecipePage({ params }: Props) {
                     </section>
                 </article>
             </main>
+
+            <Suspense fallback={<RelatedContentSkeleton />}>
+                <RelatedContent
+                    currentId={recipe.id}
+                    category={recipe.categoryId ?? ''}
+                    type="recipe"
+                />
+            </Suspense>
+
             <Footer />
         </div>
     );

@@ -11,6 +11,8 @@ import { Footer } from '@/components/layout/footer';
 import { Calendar, Clock, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Suspense } from 'react';
+import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -206,6 +208,14 @@ export default async function BlogPostPage({ params }: Props) {
                     </section>
                 </article>
             </main>
+
+            <Suspense fallback={<RelatedContentSkeleton />}>
+                <RelatedContent
+                    currentId={post.id}
+                    category={post.categoryId ?? ''}
+                    type="post"
+                />
+            </Suspense>
 
             <Footer />
         </div>
