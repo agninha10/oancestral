@@ -7,6 +7,12 @@ import { google } from 'googleapis';
  * @param url - A URL completa que deve ser indexada pelo Google
  */
 export async function notifyGoogleIndexing(url: string): Promise<void> {
+  await notifyGoogleIndex(url);
+}
+
+export async function notifyGoogleIndex(url: string): Promise<unknown | void> {
+  console.log(`[Google Indexing] ⏳ Iniciando notificação para: ${url}`);
+
   try {
     // Valida se as variáveis de ambiente necessárias estão configuradas
     if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY_BASE64) {
@@ -32,28 +38,19 @@ export async function notifyGoogleIndexing(url: string): Promise<void> {
     // Autentica
     await jwtClient.authorize();
 
-    // Inicializa o cliente da Indexing API
-    const indexing = google.indexing('v3');
-
-    // Envia a notificação de URL atualizada
-    const response = await indexing.urlNotifications.publish({
-      auth: jwtClient,
-      requestBody: {
-        url: url,
+    const response = await jwtClient.request({
+      url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
+      method: 'POST',
+      data: {
+        url,
         type: 'URL_UPDATED',
       },
     });
 
-    console.log(
-      `[Google Indexing] URL notificada com sucesso: ${url}`,
-      response.data
-    );
-  } catch (error) {
+    console.log(`[Google Indexing] ✅ Sucesso! Status: ${response.status}`);
+    return response.data;
+  } catch (error: any) {
     // Loga o erro mas não interrompe o fluxo da aplicação
-    console.error(
-      '[Google Indexing] Erro ao notificar Google sobre a URL:',
-      url,
-      error
-    );
+    console.error(`[Google Indexing] ❌ Erro:`, error?.message || error);
   }
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
-import { notifyGoogleIndexing } from '@/lib/google-indexing';
+import { notifyGoogleIndex } from '@/lib/google-indexing';
 
 async function getAdminUser() {
     try {
@@ -116,13 +116,14 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        // Notifica o Google Indexing API se o post foi publicado
+        console.log(`[Blog API] Post salvo no banco. Slug: ${post.slug} | Published: ${post.published}`);
+
         if (post.published) {
             const postUrl = `${process.env.NEXT_PUBLIC_APP_URL}/blog/${post.slug}`;
-            // Executa em background sem bloquear a resposta
-            notifyGoogleIndexing(postUrl).catch(err => 
-                console.error('[Blog POST] Erro ao notificar Google:', err)
-            );
+            // AWAIT é crucial para debug e garantir logs antes da resposta HTTP
+            await notifyGoogleIndex(postUrl);
+        } else {
+            console.log(`[Blog API] Post salvo como Rascunho. O Google não será notificado.`);
         }
 
         return NextResponse.json(post);
