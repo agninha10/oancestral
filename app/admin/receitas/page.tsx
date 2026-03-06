@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, ImageOff, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -11,6 +11,7 @@ interface Recipe {
     id: string;
     title: string;
     slug: string;
+    coverImage: string | null;
     category: {
         name: string;
         slug: string;
@@ -109,7 +110,7 @@ export default function ReceitasAdminPage() {
             </div>
 
             {/* Stats */}
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
                 <div className="bg-card border border-border rounded-lg p-4">
                     <p className="text-sm text-muted-foreground">Total de Receitas</p>
                     <p className="text-2xl font-bold text-foreground mt-1">{recipes.length}</p>
@@ -126,6 +127,12 @@ export default function ReceitasAdminPage() {
                         {recipes.filter((r) => !r.published).length}
                     </p>
                 </div>
+                <div className="bg-card border border-amber-500/20 rounded-lg p-4">
+                    <p className="text-sm text-amber-500">Sem imagem</p>
+                    <p className="text-2xl font-bold text-amber-500 mt-1">
+                        {recipes.filter((r) => !r.coverImage).length}
+                    </p>
+                </div>
             </div>
 
             {/* Table */}
@@ -136,6 +143,9 @@ export default function ReceitasAdminPage() {
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     Título
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                    Imagem
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                     Categoria
@@ -157,7 +167,7 @@ export default function ReceitasAdminPage() {
                         <tbody className="divide-y divide-border">
                             {recipes.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center">
+                                    <td colSpan={7} className="px-6 py-12 text-center">
                                         <p className="text-muted-foreground">
                                             Nenhuma receita encontrada.
                                         </p>
@@ -182,6 +192,19 @@ export default function ReceitasAdminPage() {
                                                     {recipe._count.instructions} passos
                                                 </p>
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {recipe.coverImage ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-500 border border-green-500/20">
+                                                    <ImageIcon className="h-3 w-3" />
+                                                    Com imagem
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                                                    <ImageOff className="h-3 w-3" />
+                                                    Sem imagem
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4">
                                             {recipe.category && (

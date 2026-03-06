@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Eye, Trash2, FileText, Star, Lock, Edit } from 'lucide-react';
+import { Plus, Eye, Trash2, FileText, Star, Lock, Edit, ImageOff, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -14,6 +14,7 @@ interface BlogPost {
     title: string;
     slug: string;
     excerpt: string;
+    coverImage: string | null;
     published: boolean;
     featured: boolean;
     isPremium: boolean;
@@ -95,7 +96,7 @@ export default function BlogAdminPage() {
             </div>
 
             {/* Stats */}
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
                 <div className="bg-card border border-border rounded-lg p-4">
                     <p className="text-sm text-muted-foreground">Total de Posts</p>
                     <p className="text-2xl font-bold text-foreground mt-1">{posts.length}</p>
@@ -110,6 +111,12 @@ export default function BlogAdminPage() {
                     <p className="text-sm text-muted-foreground">Rascunhos</p>
                     <p className="text-2xl font-bold text-foreground mt-1">
                         {posts.filter((post) => !post.published).length}
+                    </p>
+                </div>
+                <div className="bg-card border border-amber-500/20 rounded-lg p-4">
+                    <p className="text-sm text-amber-500">Sem imagem</p>
+                    <p className="text-2xl font-bold text-amber-500 mt-1">
+                        {posts.filter((post) => !post.coverImage).length}
                     </p>
                 </div>
             </div>
@@ -151,6 +158,17 @@ export default function BlogAdminPage() {
                                             <Badge variant="outline">
                                                 <Lock className="h-3 w-3 mr-1" />
                                                 Premium
+                                            </Badge>
+                                        )}
+                                        {post.coverImage ? (
+                                            <Badge variant="outline" className="border-green-500/30 text-green-500 bg-green-500/10">
+                                                <ImageIcon className="h-3 w-3 mr-1" />
+                                                Com imagem
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="border-amber-500/30 text-amber-500 bg-amber-500/10">
+                                                <ImageOff className="h-3 w-3 mr-1" />
+                                                Sem imagem
                                             </Badge>
                                         )}
                                     </div>
