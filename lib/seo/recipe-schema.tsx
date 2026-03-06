@@ -12,17 +12,22 @@ type RecipeWithRelations = Recipe & {
   } | null;
 };
 
+const resolveImageUrl = (imagePath: string | null | undefined, baseUrl: string): string => {
+  if (!imagePath) return `${baseUrl}/images/og-default.jpg`;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${baseUrl}${imagePath}`;
+};
+
 export function generateRecipeSchema(recipe: RecipeWithRelations, baseUrl: string) {
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
   const macros = recipe.macronutrients as { protein?: number; fat?: number; carbs?: number } | null;
-  const DEFAULT_IMAGE = `${baseUrl}/images/og-default.jpg`;
 
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Recipe',
     name: recipe.metaTitle || recipe.title,
     description: recipe.description,
-    image: recipe.coverImage ? [`${baseUrl}${recipe.coverImage}`] : [DEFAULT_IMAGE],
+    image: [resolveImageUrl(recipe.coverImage, baseUrl)],
     author: {
       '@type': 'Person',
       name: recipe.author.name,

@@ -9,15 +9,19 @@ type BlogPostWithAuthor = BlogPost & {
   } | null;
 };
 
-export function generateArticleSchema(post: BlogPostWithAuthor, baseUrl: string) {
-  const DEFAULT_IMAGE = `${baseUrl}/images/og-default.jpg`;
+const resolveImageUrl = (imagePath: string | null | undefined, baseUrl: string): string => {
+  if (!imagePath) return `${baseUrl}/images/og-default.jpg`;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${baseUrl}${imagePath}`;
+};
 
+export function generateArticleSchema(post: BlogPostWithAuthor, baseUrl: string) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.metaTitle || post.title,
     description: post.excerpt,
-    image: post.coverImage ? [`${baseUrl}${post.coverImage}`] : [DEFAULT_IMAGE],
+    image: [resolveImageUrl(post.coverImage, baseUrl)],
     author: [
       {
         '@type': 'Person',

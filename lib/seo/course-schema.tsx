@@ -5,15 +5,19 @@ type CourseData = Pick<
   'title' | 'slug' | 'description' | 'coverImage' | 'isPremium' | 'createdAt' | 'updatedAt'
 >;
 
-export function generateCourseSchema(course: CourseData, baseUrl: string) {
-  const DEFAULT_IMAGE = `${baseUrl}/images/og-default.jpg`;
+const resolveImageUrl = (imagePath: string | null | undefined, baseUrl: string): string => {
+  if (!imagePath) return `${baseUrl}/images/og-default.jpg`;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${baseUrl}${imagePath}`;
+};
 
+export function generateCourseSchema(course: CourseData, baseUrl: string) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Course',
     name: course.title,
     description: course.description,
-    image: course.coverImage ? `${baseUrl}${course.coverImage}` : DEFAULT_IMAGE,
+    image: resolveImageUrl(course.coverImage, baseUrl),
     url: `${baseUrl}/cursos/${course.slug}`,
     datePublished: course.createdAt.toISOString(),
     dateModified: course.updatedAt.toISOString(),
