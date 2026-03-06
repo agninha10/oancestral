@@ -13,7 +13,7 @@
     "db:studio": "export $(grep -v '^#' .env.local | xargs) && prisma studio",
     "db:generate": "prisma generate",
     "db:seed:chapters": "npx tsx prisma/seed-chapter3.ts && npx tsx prisma/seed-chapter4.ts && npx tsx prisma/seed-chapter5.ts && npx tsx prisma/seed-chapter6.ts && npx tsx prisma/seed-chapter7.ts && npx tsx prisma/seed-chapter8.ts && npx tsx prisma/seed-chapter9.ts && npx tsx prisma/seed-chapter10.ts && npx tsx prisma/seed-chapter11.ts",
-    "db:seed:all": "npx tsx prisma/seed.ts && npm run db:seed:chapters",
+    "db:seed:all": "npx tsx prisma/seed.ts && npm run db:seed:chapters && npx tsx prisma/seed-blog.ts",
     "vercel-build": "prisma generate && prisma migrate deploy && npm run db:seed:all && next build"
   },
   "prisma": {
