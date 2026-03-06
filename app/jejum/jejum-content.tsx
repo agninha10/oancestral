@@ -1,7 +1,7 @@
 "use client"
 
-import { motion, useScroll, useTransform } from "framer-motion"
-import { useEffect, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useState, useCallback } from "react"
 import {
   Flame,
   Sparkles,
@@ -20,15 +20,15 @@ import {
   Lock,
   MessageSquare,
   ChevronDown,
+  X,
+  Loader2,
+  User,
+  Mail,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Header } from "@/components/layout/header"
-
-// ─── ALTERE ESTE LINK PARA O SEU LINK DO ABACATEPAY ──────────────────────────
-const CHECKOUT_URL = "https://www.abacatepay.com/pay/jejum-ancestral"
-// ─────────────────────────────────────────────────────────────────────────────
 
 const PRICE = "29,90"
 const OLD_PRICE = "97,90"
@@ -51,6 +51,10 @@ function useCountdown(targetHours: number) {
 
 export default function JejumContent() {
   const [showSticky, setShowSticky] = useState(false)
+  const [showCheckout, setShowCheckout] = useState(false)
+  const [checkoutForm, setCheckoutForm] = useState({ name: "", email: "", cellphone: "", taxId: "" })
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [checkoutError, setCheckoutError] = useState("")
   const countdown = useCountdown(2)
 
   useEffect(() => {
@@ -60,6 +64,35 @@ export default function JejumContent() {
   }, [])
 
   const pad = (n: number) => String(n).padStart(2, "0")
+
+  const openCheckout = useCallback(() => {
+    setCheckoutError("")
+    setShowCheckout(true)
+  }, [])
+
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCheckoutLoading(true)
+    setCheckoutError("")
+
+    try {
+      const res = await fetch("/api/checkout/ebook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...checkoutForm,
+          taxId: checkoutForm.taxId.replace(/\D/g, ""),
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Erro ao processar pagamento")
+      // Redireciona para o link do AbacatePay
+      window.location.href = data.url
+    } catch (err: unknown) {
+      setCheckoutError(err instanceof Error ? err.message : "Erro ao processar. Tente novamente.")
+      setCheckoutLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
@@ -77,11 +110,9 @@ export default function JejumContent() {
             Guia Definitivo do Jejum Intermitente —{" "}
             <span className="text-amber-500">R$ {PRICE}</span>
           </div>
-          <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="ml-auto">
-            <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-6 rounded-full">
-              Quero o Ebook Agora <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
-          </a>
+          <Button onClick={openCheckout} size="sm" className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-6 rounded-full ml-auto">
+            Quero o Ebook Agora <ArrowRight className="ml-1 h-4 w-4" />
+          </Button>
         </div>
       </motion.div>
 
@@ -158,15 +189,14 @@ export default function JejumContent() {
             transition={{ duration: 0.8, delay: 0.35 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
-              <Button
-                size="lg"
-                className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-10 py-7 text-xl rounded-full group shadow-lg shadow-amber-500/25"
-              >
-                Quero o Ebook por R$ {PRICE}
-                <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </a>
+            <Button
+              onClick={openCheckout}
+              size="lg"
+              className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-10 py-7 text-xl rounded-full group shadow-lg shadow-amber-500/25"
+            >
+              Quero o Ebook por R$ {PRICE}
+              <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+            </Button>
           </motion.div>
 
           <motion.div
@@ -407,15 +437,14 @@ export default function JejumContent() {
                 </div>
 
                 {/* CTA principal */}
-                <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="block mb-4">
-                  <Button
-                    size="lg"
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-7 text-xl rounded-2xl group shadow-lg shadow-amber-500/30"
-                  >
-                    Quero Acessar Agora — R$ {PRICE}
-                    <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </a>
+                <Button
+                  onClick={openCheckout}
+                  size="lg"
+                  className="w-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-7 text-xl rounded-2xl group shadow-lg shadow-amber-500/30 mb-4"
+                >
+                  Quero Acessar Agora — R$ {PRICE}
+                  <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+                </Button>
 
                 {/* Ícones de segurança */}
                 <div className="flex items-center justify-center gap-2 text-stone-500 text-xs mb-6">
@@ -604,15 +633,14 @@ export default function JejumContent() {
               Oferta especial expira em {pad(countdown.h)}:{pad(countdown.m)}:{pad(countdown.s)}
             </div>
 
-            <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer">
-              <Button
-                size="lg"
-                className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-12 py-8 text-xl rounded-full group shadow-xl shadow-amber-500/25"
-              >
-                Quero Começar Agora — R$ {PRICE}
-                <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </a>
+            <Button
+              onClick={openCheckout}
+              size="lg"
+              className="bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-12 py-8 text-xl rounded-full group shadow-xl shadow-amber-500/25"
+            >
+              Quero Começar Agora — R$ {PRICE}
+              <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+            </Button>
 
             <p className="text-stone-600 text-sm">
               Garantia de 7 dias • Acesso imediato • Pagamento seguro
@@ -620,6 +648,170 @@ export default function JejumContent() {
           </motion.div>
         </div>
       </section>
+
+      {/* ── CHECKOUT MODAL ── */}
+      <AnimatePresence>
+        {showCheckout && (
+          <>
+            <motion.div
+              key="checkout-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-sm"
+              onClick={() => !checkoutLoading && setShowCheckout(false)}
+            />
+
+            <motion.div
+              key="checkout-panel"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed inset-0 z-[60] flex items-center justify-center p-4 pointer-events-none"
+            >
+              <div
+                className="pointer-events-auto w-full max-w-md bg-stone-900 border border-stone-700/60 rounded-2xl shadow-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-stone-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-stone-100">Finalizar Compra</h3>
+                    <p className="text-xs text-stone-500">Pagamento via Pix — processado pelo AbacatePay</p>
+                  </div>
+                  <button
+                    onClick={() => !checkoutLoading && setShowCheckout(false)}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-400 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Resumo do produto */}
+                <div className="px-6 py-4 bg-stone-800/30 border-b border-stone-800/50 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-stone-200">Guia Definitivo do Jejum Intermitente</p>
+                    <p className="text-xs text-stone-500">Ebook + Protocolos + Bônus Cetogênico</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-stone-500 line-through">R$ {OLD_PRICE}</p>
+                    <p className="text-lg font-bold text-amber-500">R$ {PRICE}</p>
+                  </div>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleCheckout} className="px-6 py-5 space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                      <User className="h-3 w-3" /> Seu nome
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      disabled={checkoutLoading}
+                      value={checkoutForm.name}
+                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Nome completo"
+                      className="w-full px-4 py-3 rounded-xl bg-stone-800/60 border border-stone-700/60 text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all text-sm disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                      <Mail className="h-3 w-3" /> E-mail (para receber o ebook)
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      disabled={checkoutLoading}
+                      value={checkoutForm.email}
+                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="seu@email.com"
+                      className="w-full px-4 py-3 rounded-xl bg-stone-800/60 border border-stone-700/60 text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all text-sm disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                      <MessageSquare className="h-3 w-3" /> WhatsApp
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      disabled={checkoutLoading}
+                      value={checkoutForm.cellphone}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 11)
+                        const masked = digits.length <= 10
+                          ? digits
+                              .replace(/(\d{2})(\d)/, "($1) $2")
+                              .replace(/(\(\d{2}\) \d{4})(\d)/, "$1-$2")
+                          : digits
+                              .replace(/(\d{2})(\d)/, "($1) $2")
+                              .replace(/(\(\d{2}\) \d{5})(\d)/, "$1-$2")
+                        setCheckoutForm(prev => ({ ...prev, cellphone: masked }))
+                      }}
+                      placeholder="(11) 99999-9999"
+                      className="w-full px-4 py-3 rounded-xl bg-stone-800/60 border border-stone-700/60 text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all text-sm disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                      <Shield className="h-3 w-3" /> CPF
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      disabled={checkoutLoading}
+                      value={checkoutForm.taxId}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 11)
+                        const masked = digits
+                          .replace(/(\d{3})(\d)/, "$1.$2")
+                          .replace(/(\d{3}\.\d{3})(\d)/, "$1.$2")
+                          .replace(/(\d{3}\.\d{3}\.\d{3})(\d)/, "$1-$2")
+                        setCheckoutForm(prev => ({ ...prev, taxId: masked }))
+                      }}
+                      placeholder="000.000.000-00"
+                      className="w-full px-4 py-3 rounded-xl bg-stone-800/60 border border-stone-700/60 text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all text-sm disabled:opacity-50"
+                    />
+                  </div>
+
+                  {checkoutError && (
+                    <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                      {checkoutError}
+                    </p>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={checkoutLoading}
+                    className="w-full bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold py-6 text-base rounded-xl group disabled:opacity-60"
+                  >
+                    {checkoutLoading ? (
+                      <><Loader2 className="h-5 w-5 animate-spin mr-2" /> Gerando pagamento...</>
+                    ) : (
+                      <>
+                        Pagar R$ {PRICE} via Pix
+                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="flex items-center justify-center gap-4 pt-1 text-[11px] text-stone-500">
+                    <span className="flex items-center gap-1"><Lock className="h-3 w-3" /> Seguro</span>
+                    <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> 7 dias de garantia</span>
+                    <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> Acesso imediato</span>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

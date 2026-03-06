@@ -103,3 +103,73 @@ export async function createSubscription({
     throw error;
   }
 }
+
+/**
+ * Cria cobrança avulsa (ONE_TIME) para compra de ebook
+ */
+export async function createEbookPayment({
+  email,
+  name,
+  cellphone,
+  taxId,
+}: {
+  email: string;
+  name: string;
+  cellphone?: string;
+  taxId: string;
+}) {
+  try {
+    let formattedCellphone = cellphone;
+    if (cellphone) {
+      formattedCellphone = cellphone.replace(/^\+55\s*/, '');
+      const digitsOnly = formattedCellphone.replace(/\D/g, '');
+      if (digitsOnly.length === 11) {
+        formattedCellphone = `(${digitsOnly.slice(0, 2)}) ${digitsOnly.slice(2, 7)}-${digitsOnly.slice(7)}`;
+      }
+    }
+
+    const billingData = {
+      frequency: "ONE_TIME",
+      methods: ["PIX"],
+      products: [
+        {
+          externalId: "ebook-jejum-intermitente",
+          name: "Guia Definitivo do Jejum Intermitente - Ebook",
+          quantity: 1,
+          price: 2990, // R$ 29,90 em centavos
+        },
+      ],
+      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/sucesso`,
+      completionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/sucesso`,
+      customer: {
+        name,
+        email,
+        taxId,
+        ...(formattedCellphone && { cellphone: formattedCellphone }),
+      },
+    };
+
+    console.log("[ABACATE-EBOOK] Creating billing with:", billingData);
+
+    const response = await fetch("https://api.abacatepay.com/v1/billing/create", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.ABACATE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(billingData),
+    });
+
+    const data = await response.json();
+    console.log("[ABACATE-EBOOK] Response:", JSON.stringify(data, null, 2));
+
+    if (!response.ok || !data.success) {
+      throw new Error(`API Error (${response.status}): ${data.error || "Unknown error"}`);
+    }
+
+    return data.data;
+  } catch (error) {
+    console.error("Erro ao criar pagamento ebook:", error);
+    throw error;
+  }
+}
