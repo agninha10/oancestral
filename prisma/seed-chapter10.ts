@@ -83,7 +83,11 @@ async function main() {
                 'Coloque na assadeira, regue com gordura e caldo.',
                 'Cubra com papel alumínio (sem tocar na carne) e asse por 3 a 4 horas.',
                 'Remova o papel nos últimos 30 min para dourar.'
-            ]
+            ],
+            metaTitle: 'Costela Bovina Assada Lentamente com Ervas e Alho',
+            metaDescription: 'Costela bovina assada lentamente por 4 horas: macia, rica em colágeno e gorduras saudáveis. Receita ancestral para a família toda.',
+            coverImageAlt: 'Costela bovina dourada assada lentamente com ramos de alecrim e alho',
+            tags: ['costela bovina', 'cozimento lento', 'colágeno', 'dieta carnívora', 'dieta da selva', 'carne com osso']
         },
         {
             title: 'Carne de Panela com Ossos e Legumes',
@@ -106,7 +110,11 @@ async function main() {
                 'Refogue cebola e alho na mesma panela.',
                 'Volte a carne, adicione legumes, caldo e louro.',
                 'Cozinhe em fogo baixo tampado por 2 horas até amaciar.'
-            ]
+            ],
+            metaTitle: 'Carne de Panela com Ossos e Legumes Ancestral',
+            metaDescription: 'Carne de panela nutritiva cozida com ossos e legumes. Extrai colágeno e minerais dos ossos para uma refeição reconfortante e curativa.',
+            coverImageAlt: 'Carne de panela com ossos, cenouras e batatas em molho espesso',
+            tags: ['carne de panela', 'carne com osso', 'colágeno', 'legumes', 'dieta da selva', 'comfort food ancestral']
         },
         {
             title: 'Ensopado de Rabo de Boi com Batatas e Cenouras',
@@ -129,7 +137,11 @@ async function main() {
                 'Refogue cebola e alho. Deglaceie com vinho.',
                 'Adicione caldo, louro e vegetais.',
                 'Cozinhe na pressão por 45min a 1h.'
-            ]
+            ],
+            metaTitle: 'Ensopado de Rabo de Boi: Rico em Colágeno Natural',
+            metaDescription: 'Rabada nutritiva e econômica, rica em colágeno para pele e articulações. Cozida na pressão com batatas, cenouras e caldo de ossos.',
+            coverImageAlt: 'Ensopado de rabo de boi com batatas e cenouras em molho encorpado',
+            tags: ['rabo de boi', 'rabada', 'colágeno', 'saúde articular', 'dieta da selva', 'cozimento lento']
         },
         {
             title: 'Almôndegas de Carne Moída com Fígado',
@@ -151,7 +163,11 @@ async function main() {
                 'Misture com a carne moída e temperos.',
                 'Modele bolinhas.',
                 'Frite em banha ou manteiga até dourar e cozinhar por dentro.'
-            ]
+            ],
+            metaTitle: 'Almôndegas com Fígado: Vísceras Nutritivas',
+            metaDescription: 'Almôndegas de carne com fígado bovino: a melhor forma de incluir vísceras na dieta. Ricas em ferro, B12 e vitamina A de forma saborosa.',
+            coverImageAlt: 'Almôndegas douradas de carne bovina com fígado em frigideira',
+            tags: ['almôndegas', 'fígado bovino', 'vísceras', 'ferro', 'vitamina B12', 'dieta da selva', 'organ meats']
         },
         {
             title: 'Carne Cozida Lentamente com Vinho Tinto e Ervas',
@@ -173,7 +189,11 @@ async function main() {
                 'Volte a carne e adicione o vinho (deixe evaporar o álcool).',
                 'Cubra com caldo e ervas.',
                 'Cozinhe em fogo baixo (panela comum ou ferro) por 3 a 4 horas até desmanchar.'
-            ]
+            ],
+            metaTitle: 'Carne ao Vinho Tinto: Receita Ancestral Slow Cook',
+            metaDescription: 'Boeuf Bourguignon ancestral: carne cozida por 4 horas em vinho tinto com ervas e caldo de ossos. Rica em antioxidantes e colágeno.',
+            coverImageAlt: 'Carne bovina cozida lentamente ao vinho tinto com ervas aromáticas',
+            tags: ['carne ao vinho', 'cozimento lento', 'colágeno', 'resveratrol', 'dieta da selva', 'receita ancestral']
         },
         {
             title: 'Músculo com Molho de Tomate e Vinho',
@@ -194,7 +214,11 @@ async function main() {
                 'Deglaceie com vinho.',
                 'Adicione carne e caldo.',
                 'Cozinhe por 2 a 3 horas em fogo baixo.'
-            ]
+            ],
+            metaTitle: 'Músculo ao Molho de Tomate e Vinho | Colágeno',
+            metaDescription: 'Músculo bovino cozido lentamente em molho de tomate e vinho. Corte econômico e rico em colágeno para pele e articulações saudáveis.',
+            coverImageAlt: 'Músculo bovino em molho de tomate encorpado com vinho tinto',
+            tags: ['músculo bovino', 'colágeno', 'molho de tomate', 'cozimento lento', 'dieta da selva', 'pele saudável']
         },
         {
             title: 'Ragu de Carne com Purê de Batata-Doce',
@@ -215,7 +239,11 @@ async function main() {
                 'Refogue a carne com tomates e caldo por 1h até reduzir e formar molho grosso.',
                 'Amasse as batatas com manteiga e sal.',
                 'Sirva o ragu sobre o purê.'
-            ]
+            ],
+            metaTitle: 'Ragu de Carne com Purê de Batata-Doce Ancestral',
+            metaDescription: 'Comfort food ancestral: ragu de carne desfiada com caldo de ossos sobre purê de batata-doce. Ideal para recuperação e dias frios.',
+            coverImageAlt: 'Ragu de carne desfiada servido sobre purê cremoso de batata-doce',
+            tags: ['ragu de carne', 'batata-doce', 'comfort food', 'caldo de ossos', 'dieta da selva', 'pós-treino']
         },
         {
             title: 'Hambúrguer Ancestral com Cebolas Caramelizadas',
@@ -235,7 +263,11 @@ async function main() {
                 'Grelhe no Ghee (3-4 min cada lado). Reserve.',
                 'Na mesma frigideira, caramelize as cebolas no Ghee restante.',
                 'Sirva a carne coberta pelas cebolas.'
-            ]
+            ],
+            metaTitle: 'Hambúrguer Ancestral Sem Pão com Cebolas',
+            metaDescription: 'Hambúrguer ancestral focado na qualidade da carne e gordura boa, com cebolas caramelizadas na manteiga. Sem pão, sem ultraprocessados.',
+            coverImageAlt: 'Hambúrguer ancestral grelhado coberto com cebolas caramelizadas douradas',
+            tags: ['hambúrguer ancestral', 'sem pão', 'low carb', 'carne de qualidade', 'dieta da selva', 'carnívora']
         },
         {
             title: 'Bife de Fígado Acebolado com Salsa Fresca',
@@ -257,7 +289,11 @@ async function main() {
                 'Refogue as cebolas na gordura até dourarem. Reserve.',
                 'Sele o fígado rapidamente (1-2 min cada lado). Não passe do ponto.',
                 'Misture as cebolas e finalize com salsa.'
-            ]
+            ],
+            metaTitle: 'Bife de Fígado Acebolado: Multivitamínico Natural',
+            metaDescription: 'Fígado bovino acebolado rico em ferro, B12 e vitamina A. O multivitamínico da natureza preparado de forma rápida e saborosa.',
+            coverImageAlt: 'Bifes de fígado bovino acebolados com salsa fresca e limão',
+            tags: ['fígado bovino', 'acebolado', 'ferro', 'vitamina A', 'vitamina B12', 'dieta da selva', 'superalimento']
         },
         {
             title: 'Almôndegas de Carne e Fígado ao Molho Rústico',
@@ -279,7 +315,11 @@ async function main() {
                 'Sele na gordura. Reserve.',
                 'Faça o molho na mesma panela com alho, tomate e caldo.',
                 'Cozinhe as almôndegas dentro do molho por 15 min.'
-            ]
+            ],
+            metaTitle: 'Almôndegas ao Molho Rústico de Tomate Ancestral',
+            metaDescription: 'Almôndegas de carne com fígado cozidas em molho rústico de tomate caseiro. Ricas em nutrientes e perfeitas para toda a família.',
+            coverImageAlt: 'Almôndegas de carne e fígado em molho rústico de tomate caseiro',
+            tags: ['almôndegas', 'fígado', 'molho de tomate', 'vísceras', 'dieta da selva', 'receita família']
         },
         {
             title: 'Ensopado de Carne do Dia Todo',
@@ -301,7 +341,11 @@ async function main() {
                 'Coloque tudo na Slow Cooker ou forno baixo (exceto vegetais moles).',
                 'Cozinhe por 12 horas.',
                 'Adicione cenouras/batatas nas últimas 2 horas para não desmancharem demais.'
-            ]
+            ],
+            metaTitle: 'Ensopado Slow Cooker: Carne Ancestral do Dia Todo',
+            metaDescription: 'Ensopado de carne para slow cooker: 12 horas de cozimento lento com vinho, caldo de ossos e especiarias. Praticidade e nutrição ancestral.',
+            coverImageAlt: 'Ensopado de carne com cenouras e especiarias em panela de cozimento lento',
+            tags: ['slow cooker', 'ensopado', 'cozimento lento', 'caldo de ossos', 'dieta da selva', 'praticidade']
         }
     ]
 
@@ -327,6 +371,10 @@ async function main() {
                     published: true,
                     authorId: author.id,
                     categoryId: category.id,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     ingredients: {
                         create: recipe.ingredients.map(ing => ({
                             name: ing.name,
@@ -344,7 +392,16 @@ async function main() {
             })
             console.log(`✅ Receita criada: ${recipe.title}`)
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`)
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                }
+            })
+            console.log(`🔄 SEO atualizado: ${recipe.title}`)
         }
     }
 

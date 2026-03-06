@@ -63,7 +63,13 @@ const recipeSchema = z.object({
         })
     ).min(1, 'Adicione pelo menos 1 passo'),
     content: z.string().optional(),
+    metaTitle: z.string().optional(),
+    metaDescription: z.string().optional(),
+    coverImageAlt: z.string().optional(),
+    tags: z.string().optional(),
     published: z.boolean(),
+    featured: z.boolean(),
+    isPremium: z.boolean(),
 });
 
 type RecipeFormData = z.infer<typeof recipeSchema>;
@@ -94,6 +100,8 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
             ingredients: [{ amount: '', name: '' }],
             instructions: [{ content: '' }],
             published: false,
+            featured: false,
+            isPremium: false,
             prepTime: 0,
             cookTime: 0,
             servings: 1,
@@ -102,6 +110,10 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
             fat: null,
             carbs: null,
             cuisine: '',
+            metaTitle: '',
+            metaDescription: '',
+            coverImageAlt: '',
+            tags: '',
         },
     });
 
@@ -169,7 +181,13 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                             content: inst.content,
                         })),
                         content: recipe.content || '',
+                        metaTitle: recipe.metaTitle || '',
+                        metaDescription: recipe.metaDescription || '',
+                        coverImageAlt: recipe.coverImageAlt || '',
+                        tags: (recipe.tags || []).join(', '),
                         published: recipe.published,
+                        featured: recipe.featured || false,
+                        isPremium: recipe.isPremium || false,
                     });
                 } else {
                     alert('Receita não encontrada');
@@ -199,10 +217,16 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
     const onSubmit = async (data: RecipeFormData) => {
         setLoading(true);
         try {
+            const payload = {
+                ...data,
+                tags: data.tags
+                    ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
+                    : [],
+            };
             const response = await fetch(`/api/admin/receitas/${recipeId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -540,18 +564,108 @@ export default function EditarReceitaPage({ params }: { params: Promise<{ id: st
                     />
                 </div>
 
+                {/* SEO & Tags */}
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+                    <h2 className="text-xl font-semibold text-foreground">Otimização para Motores de Busca (SEO)</h2>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="metaTitle">Meta Title</Label>
+                        <Input
+                            id="metaTitle"
+                            {...register('metaTitle')}
+                            placeholder="Título otimizado para o Google (até 60 caracteres)"
+                            maxLength={60}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Se vazio, o Google usará o título da receita. Ideal: até 60 caracteres.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="metaDescription">Meta Description</Label>
+                        <Textarea
+                            id="metaDescription"
+                            {...register('metaDescription')}
+                            rows={3}
+                            placeholder="Texto que aparece no Google para convencer o clique (até 160 caracteres)"
+                            maxLength={160}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Texto que aparece no Google para convencer o clique. Ideal: até 160 caracteres.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="coverImageAlt">Alt Text da Imagem de Capa</Label>
+                        <Input
+                            id="coverImageAlt"
+                            {...register('coverImageAlt')}
+                            placeholder='Ex: "Prato de bife de fígado acebolado"'
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Descrição da foto do prato para acessibilidade e SEO de imagens.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
+                            id="tags"
+                            {...register('tags')}
+                            placeholder="carnivora, low carb, jejum"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Separe as tags por vírgula. Ex: carnivora, low carb, fígado, sem lactose.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Premium Section */}
+                <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-dashed border-orange-500/30 rounded-lg p-6 space-y-3">
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="isPremium"
+                                {...register('isPremium')}
+                                className="w-5 h-5 rounded border-orange-500 accent-orange-500 cursor-pointer"
+                            />
+                            <Label htmlFor="isPremium" className="cursor-pointer">
+                                <span className="text-lg font-semibold text-orange-600">🔒 Conteúdo Exclusivo para Membros</span>
+                            </Label>
+                        </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground ml-7">
+                        Se ativado, usuários gratuitos verão apenas o título e foto, mas ingredientes e modo de preparo estarão borrados até que façam uma assinatura premium.
+                    </p>
+                </div>
+
                 {/* Actions */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="published"
-                            {...register('published')}
-                            className="rounded border-border"
-                        />
-                        <Label htmlFor="published" className="cursor-pointer">
-                            Publicar
-                        </Label>
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="published"
+                                {...register('published')}
+                                className="rounded border-border"
+                            />
+                            <Label htmlFor="published" className="cursor-pointer">
+                                Publicar
+                            </Label>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="featured"
+                                {...register('featured')}
+                                className="rounded border-border"
+                            />
+                            <Label htmlFor="featured" className="cursor-pointer">
+                                Destaque
+                            </Label>
+                        </div>
                     </div>
 
                     <div className="flex gap-4">

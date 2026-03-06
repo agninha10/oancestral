@@ -105,6 +105,10 @@ async function main() {
             title: 'Pasteurização Caseira de Leite Cru',
             description: 'Método gentil para garantir a segurança do leite cru preservando enzimas e nutrientes. Ideal para quem busca os benefícios do leite in natura com segurança.',
             content: 'A pasteurização caseira a 63°C por 30 minutos elimina patógenos sem destruir todas as enzimas benéficas e a estrutura das proteínas, diferente do processo industrial UHT.',
+            metaTitle: 'Como Pasteurizar Leite Cru em Casa com Segurança',
+            metaDescription: 'Aprenda a pasteurizar leite cru em casa a 63°C preservando enzimas e nutrientes. Método ancestral seguro para uma saúde intestinal de verdade.',
+            coverImageAlt: 'Panela com leite cru sendo pasteurizado em fogo baixo com termômetro culinário',
+            tags: ['leite cru', 'pasteurizacao caseira', 'saude intestinal', 'dieta ancestral', 'low carb', 'dieta da selva'],
             prepTime: 5,
             cookTime: 40,
             servings: 4,
@@ -125,6 +129,10 @@ async function main() {
             title: 'Iogurte Caseiro Natural',
             description: 'Iogurte fermentado tradicional, rico em probióticos e sem aditivos.',
             content: 'O iogurte caseiro é uma forma simples de multiplicar os benefícios do leite através da fermentação. O tempo de fermentação define a acidez e consistência.',
+            metaTitle: 'Iogurte Caseiro Natural Rico em Probióticos',
+            metaDescription: 'Receita de iogurte caseiro fermentado naturalmente, rico em probióticos para fortalecer sua flora intestinal. Sem açúcar e sem aditivos.',
+            coverImageAlt: 'Tigela de iogurte caseiro cremoso natural sem açúcar',
+            tags: ['iogurte caseiro', 'probioticos', 'fermentacao', 'saude intestinal', 'low carb', 'dieta da selva', 'sem acucar'],
             prepTime: 15,
             cookTime: 0, // O tempo principal é passivo (fermentação)
             servings: 8,
@@ -146,6 +154,10 @@ async function main() {
             title: 'Kefir de Leite',
             description: 'Superalimento ancestral rico em probióticos, feito com grãos de kefir e leite.',
             content: 'O Kefir ajuda a equilibrar a saúde intestinal e fortalecer a imunidade. Os grãos são organismos vivos que transformam o leite em uma bebida poderosa.',
+            metaTitle: 'Kefir de Leite Caseiro: Receita Fácil e Rápida',
+            metaDescription: 'Como fazer kefir de leite em casa com grãos vivos. Superalimento ancestral rico em probióticos que fortalece a imunidade e o intestino.',
+            coverImageAlt: 'Copo de kefir de leite cremoso ao lado de grãos de kefir',
+            tags: ['kefir', 'probioticos', 'fermentacao', 'saude intestinal', 'superalimento', 'dieta ancestral', 'dieta da selva'],
             prepTime: 5,
             cookTime: 0,
             servings: 4,
@@ -167,6 +179,10 @@ async function main() {
             title: 'Queijo Labane Cremoso e Soro de Leite',
             description: 'Queijo cremoso tipo "cream cheese" feito a partir da dessora do iogurte. Gera o Soro de Leite (Whey) como subproduto nutritivo.',
             content: 'O Labane é versátil e pode ser temperado com azeite e ervas. O soro (whey) que sobra é rico em proteínas e ótimo para fermentar vegetais.',
+            metaTitle: 'Queijo Labane Caseiro e Soro de Leite (Whey)',
+            metaDescription: 'Receita de queijo labane cremoso feito com iogurte e soro de leite (whey) natural como bônus. Rico em proteínas, perfeito para dieta low carb.',
+            coverImageAlt: 'Queijo labane cremoso temperado com azeite e ervas frescas em prato rústico',
+            tags: ['labane', 'queijo caseiro', 'soro de leite', 'whey natural', 'low carb', 'probioticos', 'dieta da selva'],
             prepTime: 10,
             cookTime: 0,
             servings: 6,
@@ -203,12 +219,16 @@ async function main() {
                     slug,
                     description: recipe.description,
                     content: recipe.content,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     prepTime: recipe.prepTime,
                     cookTime: recipe.cookTime,
                     servings: recipe.servings,
                     difficulty: recipe.difficulty,
                     published: true,
-                    authorId: admin.id, // Usa o ID do admin criado acima
+                    authorId: admin.id,
                     categoryId: category.id,
                     ingredients: {
                         create: recipe.ingredients.map(ing => ({
@@ -227,7 +247,17 @@ async function main() {
             });
             console.log(`✅ Receita criada: ${recipe.title}`);
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`);
+            // Atualiza APENAS os campos de SEO sem sobrescrever edições manuais
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                },
+            });
+            console.log(`🔄 SEO atualizado: ${recipe.title}`);
         }
     }
 

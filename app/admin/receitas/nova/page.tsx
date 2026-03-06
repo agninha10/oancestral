@@ -63,6 +63,10 @@ const recipeSchema = z.object({
         })
     ).min(1, 'Adicione pelo menos 1 passo'),
     content: z.string().optional(),
+    metaTitle: z.string().optional(),
+    metaDescription: z.string().optional(),
+    coverImageAlt: z.string().optional(),
+    tags: z.string().optional(),
     published: z.boolean(),
     featured: z.boolean(),
     isPremium: z.boolean(),
@@ -119,6 +123,10 @@ export default function NovaReceitaPage() {
             fat: null,
             carbs: null,
             cuisine: '',
+            metaTitle: '',
+            metaDescription: '',
+            coverImageAlt: '',
+            tags: '',
         },
     });
 
@@ -154,10 +162,16 @@ export default function NovaReceitaPage() {
     const onSubmit = async (data: RecipeFormData) => {
         setLoading(true);
         try {
+            const payload = {
+                ...data,
+                tags: data.tags
+                    ? data.tags.split(',').map((t) => t.trim()).filter(Boolean)
+                    : [],
+            };
             const response = await fetch('/api/admin/receitas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -479,6 +493,62 @@ export default function NovaReceitaPage() {
                         onChange={(html) => setValue('content', html)}
                         placeholder="Adicione dicas, variações ou informações extras..."
                     />
+                </div>
+
+                {/* SEO & Tags */}
+                <div className="bg-card border border-border rounded-lg p-6 space-y-6">
+                    <h2 className="text-xl font-semibold text-foreground">Otimização para Motores de Busca (SEO)</h2>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="metaTitle">Meta Title</Label>
+                        <Input
+                            id="metaTitle"
+                            {...register('metaTitle')}
+                            placeholder="Título otimizado para o Google (até 60 caracteres)"
+                            maxLength={60}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Se vazio, o Google usará o título da receita. Ideal: até 60 caracteres.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="metaDescription">Meta Description</Label>
+                        <Textarea
+                            id="metaDescription"
+                            {...register('metaDescription')}
+                            rows={3}
+                            placeholder="Texto que aparece no Google para convencer o clique (até 160 caracteres)"
+                            maxLength={160}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Texto que aparece no Google para convencer o clique. Ideal: até 160 caracteres.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="coverImageAlt">Alt Text da Imagem de Capa</Label>
+                        <Input
+                            id="coverImageAlt"
+                            {...register('coverImageAlt')}
+                            placeholder='Ex: "Prato de bife de fígado acebolado"'
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Descrição da foto do prato para acessibilidade e SEO de imagens.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
+                            id="tags"
+                            {...register('tags')}
+                            placeholder="carnivora, low carb, jejum"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Separe as tags por vírgula. Ex: carnivora, low carb, fígado, sem lactose.
+                        </p>
+                    </div>
                 </div>
 
                 {/* Premium Section */}

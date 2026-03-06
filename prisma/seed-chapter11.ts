@@ -82,7 +82,11 @@ async function main() {
                 'Misture mostarda, mel, páprica, azeite, sal e pimenta.',
                 'Passe a mistura nas coxas e disponha na assadeira.',
                 'Asse por 40-45 min, virando na metade para dourar os dois lados.'
-            ]
+            ],
+            metaTitle: 'Coxa de Frango com Mostarda e Mel Ancestral',
+            metaDescription: 'Coxas de frango suculentas assadas com molho de mostarda Dijon e mel. Receita ancestral simples, funcional e deliciosa para o dia a dia.',
+            coverImageAlt: 'Coxas de frango assadas douradas com molho de mostarda e mel brilhante',
+            tags: ['frango assado', 'mostarda e mel', 'receita ancestral', 'dieta da selva', 'funcional', 'proteína']
         },
         {
             title: 'Moela de Frango com Molho de Tomate e Páprica',
@@ -106,7 +110,11 @@ async function main() {
                 'Adicione as moelas, sal, pimenta e páprica.',
                 'Junte tomates e caldo.',
                 'Cozinhe em fogo baixo com tampa por 1h até amaciar.'
-            ]
+            ],
+            metaTitle: 'Moela de Frango ao Molho de Tomate e Páprica',
+            metaDescription: 'Moela de frango macia cozida lentamente em molho de tomate com páprica. Fonte econômica de proteínas e minerais na dieta ancestral.',
+            coverImageAlt: 'Moela de frango em molho de tomate com páprica doce servida em panela',
+            tags: ['moela de frango', 'miúdos', 'vísceras', 'proteína', 'dieta da selva', 'receita econômica']
         },
         {
             title: 'Frango ao Leite de Coco e Gengibre',
@@ -128,7 +136,11 @@ async function main() {
                 'Doure o frango temperado.',
                 'Adicione leite de coco e caldo.',
                 'Cozinhe por 15 min até o molho reduzir e engrossar.'
-            ]
+            ],
+            metaTitle: 'Frango ao Leite de Coco e Gengibre Ancestral',
+            metaDescription: 'Frango cremoso ao leite de coco com gengibre anti-inflamatório. Receita ancestral aromática rica em gorduras saudáveis e especiarias.',
+            coverImageAlt: 'Frango ao leite de coco cremoso com gengibre ralado e ervas frescas',
+            tags: ['frango', 'leite de coco', 'gengibre', 'anti-inflamatório', 'dieta da selva', 'gorduras saudáveis']
         },
         {
             title: 'Asas de Frango Assadas com Páprica Defumada',
@@ -148,7 +160,11 @@ async function main() {
                 'Tempere as asas com azeite, páprica, alho em pó, sal e pimenta.',
                 'Asse a 200°C por 40 min.',
                 'Vire na metade do tempo para dourar por igual.'
-            ]
+            ],
+            metaTitle: 'Asas de Frango Crocantes com Páprica Defumada',
+            metaDescription: 'Asinhas de frango crocantes assadas com páprica defumada. Petisco ancestral saboroso, sem fritura e sem ultraprocessados.',
+            coverImageAlt: 'Asas de frango crocantes e douradas temperadas com páprica defumada',
+            tags: ['asas de frango', 'páprica defumada', 'petisco ancestral', 'sem fritura', 'dieta da selva', 'low carb']
         },
         {
             title: 'Curry de Frango com Leite de Coco',
@@ -172,7 +188,11 @@ async function main() {
                 'Adicione curry, tomate e cenoura.',
                 'Cubra com leite de coco e caldo. Cozinhe por 20-30 min.',
                 'Finalize com coentro.'
-            ]
+            ],
+            metaTitle: 'Curry de Frango com Leite de Coco e Cúrcuma',
+            metaDescription: 'Curry de frango ancestral com leite de coco, cúrcuma e especiarias anti-inflamatórias. Receita reconfortante e nutritiva com caldo de ossos.',
+            coverImageAlt: 'Curry dourado de frango com leite de coco, legumes e coentro fresco',
+            tags: ['curry de frango', 'leite de coco', 'cúrcuma', 'anti-inflamatório', 'dieta da selva', 'especiarias']
         },
         {
             title: 'Frango ao Molho de Cogumelos com Creme de Leite Fresco',
@@ -194,7 +214,11 @@ async function main() {
                 'Refogue cebola e alho. Adicione os cogumelos.',
                 'Volte o frango, adicione creme de leite e caldo.',
                 'Cozinhe por 10-15 min até engrossar. Finalize com salsa.'
-            ]
+            ],
+            metaTitle: 'Frango ao Molho de Cogumelos Cremoso Ancestral',
+            metaDescription: 'Frango cremoso ao molho de cogumelos com creme de leite fresco. Prato sofisticado e ancestral, rico em gorduras naturais e sabor.',
+            coverImageAlt: 'Frango em molho cremoso de cogumelos frescos com salsa picada',
+            tags: ['frango', 'cogumelos', 'creme de leite', 'gorduras naturais', 'dieta da selva', 'jantar especial']
         },
         {
             title: 'Frango ao Molho de Vinho Branco e Ervas',
@@ -215,7 +239,11 @@ async function main() {
                 'Deglaceie com vinho branco.',
                 'Volte o frango e adicione caldo e ervas.',
                 'Cozinhe tampado por 20-25 min.'
-            ]
+            ],
+            metaTitle: 'Frango ao Vinho Branco com Ervas Frescas',
+            metaDescription: 'Frango aromático cozido em vinho branco e caldo de ossos com ervas frescas. Receita ancestral francesa elegante e nutritiva.',
+            coverImageAlt: 'Pedaços de frango em molho de vinho branco com tomilho e louro',
+            tags: ['frango ao vinho', 'vinho branco', 'caldo de ossos', 'ervas frescas', 'dieta da selva', 'receita francesa']
         },
         {
             title: 'Sopa de Frango com Legumes',
@@ -236,7 +264,11 @@ async function main() {
                 'Adicione cenoura, batata e caldo. Cozinhe 10 min.',
                 'Adicione abobrinha e frango. Cozinhe mais 10 min.',
                 'Ajuste temperos e sirva.'
-            ]
+            ],
+            metaTitle: 'Sopa de Frango Curativa com Caldo de Ossos',
+            metaDescription: 'Sopa de frango com caldo de ossos e legumes frescos: receita curativa ancestral para aumentar a imunidade e nutrir o corpo inteiro.',
+            coverImageAlt: 'Sopa de frango com cenoura, batata-doce e legumes em caldo dourado',
+            tags: ['sopa de frango', 'caldo de ossos', 'imunidade', 'receita curativa', 'dieta da selva', 'gut healing']
         },
         {
             title: 'Coração de Galinha Salteado com Ervas e Alho',
@@ -257,7 +289,11 @@ async function main() {
                 'Adicione alho e cebola, refogue mais 2 min.',
                 'Tempere com sal, pimenta, páprica e ervas.',
                 'Sirva imediatamente.'
-            ]
+            ],
+            metaTitle: 'Coração de Galinha Salteado: Rico em Coenzima Q10',
+            metaDescription: 'Coração de galinha salteado com ervas e alho: superalimento rico em Coenzima Q10 e proteínas. Preparação rápida e ancestral.',
+            coverImageAlt: 'Corações de galinha salteados com alho e ervas frescas em frigideira',
+            tags: ['coração de galinha', 'coenzima Q10', 'vísceras', 'superalimento', 'dieta da selva', 'organ meats']
         },
         {
             title: 'Patê de Fígado de Galinha',
@@ -278,7 +314,11 @@ async function main() {
                 'Adicione os fígados e cozinhe por 5-7 min (deve ficar rosado dentro).',
                 'Tempere e bata no processador com o vinagre até virar creme.',
                 'Refrigere por até 3 dias.'
-            ]
+            ],
+            metaTitle: 'Patê de Fígado de Galinha Cremoso e Nutritivo',
+            metaDescription: 'Patê de fígado de galinha cremoso: rico em ferro, vitamina A e B12. A maneira mais deliciosa de consumir vísceras na dieta ancestral.',
+            coverImageAlt: 'Patê cremoso de fígado de galinha servido com ervas frescas',
+            tags: ['patê de fígado', 'fígado de galinha', 'ferro', 'vitamina A', 'dieta da selva', 'vísceras']
         }
     ]
 
@@ -304,6 +344,10 @@ async function main() {
                     published: true,
                     authorId: author.id,
                     categoryId: category.id,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     ingredients: {
                         create: recipe.ingredients.map(ing => ({
                             name: ing.name,
@@ -321,7 +365,16 @@ async function main() {
             })
             console.log(`✅ Receita criada: ${recipe.title}`)
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`)
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                }
+            })
+            console.log(`🔄 SEO atualizado: ${recipe.title}`)
         }
     }
 

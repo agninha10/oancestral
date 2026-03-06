@@ -65,6 +65,10 @@ async function main() {
             title: 'Caldo de Ossos Básico (Bone Broth)',
             description: 'O verdadeiro ouro líquido. Rico em colágeno e minerais, ideal para curar o intestino e fortalecer articulações.',
             content: 'Cozido por longas horas (12-24h), este caldo extrai toda a gelatina e nutrientes dos ossos. Tem sabor suave e é usado como base para outras receitas ou consumido como tônico.',
+            metaTitle: 'Caldo de Ossos (Bone Broth): Receita Completa',
+            metaDescription: 'Receita de caldo de ossos (bone broth) rico em colágeno e minerais. Ouro líquido ancestral que cura o intestino e fortalece articulações.',
+            coverImageAlt: 'Panela com caldo de ossos dourado e gelatinoso fumegando',
+            tags: ['caldo de ossos', 'bone broth', 'colageno', 'saude intestinal', 'dieta ancestral', 'dieta da selva', 'low carb', 'carnivora'],
             prepTime: 20,
             cookTime: 1440, // 24 horas em minutos
             servings: 10,
@@ -91,6 +95,10 @@ async function main() {
             title: 'Caldo de Carne e Ossos (Meat Stock)',
             description: 'Mais rápido e saboroso que o Bone Broth, focado na proteína da carne e aminoácidos.',
             content: 'Ideal para quem está começando protocolos de cura intestinal (como GAPS), pois é mais suave para a digestão e rico em sabor.',
+            metaTitle: 'Caldo de Carne e Ossos (Meat Stock) Curativo',
+            metaDescription: 'Meat stock caseiro rico em aminoácidos e proteína. Ideal para protocolo GAPS, cura intestinal e digestão suave. Pronto em 4 horas.',
+            coverImageAlt: 'Tigela de caldo de carne e ossos escuro e encorpado com ervas',
+            tags: ['caldo de carne', 'meat stock', 'protocolo gaps', 'saude intestinal', 'aminoacidos', 'dieta ancestral', 'dieta da selva', 'carnivora'],
             prepTime: 15,
             cookTime: 240, // 4 horas em minutos
             servings: 8,
@@ -115,6 +123,10 @@ async function main() {
             title: 'Caldo de Frango Ancestral',
             description: 'O clássico "remédio de vó" feito da maneira correta para máxima nutrição e imunidade.',
             content: 'Feito com a carcaça inteira ou partes ósseas, rico em colágeno natural dos pés e pescoço.',
+            metaTitle: 'Caldo de Frango Ancestral Rico em Colágeno',
+            metaDescription: 'Caldo de frango caseiro feito com carcaça e pés para máximo colágeno. O remédio de vó que fortalece a imunidade de verdade.',
+            coverImageAlt: 'Panela de caldo de frango caseiro dourado com vegetais aromáticos',
+            tags: ['caldo de frango', 'colageno', 'imunidade', 'remedio de vo', 'dieta ancestral', 'dieta da selva', 'low carb'],
             prepTime: 20,
             cookTime: 480, // 8 horas
             servings: 12,
@@ -139,6 +151,10 @@ async function main() {
             title: 'Caldo de Peixe Rápido',
             description: 'Uma variação rica em iodo e minerais do mar, feita com cabeças e espinhas de peixe.',
             content: 'Ao contrário dos caldos de carne, o caldo de peixe fica pronto rápido (1-2 horas) e é uma base excelente para sopas e moquecas.',
+            metaTitle: 'Caldo de Peixe Rápido Rico em Iodo',
+            metaDescription: 'Caldo de peixe caseiro pronto em 1h30, rico em iodo e minerais do mar. Base perfeita para sopas e moquecas na dieta ancestral.',
+            coverImageAlt: 'Panela com caldo de peixe claro e aromático com ervas',
+            tags: ['caldo de peixe', 'iodo', 'minerais', 'frutos do mar', 'dieta ancestral', 'dieta da selva', 'low carb', 'receita rapida'],
             prepTime: 15,
             cookTime: 90, // 1h30
             servings: 8,
@@ -173,6 +189,10 @@ async function main() {
                     slug,
                     description: recipe.description,
                     content: recipe.content,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     prepTime: recipe.prepTime,
                     cookTime: recipe.cookTime,
                     servings: recipe.servings,
@@ -197,7 +217,17 @@ async function main() {
             })
             console.log(`✅ Receita criada: ${recipe.title}`)
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`)
+            // Atualiza APENAS os campos de SEO sem sobrescrever edições manuais
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                },
+            })
+            console.log(`🔄 SEO atualizado: ${recipe.title}`)
         }
     }
 

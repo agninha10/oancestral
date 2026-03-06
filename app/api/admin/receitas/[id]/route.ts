@@ -118,7 +118,13 @@ export async function PUT(
             ingredients,
             instructions,
             content,
+            metaTitle,
+            metaDescription,
+            coverImageAlt,
+            tags,
             published,
+            featured,
+            isPremium,
         } = body;
 
         // Delete existing ingredients and instructions
@@ -149,7 +155,13 @@ export async function PUT(
                 fat,
                 carbs,
                 content: content || '',
+                metaTitle: metaTitle || null,
+                metaDescription: metaDescription || null,
+                coverImageAlt: coverImageAlt || null,
+                tags: tags || [],
                 published: published || false,
+                featured: featured || false,
+                isPremium: isPremium || false,
                 ingredients: {
                     create: ingredients.map((ing: any, index: number) => ({
                         name: ing.name,

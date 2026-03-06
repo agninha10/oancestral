@@ -65,6 +65,10 @@ async function main() {
             title: 'Como Germinar Grãos, Sementes e Nozes (Guia Básico)',
             description: 'A técnica fundamental para despertar a vida nos alimentos, reduzir antinutrientes (fitatos) e multiplicar a biodisponibilidade de vitaminas.',
             content: 'A germinação transforma sementes adormecidas em superalimentos vivos. Funciona para trigo, lentilhas, feijões (moyashi, azuki), sementes de girassol, abóbora e muito mais.',
+            metaTitle: 'Como Germinar Grãos e Sementes: Guia Completo',
+            metaDescription: 'Aprenda a germinar grãos, sementes e nozes em casa. Reduza antinutrientes, multiplique vitaminas e transforme alimentos em superalimentos vivos.',
+            coverImageAlt: 'Pote de vidro com grãos germinados brotando em bancada de cozinha',
+            tags: ['germinacao', 'graos germinados', 'antinutrientes', 'fitatos', 'superalimento', 'dieta ancestral', 'dieta da selva', 'sementes'],
             prepTime: 10,
             cookTime: 0, // Tempo ativo baixo, processo leva dias
             servings: 10, // Porções variadas
@@ -90,6 +94,10 @@ async function main() {
             title: 'Salada de Grãos Germinados com Molho de Tahine',
             description: 'Uma refeição completa, refrescante e cheia de enzimas vivas, utilizando a base de grãos germinados.',
             content: 'Esta salada combina a crocância dos vegetais frescos com a potência nutricional das lentilhas ou grão-de-bico germinados, finalizada com um molho rico em cálcio.',
+            metaTitle: 'Salada de Grãos Germinados com Tahine',
+            metaDescription: 'Salada viva de grãos germinados com molho de tahine rico em cálcio. Refeição completa, crua e cheia de enzimas para nutrição ancestral.',
+            coverImageAlt: 'Tigela de salada colorida com grãos germinados e molho de tahine',
+            tags: ['salada germinada', 'graos germinados', 'tahine', 'enzimas vivas', 'low carb', 'dieta ancestral', 'dieta da selva', 'refeicao completa'],
             prepTime: 15,
             cookTime: 0,
             servings: 2,
@@ -134,6 +142,10 @@ async function main() {
                     slug,
                     description: recipe.description,
                     content: recipe.content,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     prepTime: recipe.prepTime,
                     cookTime: recipe.cookTime,
                     servings: recipe.servings,
@@ -158,7 +170,17 @@ async function main() {
             })
             console.log(`✅ Receita criada: ${recipe.title}`)
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`)
+            // Atualiza APENAS os campos de SEO sem sobrescrever edições manuais
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                },
+            })
+            console.log(`🔄 SEO atualizado: ${recipe.title}`)
         }
     }
 

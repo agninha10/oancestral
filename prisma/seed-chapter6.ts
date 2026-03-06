@@ -65,6 +65,10 @@ async function main() {
             title: 'Molho Básico de Salada',
             description: 'Um vinagrete funcional enriquecido com óleo de linhaça para aporte de Ômega-3.',
             content: 'Simples e rápido, este molho combina a acidez do vinagre de maçã com gorduras boas, essencial para absorver as vitaminas lipossolúveis (A, D, E, K) dos vegetais.',
+            metaTitle: 'Vinagrete Funcional com Ômega-3 e Linhaça',
+            metaDescription: 'Molho de salada funcional com azeite e óleo de linhaça rico em Ômega-3. Essencial para absorver vitaminas A, D, E e K dos vegetais.',
+            coverImageAlt: 'Molheira com vinagrete dourado de azeite e linhaça sobre salada',
+            tags: ['vinagrete', 'omega 3', 'linhaca', 'molho de salada', 'gorduras boas', 'low carb', 'dieta da selva', 'dieta ancestral'],
             prepTime: 5,
             cookTime: 0,
             servings: 4,
@@ -85,8 +89,10 @@ async function main() {
         {
             title: 'Molho de Tahine Cremoso',
             description: 'Rico em cálcio e gorduras boas, este molho traz cremosidade sem laticínios.',
-            content: 'O tahine (pasta de gergelim) é uma excelente fonte de minerais. Combinado com limão e alho, cria um sabor marcante.',
-            prepTime: 5,
+            content: 'O tahine (pasta de gergelim) é uma excelente fonte de minerais. Combinado com limão e alho, cria um sabor marcante.',            metaTitle: 'Molho de Tahine Cremoso Rico em Cálcio',
+            metaDescription: 'Molho de tahine cremoso sem lacticínios, rico em cálcio e minerais. Receita rápida para saladas e vegetais na dieta ancestral.',
+            coverImageAlt: 'Tigela com molho de tahine cremoso com limão e alho',
+            tags: ['tahine', 'molho cremoso', 'calcio', 'sem lactose', 'low carb', 'dieta ancestral', 'dieta da selva', 'gorduras boas'],            prepTime: 5,
             cookTime: 0,
             servings: 4,
             difficulty: RecipeDifficulty.EASY,
@@ -109,6 +115,10 @@ async function main() {
             title: 'Molho de Kefir com Ervas',
             description: 'Um molho probiótico refrescante, similar ao Ranch, mas natural e vivo.',
             content: 'Utiliza o Kefir de leite (ou iogurte natural) como base, adicionando bactérias benéficas à sua salada.',
+            metaTitle: 'Molho de Kefir com Ervas: Ranch Probiótico',
+            metaDescription: 'Molho tipo ranch feito com kefir de leite e ervas frescas. Probiótico natural e vivo que transforma qualquer salada em alimento funcional.',
+            coverImageAlt: 'Molho branco de kefir com ervas frescas picadas em potinho',
+            tags: ['molho de kefir', 'probioticos', 'ranch natural', 'ervas frescas', 'saude intestinal', 'low carb', 'dieta da selva'],
             prepTime: 5,
             cookTime: 0,
             servings: 2,
@@ -130,6 +140,10 @@ async function main() {
             title: 'Molho Pesto Ancestral',
             description: 'Versão funcional do clássico italiano, utilizando nozes germinadas para maior digestibilidade.',
             content: 'Rico em antioxidantes do manjericão e gorduras boas das nozes e azeite. Perfeito para saladas ou vegetais assados.',
+            metaTitle: 'Pesto Ancestral com Nozes Germinadas',
+            metaDescription: 'Pesto caseiro com nozes germinadas para máxima digestibilidade. Rico em antioxidantes do manjericão e gorduras boas do azeite extra virgem.',
+            coverImageAlt: 'Pote de molho pesto verde vibrante com nozes e manjericão fresco',
+            tags: ['pesto', 'nozes germinadas', 'manjericao', 'antioxidantes', 'gorduras boas', 'low carb', 'dieta ancestral', 'dieta da selva'],
             prepTime: 10,
             cookTime: 0,
             servings: 6,
@@ -153,6 +167,10 @@ async function main() {
             title: 'Guacamole Ancestral',
             description: 'Mais que um molho, um acompanhamento rico em gorduras monoinsaturadas.',
             content: 'Perfeito para acompanhar saladas, carnes ou vegetais crus. O segredo é usar o limão imediatamente para não oxidar.',
+            metaTitle: 'Guacamole Ancestral Rico em Gorduras Boas',
+            metaDescription: 'Guacamole caseiro rico em gorduras monoinsaturadas do abacate. Acompanhamento perfeito para carnes e saladas na dieta ancestral.',
+            coverImageAlt: 'Tigela de guacamole fresco com abacate, tomate e coentro',
+            tags: ['guacamole', 'abacate', 'gorduras boas', 'monoinsaturadas', 'low carb', 'dieta ancestral', 'dieta da selva', 'acompanhamento'],
             prepTime: 10,
             cookTime: 0,
             servings: 4,
@@ -190,6 +208,10 @@ async function main() {
                     slug,
                     description: recipe.description,
                     content: recipe.content,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     prepTime: recipe.prepTime,
                     cookTime: recipe.cookTime,
                     servings: recipe.servings,
@@ -214,7 +236,17 @@ async function main() {
             })
             console.log(`✅ Receita criada: ${recipe.title}`)
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`)
+            // Atualiza APENAS os campos de SEO sem sobrescrever edições manuais
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                },
+            })
+            console.log(`🔄 SEO atualizado: ${recipe.title}`)
         }
     }
 

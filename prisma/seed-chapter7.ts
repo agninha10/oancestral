@@ -65,6 +65,10 @@ async function main() {
             title: 'Ginger Bug (Iniciador de Fermentação)',
             description: 'A "mãe" de todos os refrigerantes naturais. Uma cultura viva feita apenas de gengibre e açúcar.',
             content: 'O Ginger Bug captura leveduras selvagens do ar e da casca do gengibre. É usado como base para gaseificar sucos e chás naturalmente.',
+            metaTitle: 'Ginger Bug: Iniciador de Refrigerante Natural',
+            metaDescription: 'Aprenda a fazer ginger bug, a cultura viva que transforma qualquer suco em refrigerante probiótico natural. Só gengibre, açúcar e água.',
+            coverImageAlt: 'Pote de vidro com ginger bug borbulhando com gengibre ralado',
+            tags: ['ginger bug', 'fermentacao', 'refrigerante natural', 'probioticos', 'gengibre', 'dieta da selva', 'dieta ancestral'],
             prepTime: 10,
             cookTime: 0, // Tempo ativo baixo, fermentação de 5 dias
             servings: 20, // Rende muitas porções de iniciador
@@ -86,6 +90,10 @@ async function main() {
             title: 'Refrigerante Caseiro de Limonada Fermentada',
             description: 'Uma limonada gaseificada naturalmente, rica em probióticos e com muito menos açúcar que a industrial.',
             content: 'Refrescante e digestiva, esta limonada utiliza o Ginger Bug para criar gás natural.',
+            metaTitle: 'Limonada Fermentada: Refrigerante Probiótico',
+            metaDescription: 'Limonada gaseificada naturalmente com ginger bug. Refrigerante caseiro probiótico com menos açúcar, refrescante e digestivo.',
+            coverImageAlt: 'Copo de limonada fermentada com bolhas naturais e rodela de limão',
+            tags: ['limonada fermentada', 'refrigerante natural', 'probioticos', 'ginger bug', 'low carb', 'dieta da selva', 'sem conservantes'],
             prepTime: 10,
             cookTime: 0,
             servings: 4,
@@ -109,6 +117,10 @@ async function main() {
             title: 'Refrigerante de Chá Verde com Limão e Mel',
             description: 'Um chá gelado probiótico e antioxidante, levemente gaseificado.',
             content: 'Une os benefícios do chá verde com a fermentação natural.',
+            metaTitle: 'Chá Verde Fermentado: Gelado e Probiótico',
+            metaDescription: 'Chá verde fermentado com limão e mel, gaseificado naturalmente. Antioxidante e probiótico em uma bebida refrescante e funcional.',
+            coverImageAlt: 'Garrafa de chá verde fermentado gelado com limão e mel',
+            tags: ['cha verde fermentado', 'antioxidante', 'probioticos', 'refrigerante natural', 'ginger bug', 'dieta da selva', 'bebida funcional'],
             prepTime: 15,
             cookTime: 0,
             servings: 4,
@@ -131,6 +143,10 @@ async function main() {
             title: 'Refrigerante de Abacaxi com Hortelã',
             description: 'Sabor tropical intenso, aproveitando a doçura natural da fruta para fermentar.',
             content: 'Uma das combinações mais saborosas de refrigerante natural.',
+            metaTitle: 'Refrigerante de Abacaxi com Hortelã Natural',
+            metaDescription: 'Refrigerante natural de abacaxi com hortelã, gaseificado por fermentação. Sabor tropical intenso, probiótico e sem conservantes.',
+            coverImageAlt: 'Garrafa de refrigerante de abacaxi fermentado com folhas de hortelã',
+            tags: ['refrigerante de abacaxi', 'hortela', 'fermentacao', 'probioticos', 'refrigerante natural', 'dieta da selva', 'sem conservantes'],
             prepTime: 15,
             cookTime: 0,
             servings: 4,
@@ -154,6 +170,10 @@ async function main() {
             title: 'Kombucha Caseira',
             description: 'O famoso chá fermentado milenar, feito a partir da colônia SCOBY.',
             content: 'Rica em ácidos orgânicos e probióticos, a Kombucha é um tônico poderoso para a imunidade.',
+            metaTitle: 'Kombucha Caseira: Guia Completo com SCOBY',
+            metaDescription: 'Guia completo para fazer kombucha caseira com SCOBY. Chá fermentado milenar rico em probióticos e ácidos orgânicos para a imunidade.',
+            coverImageAlt: 'Jarra de kombucha caseira com SCOBY visível e chá dourado',
+            tags: ['kombucha', 'scoby', 'cha fermentado', 'probioticos', 'fermentacao', 'imunidade', 'dieta da selva', 'dieta ancestral'],
             prepTime: 30,
             cookTime: 0, // Fermentação de 7-14 dias
             servings: 12,
@@ -192,6 +212,10 @@ async function main() {
                     slug,
                     description: recipe.description,
                     content: recipe.content,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     prepTime: recipe.prepTime,
                     cookTime: recipe.cookTime,
                     servings: recipe.servings,
@@ -216,7 +240,17 @@ async function main() {
             })
             console.log(`✅ Receita criada: ${recipe.title}`)
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`)
+            // Atualiza APENAS os campos de SEO sem sobrescrever edições manuais
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                },
+            })
+            console.log(`🔄 SEO atualizado: ${recipe.title}`)
         }
     }
 

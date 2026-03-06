@@ -86,7 +86,11 @@ async function main() {
                 'Em outra panela, refogue cebola e alho na banha.',
                 'Junte o feijão cozido, o caldo de ossos, louro e complete com água se precisar.',
                 'Deixe apurar o caldo. Finalize com ervas frescas.'
-            ]
+            ],
+            metaTitle: 'Feijão Ancestral: Receita com Demolho e Caldo de Ossos',
+            metaDescription: 'Aprenda a preparar feijão ancestral com demolho ácido para reduzir antinutrientes e caldo de ossos para máxima nutrição. Receita digestiva e saborosa.',
+            coverImageAlt: 'Panela de feijão ancestral cozido com caldo de ossos e ervas frescas',
+            tags: ['feijão ancestral', 'demolho ácido', 'caldo de ossos', 'antinutrientes', 'dieta da selva', 'receita ancestral']
         },
         {
             title: 'Arroz Ancestral com Caldo de Ossos e Ervas',
@@ -112,7 +116,11 @@ async function main() {
                 'Junte o caldo de ossos quente e o sal.',
                 'Cozinhe em fogo baixo com tampa entreaberta até secar (15-20min branco, 40-50min integral).',
                 'Deixe descansar tampado 5 min. Solte com garfo e adicione ervas.'
-            ]
+            ],
+            metaTitle: 'Arroz Ancestral com Caldo de Ossos e Ervas Frescas',
+            metaDescription: 'Transforme o arroz do dia a dia em superalimento: demolho para digestibilidade e cozimento em caldo de ossos rico em colágeno e minerais.',
+            coverImageAlt: 'Arroz ancestral soltinho cozido em caldo de ossos com ervas frescas',
+            tags: ['arroz ancestral', 'caldo de ossos', 'colágeno', 'demolho de grãos', 'dieta da selva', 'alimentação ancestral']
         },
         {
             title: '“Arroz” de Couve-Flor Ancestral',
@@ -135,7 +143,11 @@ async function main() {
                 'Adicione a couve-flor, sal e pimenta.',
                 'Refogue por 5-7 minutos mexendo sempre (deve ficar macia mas com leve crocância, não papa).',
                 'Finalize com ervas frescas.'
-            ]
+            ],
+            metaTitle: 'Arroz de Couve-Flor: Alternativa Low Carb Ancestral',
+            metaDescription: 'Receita de arroz de couve-flor low carb e ancestral. Acompanhamento leve e nutritivo, perfeito para dieta da selva e alimentação cetogênica.',
+            coverImageAlt: 'Arroz de couve-flor refogado com ervas frescas em frigideira',
+            tags: ['arroz de couve-flor', 'low carb', 'cetogênica', 'dieta da selva', 'receita ancestral', 'sem grãos']
         },
         {
             title: 'Risoto de Arroz com Cogumelos',
@@ -160,7 +172,11 @@ async function main() {
                 'Adicione o vinho e deixe evaporar.',
                 'Vá adicionando o caldo de ossos aos poucos, concha a concha, mexendo sempre até ficar cremoso (20-25min).',
                 'Finalize com queijo e salsinha.'
-            ]
+            ],
+            metaTitle: 'Risoto de Cogumelos com Caldo de Ossos Ancestral',
+            metaDescription: 'Risoto cremoso de cogumelos feito com arroz demolhado e caldo de ossos caseiro. Receita ancestral rica em colágeno e sabor profundo.',
+            coverImageAlt: 'Risoto cremoso de cogumelos servido em prato com queijo ralado',
+            tags: ['risoto ancestral', 'cogumelos', 'caldo de ossos', 'colágeno', 'demolho de arroz', 'dieta da selva']
         },
         {
             title: 'Risoto de Carne com Caldo de Ossos',
@@ -187,7 +203,11 @@ async function main() {
                 'Após 10 minutos, devolva a carne para a panela.',
                 'Cozinhe mexendo até o ponto cremoso (mais 15-20 min).',
                 'Tempere com ervas e sirva.'
-            ]
+            ],
+            metaTitle: 'Risoto de Carne com Caldo de Ossos | Receita Ancestral',
+            metaDescription: 'Risoto robusto de carne bovina com caldo de ossos e vinho tinto. Refeição completa, rica em proteínas, colágeno e minerais essenciais.',
+            coverImageAlt: 'Risoto de carne bovina dourada com caldo de ossos e ervas aromáticas',
+            tags: ['risoto de carne', 'caldo de ossos', 'proteína', 'colágeno', 'dieta da selva', 'refeição ancestral']
         }
     ]
 
@@ -213,6 +233,10 @@ async function main() {
                     published: true,
                     authorId: author.id,
                     categoryId: category.id,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
                     ingredients: {
                         create: recipe.ingredients.map(ing => ({
                             name: ing.name,
@@ -230,7 +254,16 @@ async function main() {
             })
             console.log(`✅ Receita criada: ${recipe.title}`)
         } else {
-            console.log(`⚠️ Receita já existe: ${recipe.title}`)
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                }
+            })
+            console.log(`🔄 SEO atualizado: ${recipe.title}`)
         }
     }
 
