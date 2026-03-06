@@ -24,18 +24,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         {
             url: `${baseUrl}/`,
             priority: 1.0,
+            changeFrequency: "weekly",
+        },
+        {
+            url: `${baseUrl}/jejum`,
+            lastModified: new Date(),
+            priority: 0.95,
+            changeFrequency: "monthly",
         },
         {
             url: `${baseUrl}/sobre`,
             priority: 0.8,
+            changeFrequency: "yearly",
         },
         {
             url: `${baseUrl}/blog`,
-            priority: 0.8,
+            priority: 0.85,
+            changeFrequency: "daily",
         },
         {
             url: `${baseUrl}/receitas`,
             priority: 0.8,
+            changeFrequency: "weekly",
+        },
+        {
+            url: `${baseUrl}/cursos`,
+            priority: 0.75,
+            changeFrequency: "monthly",
         },
     ];
 
