@@ -2,20 +2,14 @@ import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 const propertyId = process.env.GA_PROPERTY_ID;
 
-// Helper to clean private key
+// Helper to decode private key from Base64 (Vercel-safe)
 const getCredentials = () => {
-    let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    const base64Key = process.env.GOOGLE_PRIVATE_KEY_BASE64;
+    const privateKey = base64Key
+        ? Buffer.from(base64Key, 'base64').toString('utf-8')
+        : undefined;
+
     if (!privateKey) return undefined;
-
-    // Remove any surrounding quotes if they exist
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-        privateKey = privateKey.slice(1, -1);
-    }
-
-    // Handle both string literals with \n and actual newlines
-    if (privateKey.includes('\\n')) {
-        privateKey = privateKey.replace(/\\n/g, '\n');
-    }
 
     return {
         client_email: process.env.GOOGLE_CLIENT_EMAIL,
@@ -28,7 +22,7 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
 });
 
 export async function getDashboardMetrics() {
-    if (!propertyId || !process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+    if (!propertyId || !process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY_BASE64) {
         console.warn('GA4 credentials missing');
         return null;
     }

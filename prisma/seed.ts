@@ -45,6 +45,7 @@ async function main() {
         { name: 'Nutrição', slug: 'nutricao', type: 'BLOG' },
         { name: 'Jejum', slug: 'jejum-blog', type: 'BLOG' },
         { name: 'Treino', slug: 'treino', type: 'BLOG' },
+        { name: 'Ancestralidade', slug: 'ancestralidade', type: 'BLOG' },
         { name: 'Mindset', slug: 'mindset', type: 'BLOG' },
         { name: 'Estilo de Vida', slug: 'estilo-de-vida', type: 'BLOG' },
         { name: 'Outros', slug: 'outros-blog', type: 'BLOG' },
