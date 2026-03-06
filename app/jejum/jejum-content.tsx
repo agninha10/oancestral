@@ -49,6 +49,13 @@ function useCountdown(targetHours: number) {
   return timeLeft
 }
 
+function maskPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11)
+  return digits.length <= 10
+    ? digits.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\(\d{2}\) \d{4})(\d)/, "$1-$2")
+    : digits.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\(\d{2}\) \d{5})(\d)/, "$1-$2")
+}
+
 export default function JejumContent() {
   const [showSticky, setShowSticky] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
@@ -56,6 +63,22 @@ export default function JejumContent() {
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState("")
   const countdown = useCountdown(2)
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data?.user) return
+        const { name, email, whatsapp } = data.user
+        setCheckoutForm(prev => ({
+          ...prev,
+          name: name || prev.name,
+          email: email || prev.email,
+          cellphone: whatsapp ? maskPhone(whatsapp) : prev.cellphone,
+        }))
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => setShowSticky(window.scrollY > 600)
@@ -679,7 +702,7 @@ export default function JejumContent() {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-stone-800">
                   <div>
                     <h3 className="text-lg font-bold text-stone-100">Finalizar Compra</h3>
-                    <p className="text-xs text-stone-500">Pagamento via Pix — processado pelo AbacatePay</p>
+                    <p className="text-xs text-stone-500">Pix ou Cartão de Crédito — processado pelo AbacatePay</p>
                   </div>
                   <button
                     onClick={() => !checkoutLoading && setShowCheckout(false)}
@@ -742,17 +765,7 @@ export default function JejumContent() {
                       required
                       disabled={checkoutLoading}
                       value={checkoutForm.cellphone}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, "").slice(0, 11)
-                        const masked = digits.length <= 10
-                          ? digits
-                              .replace(/(\d{2})(\d)/, "($1) $2")
-                              .replace(/(\(\d{2}\) \d{4})(\d)/, "$1-$2")
-                          : digits
-                              .replace(/(\d{2})(\d)/, "($1) $2")
-                              .replace(/(\(\d{2}\) \d{5})(\d)/, "$1-$2")
-                        setCheckoutForm(prev => ({ ...prev, cellphone: masked }))
-                      }}
+                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, cellphone: maskPhone(e.target.value) }))}
                       placeholder="(11) 99999-9999"
                       className="w-full px-4 py-3 rounded-xl bg-stone-800/60 border border-stone-700/60 text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all text-sm disabled:opacity-50"
                     />
@@ -795,7 +808,7 @@ export default function JejumContent() {
                       <><Loader2 className="h-5 w-5 animate-spin mr-2" /> Gerando pagamento...</>
                     ) : (
                       <>
-                        Pagar R$ {PRICE} via Pix
+                        Pagar R$ {PRICE}
                         <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}

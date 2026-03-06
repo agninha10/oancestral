@@ -130,7 +130,7 @@ export async function createEbookPayment({
 
     const billingData = {
       frequency: "ONE_TIME",
-      methods: ["PIX"],
+      methods: ["PIX", "CARD"],
       products: [
         {
           externalId: "ebook-jejum-intermitente",
