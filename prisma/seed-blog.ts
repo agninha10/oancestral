@@ -141,6 +141,46 @@ const blogPostsData: BlogPostData[] = [
         featured: true,
     },
     {
+        title: 'Homem revela resultados surpreendentes de exames de sangue após perder 63kg com dieta baseada apenas em carne e ovos',
+        excerpt: 'Acompanhe a jornada de Patrick, que perdeu 138 libras (63kg) seguindo a dieta carnívora. Veja os resultados de seus exames de sangue, os benefícios na energia e sono, e o alerta sobre os níveis de testosterona após dois anos de dieta.',
+        content: `
+<h2>O Ponto de Virada: De "Prisioneiro" a Atleta</h2>
+<p>O fenômeno dos "carnívoros do YouTube" ganhou mais um capítulo impressionante. Patrick, um norte-americano que decidiu levar ao extremo o consumo de carne vermelha e ovos, compartilhou recentemente o impacto profundo — tanto positivo quanto negativo — que essa escolha teve em seu corpo e mente após mais de dois anos de experiência.</p>
+<p>Em março de 2023, a realidade de Patrick era desoladora. Pesando <strong>136kg (301 libras)</strong>, ele se descrevia como um "prisioneiro" em seu próprio corpo. Trabalhando como técnico de climatização (HVAC) em Nebraska, ele chegava em casa sem qualquer energia para brincar com seu filho pequeno. O excesso de peso não era apenas um fardo físico; era o combustível para uma depressão profunda e um cansaço crônico que drenava sua alegria de viver.</p>
+<p>Desesperado por uma mudança radical, ele abraçou a dieta carnívora. O resultado foi drástico: em dezembro de 2024, Patrick havia eliminado <strong>63kg (138 libras)</strong>, atingindo a marca de 73,9kg. Ele perdeu quase 50% de seu peso inicial, uma façanha que poucos conseguem manter a longo prazo.</p>
+
+<h2>O Cardápio e os Primeiros Benefícios</h2>
+<p>A rotina alimentar de Patrick consistia em algo que muitos profissionais de saúde teriam dificuldade em recomendar: um <strong>bife de 450g (16 oz)</strong>, meio quilo de carne moída e meia dúzia de ovos todos os dias.</p>
+<p>Segundo o seu relato, os benefícios imediatos foram notáveis. Ele afirmou sentir-se <em>"renovado e energizado"</em> e destacou uma melhora significativa na qualidade do sono. Instituições como a Healthline observam que, no curto prazo, dietas restritivas podem sim oferecer benefícios como redução da gordura abdominal e melhora na pressão arterial, embora a sustentabilidade dessas melhorias seja frequentemente questionada por especialistas.</p>
+
+<h2>O Veredito dos Exames de Sangue</h2>
+<p>Patrick foi meticuloso em monitorar sua saúde através de exames laboratoriais em diferentes fases:</p>
+<ul>
+  <li><strong>Aos 4 meses:</strong> Com 22kg já eliminados, seus níveis de triglicerídeos, HDL (colesterol bom), LDL (colesterol ruim) e colesterol total estavam dentro dos padrões saudáveis.</li>
+  <li><strong>Aos 12 meses:</strong> Após perder 54kg, marcadores como sódio, potássio, creatinina, cálcio e glicemia em jejum estavam "perfeitos".</li>
+  <li><strong>O Problema Hormonal:</strong> Apesar dos marcadores metabólicos excelentes, um sinal de alerta surgiu logo no início e persistiu: seus níveis de testosterona começaram a cair drasticamente.</li>
+</ul>
+
+<h2>A Queda da Testosterona e a Adaptação</h2>
+<p>Mesmo com a perda de peso massiva, Patrick começou a se sentir <em>"terrivelmente mal"</em> novamente em julho de 2024. A ansiedade e a depressão retornaram, acompanhadas de uma falta de energia paralisante. Os exames confirmaram que a testosterona continuava em queda livre.</p>
+<p>Diante disso, ele procurou um urologista e iniciou a <strong>Terapia de Reposição de Testosterona (TRT)</strong>, que trouxe de volta seu bem-estar. Patrick também começou a reintroduzir pequenas quantidades de frutas e vegetais na dieta para equilibrar o organismo. Ele atribuiu parte dos problemas hormonais ao consumo excessivo de carnes processadas em certas fases do programa.</p>
+
+<h2>Conclusão: Um Alerta sobre Dietas Extremas</h2>
+<p>A história de Patrick é um testemunho de superação, mas também um lembrete sobre os riscos de restrições severas. Enquanto instituições como a Cancer Research UK alertam para a ligação entre o alto consumo de carne vermelha e o câncer de intestino, o consenso médico continua favorecendo uma dieta equilibrada.</p>
+
+<blockquote>
+  <p>Se você está considerando uma mudança tão radical quanto a dieta carnívora, a orientação médica e o monitoramento constante de exames — como Patrick fez — são absolutamente indispensáveis.</p>
+</blockquote>
+        `.trim(),
+        readTime: 6,
+        categorySlug: 'nutricao',
+        tags: ['dieta carnívora', 'perda de peso', 'saúde masculina', 'exames de sangue', 'nutrição', 'dieta cetogênica', 'transformação corporal', 'testosterona', 'estilo de vida saudável'],
+        coverImageAlt: 'Bife grelhado e ovos frescos sobre tábua de madeira, representando a dieta carnívora',
+        metaTitle: 'Dieta Carnívora: Homem perde 63kg e mostra exames de sangue após 2 anos',
+        metaDescription: 'Descubra os efeitos da dieta de carne e ovos na saúde. Relato real de perda de 63kg, exames de sangue detalhados e o impacto hormonal a longo prazo.',
+        featured: false,
+    },
+    {
         title: 'Arquétipos e a Sombra: O Mapa Psicológico para a Soberania Masculina',
         excerpt: 'Por que você se sente travado? Entenda como integrar sua Sombra e equilibrar os arquétipos do Rei, Guerreiro, Mago e Amante para dominar sua realidade.',
         content: `
