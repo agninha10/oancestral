@@ -13,6 +13,7 @@ import { Edit, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { DeleteUserButton } from "@/components/admin/delete-user-button";
 
 export const dynamic = 'force-dynamic';
 
@@ -68,12 +69,18 @@ export default async function UsersPage() {
                                     {format(new Date(user.createdAt), "dd/MM/yyyy", { locale: ptBR })}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <Link href={`/admin/usuarios/${user.id}`}>
-                                        <Button size="sm" variant="ghost">
-                                            <Edit className="h-4 w-4 mr-2" />
-                                            Editar
-                                        </Button>
-                                    </Link>
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Link href={`/admin/usuarios/${user.id}`}>
+                                            <Button size="sm" variant="ghost">
+                                                <Edit className="h-4 w-4 mr-2" />
+                                                Editar
+                                            </Button>
+                                        </Link>
+                                        <DeleteUserButton
+                                            userId={user.id}
+                                            userName={user.name ?? user.email}
+                                        />
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}
