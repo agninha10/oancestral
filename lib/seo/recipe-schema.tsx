@@ -1,5 +1,6 @@
 import { Recipe, RecipeIngredient, RecipeInstruction } from '@prisma/client';
 
+// Recipe includes metaTitle from the Prisma schema (SEO field)
 type RecipeWithRelations = Recipe & {
   ingredients: RecipeIngredient[];
   instructions: RecipeInstruction[];
@@ -14,16 +15,18 @@ type RecipeWithRelations = Recipe & {
 export function generateRecipeSchema(recipe: RecipeWithRelations, baseUrl: string) {
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
   const macros = recipe.macronutrients as { protein?: number; fat?: number; carbs?: number } | null;
+  const DEFAULT_IMAGE = `${baseUrl}/images/og-default.jpg`;
 
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Recipe',
-    name: recipe.title,
+    name: recipe.metaTitle || recipe.title,
     description: recipe.description,
-    image: recipe.coverImage ? `${baseUrl}${recipe.coverImage}` : undefined,
+    image: recipe.coverImage ? [`${baseUrl}${recipe.coverImage}`] : [DEFAULT_IMAGE],
     author: {
       '@type': 'Person',
       name: recipe.author.name,
+      url: `${baseUrl}/sobre`,
     },
     datePublished: recipe.createdAt.toISOString(),
     prepTime: recipe.prepTime ? `PT${recipe.prepTime}M` : undefined,

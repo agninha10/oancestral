@@ -10,16 +10,21 @@ type BlogPostWithAuthor = BlogPost & {
 };
 
 export function generateArticleSchema(post: BlogPostWithAuthor, baseUrl: string) {
+  const DEFAULT_IMAGE = `${baseUrl}/images/og-default.jpg`;
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: post.title,
+    headline: post.metaTitle || post.title,
     description: post.excerpt,
-    image: post.coverImage ? `${baseUrl}${post.coverImage}` : undefined,
-    author: {
-      '@type': 'Person',
-      name: post.author.name,
-    },
+    image: post.coverImage ? [`${baseUrl}${post.coverImage}`] : [DEFAULT_IMAGE],
+    author: [
+      {
+        '@type': 'Person',
+        name: post.author.name,
+        url: `${baseUrl}/sobre`,
+      },
+    ],
     publisher: {
       '@type': 'Organization',
       name: 'O Ancestral',
