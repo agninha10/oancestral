@@ -329,3 +329,18 @@ model Transaction {
   @@index([billingId])
   @@map("transactions")
 }
+
+// Contact messages from the public contact form
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read])
+  @@index([createdAt])
+  @@map("contact_messages")
+}

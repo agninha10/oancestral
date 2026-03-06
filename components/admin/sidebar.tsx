@@ -14,6 +14,7 @@ import {
     Users,
     GraduationCap,
     DollarSign,
+    MessageSquare,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,7 @@ const navigation = [
     { name: 'Receitas', href: '/admin/receitas', icon: ChefHat },
     { name: 'Cursos', href: '/admin/cursos', icon: GraduationCap },
     { name: 'Categorias', href: '/admin/categorias', icon: FolderTree },
+    { name: 'Contato', href: '/admin/contato', icon: MessageSquare },
     { name: 'Newsletter', href: '/admin/newsletter', icon: Mail },
     { name: 'Usuários', href: '/admin/usuarios', icon: Users },
 ];
