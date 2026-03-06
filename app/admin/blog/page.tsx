@@ -136,7 +136,6 @@ export default function BlogAdminPage() {
                         {posts.filter((post) => !post.coverImage).length}
                     </p>
                 </button>
-                </div>
             </div>
 
             {filteredPosts.length === 0 ? (
