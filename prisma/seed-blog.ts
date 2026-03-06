@@ -181,6 +181,99 @@ const blogPostsData: BlogPostData[] = [
         featured: false,
     },
     {
+        title: 'Homem testa as dietas de Donald Trump e Joe Biden por um dia e revela resultados "assustadores"',
+        excerpt: 'O que acontece quando você tenta comer como um presidente? Bennett Rea testou a dieta regada a fast food de Trump e o cardápio açucarado de Biden. Veja como seu corpo reagiu a 4.400mg de sódio e ao tédio gastronômico.',
+        content: `
+<h2>O Experimento: Política e Gastronomia se Encontram</h2>
+<p>Mesmo em tempos de polarização política, existe um terreno comum onde todos podem se encontrar: a curiosidade pelos hábitos bizarros das pessoas mais poderosas do mundo. O TikToker Bennett Rea, criador da conta <strong>@cookinwithcongress</strong> — cujo lema é <em>"Receitas reais. Políticos reais. Nojeiras reais"</em> — decidiu colocar à prova as dietas do atual presidente Donald Trump e do ex-presidente Joe Biden.</p>
+
+<h2>O Dia de Trump: Uma Maratona de Fast Food e Sódio</h2>
+<p>A dieta de Donald Trump é famosa por sua predileção por marcas conhecidas e pela total ausência de "frescuras" nutricionais. Bennett começou o dia com nada menos que <strong>quatro latas de Diet Coke</strong>. Ao longo da manhã, o "combustível" continuou sendo refrigerante zero acompanhado de um pacote de batatas fritas.</p>
+<p>No almoço, o cardápio seguiu o padrão: um bife bem passado servido com ketchup, acompanhado de uma salada com molho e, claro, mais Diet Coke. O ápice do dia foi o jantar, uma verdadeira "bomba" calórica:</p>
+<ul>
+  <li>Dois Big Macs;</li>
+  <li>Dois Filet-O-Fish;</li>
+  <li>Um shake pequeno de chocolate;</li>
+  <li>E mais uma Diet Coke para encerrar.</li>
+</ul>
+<p>O resultado? Rea descreveu a experiência como um <em>"acidente de carro gastronômico"</em>. Ele revelou ter sentido uma espécie de "ressaca" no dia seguinte, precisando de meio dia de folga para se recuperar do mal-estar. Com um consumo de 3.200 calorias e surreais <strong>4.400mg de sódio</strong> em apenas um dia, ele afirmou estar assustado com o impacto no corpo.</p>
+
+<blockquote>
+  <p>"Não entendo como alguém na casa dos 70 ou 80 anos consegue comer assim todos os dias."</p>
+</blockquote>
+
+<h2>O Dia de Biden: Carboidratos, Doces e Tédio</h2>
+<p>Em contrapartida, a dieta de Joe Biden, embora menos agressiva ao estômago, trouxe um desafio diferente: o <strong>tédio</strong>. O plano alimentar totalizou 2.600 calorias e foi marcado por escolhas que Rea definiu como "infantis".</p>
+<p>O café da manhã consistiu em uma tigela de cereal Special K e um Gatorade de laranja. Durante o dia, os lanches incluíam barras de proteína, biscoitos Fig Newtons e ainda mais Gatorade para manter os eletrólitos. O almoço foi um clássico sanduíche de pasta de amendoim e geleia (PB&J) com uma maçã.</p>
+<p>O jantar foi composto por macarrão angel hair (cabelo de anjo) — que Rea classificou como <em>"a mais intragável das massas"</em> — e uma sobremesa de sorvete de baunilha com gotas de chocolate. Enquanto a dieta de Trump causou um mal-estar físico, a de Biden causou um <em>"mal-estar espiritual"</em>: o tédio absoluto.</p>
+
+<h2>Veredito Final: Nenhum Dos Dois é Vencedor</h2>
+<p>O experimento mostrou que, independentemente do lado do corredor, as dietas dos líderes mundiais fogem bastante do que nutricionistas consideram equilibrado. Enquanto um vive no limite do sódio e da gordura saturada, o outro parece sustentar-se à base de carboidratos simples e açúcar.</p>
+<p>Rea concluiu que não repetiria o experimento de Trump por mais de um dia por sérias preocupações com a saúde, assemelhando a experiência ao documentário <em>Supersize Me</em>. A moral da história? Talvez a soberania alimentar seja tão importante quanto a política.</p>
+        `.trim(),
+        readTime: 5,
+        categorySlug: 'estilo-de-vida',
+        tags: ['donald trump', 'joe biden', 'dieta dos famosos', 'estilo de vida', 'nutrição', 'fast food', 'experimento', 'saúde', 'tiktok', 'curiosidades políticas'],
+        coverImageAlt: 'Composição com fast food, refrigerante diet coke e alimentos açucarados',
+        metaTitle: 'Dieta de Trump vs Biden: Homem testa hábitos alimentares dos líderes',
+        metaDescription: 'Descubra o resultado do experimento de Bennett Rea ao seguir as dietas de Donald Trump e Joe Biden. De ressaca de fast food a tédio alimentar: os detalhes aqui.',
+        featured: false,
+    },
+    {
+        title: 'O Experimento Presidencial: O que acontece quando você come como Donald Trump e Joe Biden por um dia?',
+        excerpt: 'Acompanhe o teste das dietas de Donald Trump e Joe Biden feito pelo TikToker Bennett Rea. Descubra os impactos de 4.400mg de sódio, o excesso de Diet Coke e por que a dieta de Biden foi considerada "infantil" e entediante.',
+        content: `
+<h2>O Alerta Silencioso das Dietas Presidenciais</h2>
+<p>Em um mundo onde discutimos performance, saúde ancestral e soberania biológica, olhar para o prato das lideranças mundiais pode ser um exercício aterrorizante. Bennett Rea, conhecido pelo perfil <strong>@cookinwithcongress</strong>, decidiu deixar a diplomacia de lado e testar os hábitos alimentares de Donald Trump e Joe Biden. O resultado? Uma lição prática sobre como a dieta moderna "anti-sistema" e a dieta "infantil" de escritório podem acabar com a sua fisiologia.</p>
+
+<h2>O Protocolo Trump: Fast Food, Sódio e "Ressaca" de Junk Food</h2>
+<p>A dieta de Donald Trump é o pesadelo de qualquer entusiasta da saúde ancestral. Baseada quase inteiramente em produtos processados e marcas de massa, o dia de Bennett Rea seguindo esse protocolo foi descrito como um <em>"acidente de carro nutricional"</em>.</p>
+
+<h3>O Cardápio do Dia:</h3>
+<ul>
+  <li><strong>Manhã:</strong> 4 latas de Diet Coke (Coca Zero).</li>
+  <li><strong>Lanche:</strong> Um pacote de batatas fritas (chips) e mais Diet Coke.</li>
+  <li><strong>Almoço:</strong> Bife bem passado com ketchup, salada com molho e, novamente, Diet Coke.</li>
+  <li><strong>Jantar:</strong> 2 Big Macs, 2 Filet-O-Fish, um shake de chocolate pequeno e mais uma Diet Coke para finalizar.</li>
+</ul>
+
+<h3>O Impacto Fisiológico:</h3>
+<p>Ao final do dia, Rea havia ingerido <strong>3.200 calorias</strong> e surreais <strong>4.400mg de sódio</strong>. O influenciador relatou que se sentiu "assustado" com a reação do seu corpo. No dia seguinte, a sensação era de uma <em>"ressaca severa"</em>, sendo necessário meio dia de repouso apenas para se recuperar do processo inflamatório gerado pelo excesso de aditivos e sódio.</p>
+
+<blockquote>
+  <p>"Não entendo como alguém na casa dos 70 ou 80 anos consegue manter isso." — Bennett Rea, comparando a experiência ao documentário Supersize Me.</p>
+</blockquote>
+
+<h2>O Protocolo Biden: Carboidratos Simples, Açúcar e Tédio Espiritual</h2>
+<p>Se a dieta de Trump é uma explosão inflamatória, a de Joe Biden é o retrato da monotonia glicêmica. Com cerca de <strong>2.600 calorias</strong>, o cardápio foi classificado como "infantil" e metabolicamente questionável.</p>
+
+<h3>O Cardápio do Dia:</h3>
+<ul>
+  <li><strong>Café da Manhã:</strong> Uma tigela de cereal Special K e Gatorade de laranja.</li>
+  <li><strong>Lanches:</strong> Barras de proteína, biscoitos de figo (Fig Newtons) e mais Gatorade.</li>
+  <li><strong>Almoço:</strong> Sanduíche de pasta de amendoim com geleia (PB&J) e uma maçã.</li>
+  <li><strong>Jantar:</strong> Macarrão tipo "cabelo de anjo" (carboidrato de altíssimo índice glicêmico) e sorvete de baunilha com gotas de chocolate de sobremesa.</li>
+</ul>
+
+<h3>O Impacto Fisiológico:</h3>
+<p>Diferente da agressão física de Trump, a dieta de Biden causou um <em>"tédio espiritual"</em>. A dependência de carboidratos refinados, açúcares e corantes (Gatorade) mantém o corpo em um ciclo de picos de insulina sem densidade nutricional real. Rea sentiu-se "entediado ao extremo", refletindo a falta de vitalidade de um plano alimentar que carece de proteínas de qualidade e gorduras ancestrais.</p>
+
+<h2>Conclusão: O Preço da Má Alimentação</h2>
+<p>O experimento de Bennett Rea é um lembrete visual e físico de que, independentemente da ideologia, o corpo humano não foi feito para processar químicos industriais em massa. Seja pelo excesso de sódio e gorduras vegetais de Trump, ou pelo excesso de açúcar e carboidratos de Biden, ambas as dietas falham em fornecer a soberania biológica necessária para um homem em busca de alta performance.</p>
+
+<blockquote>
+  <p>Se você busca vitalidade, o caminho é exatamente o oposto: comida de verdade, densidade nutricional e distância de "protocolos presidenciais" de conveniência.</p>
+</blockquote>
+        `.trim(),
+        readTime: 5,
+        categorySlug: 'estilo-de-vida',
+        tags: ['donald trump', 'joe biden', 'dieta dos políticos', 'fast food', 'açúcar', 'performance masculina', 'saúde ancestral', 'nutrição', 'experimento real', 'biohacking'],
+        coverImageAlt: 'Fast food americana ao lado de alimentos industrializados açucarados',
+        metaTitle: 'Dieta de Trump vs Biden: Um teste real de saúde e performance',
+        metaDescription: 'Testamos as dietas de Trump e Biden. Veja os efeitos do fast food e do excesso de açúcar na energia e no bem-estar. Um experimento real de biohacking reverso.',
+        featured: false,
+    },
+    {
         title: 'Arquétipos e a Sombra: O Mapa Psicológico para a Soberania Masculina',
         excerpt: 'Por que você se sente travado? Entenda como integrar sua Sombra e equilibrar os arquétipos do Rei, Guerreiro, Mago e Amante para dominar sua realidade.',
         content: `
