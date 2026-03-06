@@ -12,10 +12,12 @@ type RecipeWithRelations = Recipe & {
   } | null;
 };
 
+const RECIPE_PLACEHOLDER_IMAGE = '/placeholder-receita.jpg';
+
 const resolveImageUrl = (imagePath: string | null | undefined, baseUrl: string): string => {
-  if (!imagePath) return `${baseUrl}/images/og-default.jpg`;
+  if (!imagePath) return `${baseUrl}${RECIPE_PLACEHOLDER_IMAGE}`;
   if (imagePath.startsWith('http')) return imagePath;
-  return `${baseUrl}${imagePath}`;
+  return `${baseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
 };
 
 export function generateRecipeSchema(recipe: RecipeWithRelations, baseUrl: string) {
@@ -26,8 +28,10 @@ export function generateRecipeSchema(recipe: RecipeWithRelations, baseUrl: strin
     '@context': 'https://schema.org',
     '@type': 'Recipe',
     name: recipe.metaTitle || recipe.title,
-    description: recipe.description,
-    image: [resolveImageUrl(recipe.coverImage, baseUrl)],
+    description: recipe.metaDescription || recipe.description,
+    image: recipe.coverImage
+      ? [resolveImageUrl(recipe.coverImage, baseUrl)]
+      : [`${baseUrl}${RECIPE_PLACEHOLDER_IMAGE}`],
     author: {
       '@type': 'Person',
       name: recipe.author.name,
