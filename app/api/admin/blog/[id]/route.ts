@@ -120,6 +120,9 @@ export async function PUT(
                 featured: body.featured,
                 isPremium: body.isPremium,
                 publishedAt: body.published && !post.published ? new Date() : post.publishedAt,
+                metaTitle: body.metaTitle ?? null,
+                metaDescription: body.metaDescription ?? null,
+                coverImageAlt: body.coverImageAlt ?? null,
             },
             include: {
                 author: {

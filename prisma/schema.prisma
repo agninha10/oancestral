@@ -98,6 +98,11 @@ model Recipe {
   fat            Int?
   carbs          Int?
 
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  coverImageAlt   String?
+
   // Metadata
   published Boolean  @default(false)
   featured  Boolean  @default(false)
@@ -158,6 +163,11 @@ model BlogPost {
   coverImage String? // Renamed from imageUrl for consistency
   tags       String[] @default([]) // For filtering and SEO
   readTime   Int // in minutes
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  coverImageAlt   String?
 
   // Metadata
   published   Boolean   @default(false)

@@ -82,6 +82,9 @@ export async function POST(request: NextRequest) {
             published,
             featured,
             isPremium,
+            metaTitle,
+            metaDescription,
+            coverImageAlt,
         } = body;
 
         if (!title || !slug || !excerpt || !content || !readTime) {
@@ -105,6 +108,9 @@ export async function POST(request: NextRequest) {
                 featured: featured ?? false,
                 isPremium: isPremium ?? false,
                 publishedAt: published ? new Date() : null,
+                metaTitle: metaTitle || null,
+                metaDescription: metaDescription || null,
+                coverImageAlt: coverImageAlt || null,
                 authorId: user.id,
             },
         });

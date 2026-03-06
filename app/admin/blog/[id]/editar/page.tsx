@@ -38,6 +38,9 @@ interface BlogPost {
     published: boolean;
     featured: boolean;
     isPremium: boolean;
+    metaTitle: string | null;
+    metaDescription: string | null;
+    coverImageAlt: string | null;
 }
 
 export default function EditarPostBlogPage() {
@@ -60,6 +63,9 @@ export default function EditarPostBlogPage() {
         published: false,
         featured: false,
         isPremium: false,
+        metaTitle: '',
+        metaDescription: '',
+        coverImageAlt: '',
     });
 
     useEffect(() => {
@@ -84,6 +90,9 @@ export default function EditarPostBlogPage() {
                     published: post.published,
                     featured: post.featured,
                     isPremium: post.isPremium,
+                    metaTitle: post.metaTitle || '',
+                    metaDescription: post.metaDescription || '',
+                    coverImageAlt: post.coverImageAlt || '',
                 });
             } else {
                 alert('Erro ao carregar post');
@@ -310,6 +319,86 @@ export default function EditarPostBlogPage() {
                         }
                         placeholder="Escreva o conteúdo do post aqui..."
                     />
+                </Card>
+
+                {/* SEO */}
+                <Card className="p-6 space-y-6">
+                    <div>
+                        <h2 className="text-xl font-semibold">Otimização para Motores de Busca (SEO)</h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Controle como este post aparece nos resultados de busca.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="metaTitle">Meta Title</Label>
+                            <span className={`text-xs ${
+                                formData.metaTitle.length > 60
+                                    ? 'text-destructive font-medium'
+                                    : formData.metaTitle.length > 50
+                                    ? 'text-yellow-500'
+                                    : 'text-muted-foreground'
+                            }`}>
+                                {formData.metaTitle.length}/60
+                            </span>
+                        </div>
+                        <Input
+                            id="metaTitle"
+                            value={formData.metaTitle}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, metaTitle: e.target.value }))
+                            }
+                            placeholder="Título otimizado para SEO"
+                            maxLength={80}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Se vazio, usará o título do post. Ideal até 60 caracteres.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="metaDescription">Meta Description</Label>
+                            <span className={`text-xs ${
+                                formData.metaDescription.length > 160
+                                    ? 'text-destructive font-medium'
+                                    : formData.metaDescription.length > 140
+                                    ? 'text-yellow-500'
+                                    : 'text-muted-foreground'
+                            }`}>
+                                {formData.metaDescription.length}/160
+                            </span>
+                        </div>
+                        <Textarea
+                            id="metaDescription"
+                            value={formData.metaDescription}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, metaDescription: e.target.value }))
+                            }
+                            placeholder="Descrição exibida nos resultados de busca"
+                            rows={3}
+                            maxLength={200}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Se vazio, usará o resumo. Ideal até 160 caracteres.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="coverImageAlt">Alt Text da Imagem de Capa</Label>
+                        <Input
+                            id="coverImageAlt"
+                            value={formData.coverImageAlt}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, coverImageAlt: e.target.value }))
+                            }
+                            placeholder="Descreva a imagem para acessibilidade e Google Imagens"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Melhora acessibilidade e indexação no Google Imagens.
+                        </p>
+                    </div>
                 </Card>
 
                 {/* Settings */}
