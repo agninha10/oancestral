@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jwtVerify } from 'jose';
+import { notifyGoogleIndexing } from '@/lib/google-indexing';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
@@ -168,6 +169,15 @@ export async function PUT(
                 instructions: true,
             },
         });
+
+        // Notifica o Google Indexing API se a receita foi publicada
+        if (recipe.published) {
+            const recipeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/receitas/${recipe.slug}`;
+            // Executa em background sem bloquear a resposta
+            notifyGoogleIndexing(recipeUrl).catch(err => 
+                console.error('[Recipe PUT] Erro ao notificar Google:', err)
+            );
+        }
 
         return NextResponse.json(recipe);
     } catch (error) {

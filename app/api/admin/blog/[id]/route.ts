@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
+import { notifyGoogleIndexing } from '@/lib/google-indexing';
 
 async function getAdminUser() {
     try {
@@ -140,6 +141,15 @@ export async function PUT(
                 },
             },
         });
+
+        // Notifica o Google Indexing API se o post foi publicado
+        if (updatedPost.published) {
+            const postUrl = `${process.env.NEXT_PUBLIC_APP_URL}/blog/${updatedPost.slug}`;
+            // Executa em background sem bloquear a resposta
+            notifyGoogleIndexing(postUrl).catch(err => 
+                console.error('[Blog PUT] Erro ao notificar Google:', err)
+            );
+        }
 
         return NextResponse.json(updatedPost);
     } catch (error) {
