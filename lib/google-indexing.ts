@@ -9,16 +9,17 @@ import { google } from 'googleapis';
 export async function notifyGoogleIndexing(url: string): Promise<void> {
   try {
     // Valida se as variáveis de ambiente necessárias estão configuradas
-    if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+    if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY_BASE64) {
       console.error(
-        '[Google Indexing] Credenciais não configuradas. Defina GOOGLE_CLIENT_EMAIL e GOOGLE_PRIVATE_KEY no .env'
+        '[Google Indexing] Credenciais não configuradas. Defina GOOGLE_CLIENT_EMAIL e GOOGLE_PRIVATE_KEY_BASE64 no .env'
       );
       return;
     }
 
-    // Pega a chave e garante que as quebras de linha funcionem no Node.js
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY 
-      ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') 
+    // Pega a chave em Base64 da Vercel e decodifica de volta para UTF-8 (que já contém os \n originais)
+    const base64Key = process.env.GOOGLE_PRIVATE_KEY_BASE64;
+    const privateKey = base64Key 
+      ? Buffer.from(base64Key, 'base64').toString('utf-8') 
       : undefined;
 
     // Configura a autenticação JWT
