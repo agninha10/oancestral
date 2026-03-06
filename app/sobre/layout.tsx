@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "Sobre - O Manifesto",
   description:
     "Não é sobre voltar ao passado. É sobre sobreviver ao futuro. O Ancestral é o resgate da sua biologia original em um mundo artificial.",
+  alternates: {
+    canonical: '/sobre',
+  },
   openGraph: {
     title: "Sobre O Ancestral - O Manifesto",
     description:

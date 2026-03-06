@@ -6,6 +6,9 @@ import { CourseListClient } from './course-list-client';
 export const metadata: Metadata = {
     title: 'Cursos',
     description: 'Aprenda nutrição ancestral de forma aprofundada com nossos cursos exclusivos.',
+    alternates: {
+        canonical: '/cursos',
+    },
 };
 
 export default function CursosPage() {

@@ -32,6 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
         title: `${recipe.title} | Receitas Ancestrais`,
         description: recipe.description,
+        alternates: {
+            canonical: `/receitas/${slug}`,
+        },
         openGraph: {
             title: recipe.title,
             description: recipe.description,

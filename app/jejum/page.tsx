@@ -47,7 +47,7 @@ export const metadata: Metadata = {
         images: ['/images/jejum-og.jpg'],
     },
     alternates: {
-        canonical: 'https://oancestral.com.br/jejum',
+        canonical: '/jejum',
     },
     robots: {
         index: true,

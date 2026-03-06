@@ -6,6 +6,9 @@ import { BlogListClient } from './blog-list-client';
 export const metadata: Metadata = {
     title: 'Blog',
     description: 'Conteúdos aprofundados sobre alimentação, treino e estilo de vida ancestral.',
+    alternates: {
+        canonical: '/blog',
+    },
 };
 
 export default function BlogPage() {

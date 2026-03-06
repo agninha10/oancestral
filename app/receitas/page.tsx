@@ -6,6 +6,9 @@ import { RecipeListClient } from './recipe-list-client';
 export const metadata: Metadata = {
     title: 'Receitas Ancestrais',
     description: 'Descubra receitas nutritivas e deliciosas alinhadas com princípios ancestrais: carnívora, low carb, cetogênica e muito mais.',
+    alternates: {
+        canonical: '/receitas',
+    },
 };
 
 export default function ReceitasPage() {

@@ -5,6 +5,7 @@ import GoogleAnalytics from "@/components/google-analytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://oancestral.com.br'),
   title: {
     default: "O Ancestral - Estilo de Vida Ancestral",
     template: "%s | O Ancestral",
@@ -48,6 +49,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  alternates: {
+    canonical: '/',
   },
 };
 
