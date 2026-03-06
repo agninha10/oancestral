@@ -31,6 +31,11 @@ interface Recipe {
 export default function ReceitasAdminPage() {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(true);
+    const [filterNoImage, setFilterNoImage] = useState(false);
+
+    const filteredRecipes = filterNoImage
+        ? recipes.filter((r) => !r.coverImage)
+        : recipes;
 
     useEffect(() => {
         fetchRecipes();
@@ -127,12 +132,24 @@ export default function ReceitasAdminPage() {
                         {recipes.filter((r) => !r.published).length}
                     </p>
                 </div>
-                <div className="bg-card border border-amber-500/20 rounded-lg p-4">
-                    <p className="text-sm text-amber-500">Sem imagem</p>
+                <button
+                    type="button"
+                    onClick={() => setFilterNoImage((v) => !v)}
+                    className={`text-left w-full rounded-lg p-4 border transition-colors ${
+                        filterNoImage
+                            ? 'bg-amber-500/20 border-amber-500 ring-1 ring-amber-500'
+                            : 'bg-card border-amber-500/20 hover:bg-amber-500/10'
+                    }`}
+                >
+                    <p className="text-sm text-amber-500 flex items-center gap-1">
+                        <ImageOff className="h-3.5 w-3.5" />
+                        Sem imagem
+                        {filterNoImage && <span className="ml-auto text-xs font-semibold">(filtro ativo)</span>}
+                    </p>
                     <p className="text-2xl font-bold text-amber-500 mt-1">
                         {recipes.filter((r) => !r.coverImage).length}
                     </p>
-                </div>
+                </button>
             </div>
 
             {/* Table */}
@@ -165,22 +182,26 @@ export default function ReceitasAdminPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
-                            {recipes.length === 0 ? (
+                            {filteredRecipes.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center">
                                         <p className="text-muted-foreground">
-                                            Nenhuma receita encontrada.
+                                            {filterNoImage
+                                                ? 'Todas as receitas já têm imagem de capa. ✅'
+                                                : 'Nenhuma receita encontrada.'}
                                         </p>
-                                        <Button asChild className="mt-4">
-                                            <Link href="/admin/receitas/nova">
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                Criar Primeira Receita
-                                            </Link>
-                                        </Button>
+                                        {!filterNoImage && (
+                                            <Button asChild className="mt-4">
+                                                <Link href="/admin/receitas/nova">
+                                                    <Plus className="h-4 w-4 mr-2" />
+                                                    Criar Primeira Receita
+                                                </Link>
+                                            </Button>
+                                        )}
                                     </td>
                                 </tr>
                             ) : (
-                                recipes.map((recipe) => (
+                                filteredRecipes.map((recipe) => (
                                     <tr key={recipe.id} className="hover:bg-muted/50">
                                         <td className="px-6 py-4">
                                             <div>

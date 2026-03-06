@@ -31,6 +31,11 @@ interface BlogPost {
 export default function BlogAdminPage() {
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
+    const [filterNoImage, setFilterNoImage] = useState(false);
+
+    const filteredPosts = filterNoImage
+        ? posts.filter((post) => !post.coverImage)
+        : posts;
 
     useEffect(() => {
         fetchPosts();
@@ -113,31 +118,50 @@ export default function BlogAdminPage() {
                         {posts.filter((post) => !post.published).length}
                     </p>
                 </div>
-                <div className="bg-card border border-amber-500/20 rounded-lg p-4">
-                    <p className="text-sm text-amber-500">Sem imagem</p>
+                <button
+                    type="button"
+                    onClick={() => setFilterNoImage((v) => !v)}
+                    className={`text-left w-full rounded-lg p-4 border transition-colors ${
+                        filterNoImage
+                            ? 'bg-amber-500/20 border-amber-500 ring-1 ring-amber-500'
+                            : 'bg-card border-amber-500/20 hover:bg-amber-500/10'
+                    }`}
+                >
+                    <p className="text-sm text-amber-500 flex items-center gap-1">
+                        <ImageOff className="h-3.5 w-3.5" />
+                        Sem imagem
+                        {filterNoImage && <span className="ml-auto text-xs font-semibold">(filtro ativo)</span>}
+                    </p>
                     <p className="text-2xl font-bold text-amber-500 mt-1">
                         {posts.filter((post) => !post.coverImage).length}
                     </p>
+                </button>
                 </div>
             </div>
 
-            {posts.length === 0 ? (
+            {filteredPosts.length === 0 ? (
                 <Card className="p-12 text-center">
                     <FileText className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Nenhum post criado</h3>
-                    <p className="text-muted-foreground mb-6">
-                        Comece criando seu primeiro post para o blog
-                    </p>
-                    <Button asChild>
-                        <Link href="/admin/blog/novo">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Criar Primeiro Post
-                        </Link>
-                    </Button>
+                    <h3 className="text-lg font-semibold mb-2">
+                        {filterNoImage ? 'Todos os posts já têm imagem de capa. ✅' : 'Nenhum post criado'}
+                    </h3>
+                    {!filterNoImage && (
+                        <>
+                            <p className="text-muted-foreground mb-6">
+                                Comece criando seu primeiro post para o blog
+                            </p>
+                            <Button asChild>
+                                <Link href="/admin/blog/novo">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Criar Primeiro Post
+                                </Link>
+                            </Button>
+                        </>
+                    )}
                 </Card>
             ) : (
                 <div className="space-y-4">
-                    {posts.map((post) => (
+                    {filteredPosts.map((post) => (
                         <Card key={post.id} className="p-6">
                             <div className="flex items-start justify-between gap-4">
                                 <div className="space-y-2 flex-1">
