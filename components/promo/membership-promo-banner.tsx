@@ -10,10 +10,8 @@ interface MembershipPromoBannerProps {
 /**
  * Banner de propaganda da assinatura Premium.
  *
- * variant="inline"  — faixa horizontal larga, para inserir entre posts
- * variant="sidebar" — card vertical compacto, para sidebar
- *
- * Suporta light mode e dark mode corretamente.
+ * Dark mode: cores originais (zinc-900 / stone-100).
+ * Light mode: fundo amber-50, textos zinc.
  */
 export function MembershipPromoBanner({ variant = "inline" }: MembershipPromoBannerProps) {
   if (variant === "sidebar") {
@@ -22,13 +20,17 @@ export function MembershipPromoBanner({ variant = "inline" }: MembershipPromoBan
         href={MEMBERSHIP_URL}
         className="group block rounded-2xl overflow-hidden
           border border-amber-200 dark:border-amber-700/40
-          bg-white dark:bg-gradient-to-b dark:from-zinc-900 dark:to-amber-950/30
+          bg-white dark:bg-zinc-900
           hover:border-amber-400 dark:hover:border-amber-500/60
-          shadow-sm hover:shadow-lg hover:shadow-amber-100 dark:hover:shadow-amber-900/20
+          shadow-sm hover:shadow-lg dark:hover:shadow-amber-900/20
           transition-all duration-300"
       >
         {/* Header */}
-        <div className="relative px-4 py-5 bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/60 dark:to-zinc-900 border-b border-amber-200 dark:border-amber-800/30">
+        <div
+          className="relative px-4 py-5
+            bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/60 dark:to-zinc-900
+            border-b border-amber-200 dark:border-amber-800/30"
+        >
           <div className="flex items-center gap-2 mb-1">
             <Crown className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             <span className="text-amber-700 dark:text-amber-400 text-[10px] font-bold tracking-widest uppercase">
@@ -59,7 +61,10 @@ export function MembershipPromoBanner({ variant = "inline" }: MembershipPromoBan
           {/* Stars */}
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-3 w-3 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
+              <Star
+                key={i}
+                className="h-3 w-3 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400"
+              />
             ))}
             <span className="text-zinc-500 dark:text-stone-500 text-[10px] ml-1">+500 membros</span>
           </div>
@@ -74,27 +79,28 @@ export function MembershipPromoBanner({ variant = "inline" }: MembershipPromoBan
     );
   }
 
-  // variant="inline"
+  // ── variant="inline" ──────────────────────────────────────────────────────
   return (
     <Link
       href={MEMBERSHIP_URL}
       className="group relative flex flex-col sm:flex-row items-center gap-6 rounded-2xl overflow-hidden
         border border-amber-200 dark:border-amber-700/40
-        bg-amber-50 dark:bg-gradient-to-r dark:from-zinc-900 dark:via-amber-950/20 dark:to-zinc-900
+        bg-amber-50 dark:bg-zinc-900 dark:bg-gradient-to-r dark:from-zinc-900 dark:via-amber-950/20 dark:to-zinc-900
         hover:border-amber-400 dark:hover:border-amber-500/60
-        shadow-sm hover:shadow-xl hover:shadow-amber-100 dark:hover:shadow-amber-900/20
         transition-all duration-300
+        hover:shadow-xl hover:shadow-amber-100 dark:hover:shadow-amber-900/20
         p-6 sm:p-8"
     >
-      {/* Decorative background glow — only visible dark mode */}
+      {/* Decorative glow — dark mode only */}
       <div className="pointer-events-none absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl hidden dark:block" />
 
       {/* Crown icon */}
-      <div className="relative flex-shrink-0 w-20 h-20 rounded-2xl
-        bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/60 dark:to-zinc-900
-        border border-amber-200 dark:border-amber-700/40
-        flex items-center justify-center
-        shadow-lg shadow-amber-200 dark:shadow-black/40"
+      <div
+        className="relative flex-shrink-0 w-20 h-20 rounded-2xl
+          bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/60 dark:to-zinc-900
+          border border-amber-200/80 dark:border-amber-700/40
+          flex items-center justify-center
+          shadow-md shadow-amber-200 dark:shadow-xl dark:shadow-black/40"
       >
         <Crown className="h-9 w-9 text-amber-600 dark:text-amber-400" />
       </div>
@@ -102,11 +108,12 @@ export function MembershipPromoBanner({ variant = "inline" }: MembershipPromoBan
       {/* Text */}
       <div className="flex-1 text-center sm:text-left">
         {/* Badge */}
-        <span className="inline-block text-[10px] font-bold tracking-widest
-          bg-amber-100 dark:bg-amber-500/20
-          text-amber-700 dark:text-amber-400
-          border border-amber-200 dark:border-amber-500/30
-          px-2.5 py-0.5 rounded-full mb-2"
+        <span
+          className="inline-block text-[10px] font-bold tracking-widest
+            bg-amber-100 dark:bg-amber-500/20
+            text-amber-700 dark:text-amber-400
+            border border-amber-200 dark:border-amber-500/30
+            px-2.5 py-0.5 rounded-full mb-2"
         >
           👑 ASSINATURA PREMIUM — ACESSO COMPLETO
         </span>
@@ -123,7 +130,10 @@ export function MembershipPromoBanner({ variant = "inline" }: MembershipPromoBan
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-3.5 w-3.5 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
+              <Star
+                key={i}
+                className="h-3.5 w-3.5 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400"
+              />
             ))}
             <span className="text-zinc-500 dark:text-stone-500 text-xs ml-1">+500 membros ativos</span>
           </div>
@@ -135,7 +145,7 @@ export function MembershipPromoBanner({ variant = "inline" }: MembershipPromoBan
 
       {/* CTA */}
       <div className="flex-shrink-0">
-        <div className="flex items-center gap-2 bg-amber-500 group-hover:bg-amber-400 text-zinc-950 font-bold py-3 px-6 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-amber-200 dark:shadow-amber-900/30">
+        <div className="flex items-center gap-2 bg-amber-500 group-hover:bg-amber-400 text-zinc-950 font-bold py-3 px-6 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-amber-900/30">
           <Crown className="h-4 w-4" />
           Quero ser Membro
           <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />

@@ -11,10 +11,8 @@ interface LivroPromoBannerProps {
 /**
  * Banner de propaganda do livro "Manual da Cozinha Ancestral".
  *
- * variant="inline"  — faixa horizontal larga, para inserir entre receitas
- * variant="sidebar" — card vertical compacto, para sidebar
- *
- * Suporta light mode e dark mode corretamente.
+ * Dark mode: cores originais (zinc-900 / stone-100).
+ * Light mode: fundo amber-50, textos zinc.
  */
 export function LivroPromoBanner({ variant = "inline" }: LivroPromoBannerProps) {
   if (variant === "sidebar") {
@@ -23,9 +21,9 @@ export function LivroPromoBanner({ variant = "inline" }: LivroPromoBannerProps) 
         href={LIVRO_URL}
         className="group block rounded-2xl overflow-hidden
           border border-amber-200 dark:border-amber-800/40
-          bg-white dark:bg-gradient-to-b dark:from-zinc-900 dark:to-amber-950/30
+          bg-white dark:bg-zinc-900
           hover:border-amber-400 dark:hover:border-amber-600/60
-          shadow-sm hover:shadow-lg hover:shadow-amber-100 dark:hover:shadow-amber-900/20
+          shadow-sm hover:shadow-lg dark:hover:shadow-amber-900/20
           transition-all duration-300"
       >
         {/* Cover image */}
@@ -60,7 +58,10 @@ export function LivroPromoBanner({ variant = "inline" }: LivroPromoBannerProps) 
           {/* Stars */}
           <div className="flex items-center gap-1 mb-3">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-3 w-3 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
+              <Star
+                key={i}
+                className="h-3 w-3 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400"
+              />
             ))}
             <span className="text-zinc-500 dark:text-stone-500 text-[10px] ml-1">+1.200 compradores</span>
           </div>
@@ -75,23 +76,23 @@ export function LivroPromoBanner({ variant = "inline" }: LivroPromoBannerProps) 
     );
   }
 
-  // variant="inline" — faixa horizontal
+  // ── variant="inline" ──────────────────────────────────────────────────────
   return (
     <Link
       href={LIVRO_URL}
       className="group relative flex flex-col sm:flex-row items-center gap-6 rounded-2xl overflow-hidden
         border border-amber-200 dark:border-amber-800/40
-        bg-amber-50 dark:bg-gradient-to-r dark:from-zinc-900 dark:via-amber-950/20 dark:to-zinc-900
+        bg-amber-50 dark:bg-zinc-900 dark:bg-gradient-to-r dark:from-zinc-900 dark:via-amber-950/20 dark:to-zinc-900
         hover:border-amber-400 dark:hover:border-amber-600/60
-        shadow-sm hover:shadow-xl hover:shadow-amber-100 dark:hover:shadow-amber-900/20
         transition-all duration-300
+        hover:shadow-xl hover:shadow-amber-100 dark:hover:shadow-amber-900/20
         p-6 sm:p-8"
     >
-      {/* Decorative background glow — only visible dark mode */}
+      {/* Decorative glow — dark mode only */}
       <div className="pointer-events-none absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl hidden dark:block" />
 
       {/* Cover */}
-      <div className="relative flex-shrink-0 w-28 sm:w-32 aspect-[3/4] rounded-xl overflow-hidden shadow-lg shadow-amber-200 dark:shadow-black/50">
+      <div className="relative flex-shrink-0 w-28 sm:w-32 aspect-[3/4] rounded-xl overflow-hidden shadow-md shadow-amber-200 dark:shadow-2xl dark:shadow-black/50">
         <Image
           src="/images/capa-livro-de-receitas.png"
           alt="Manual da Cozinha Ancestral"
@@ -104,11 +105,12 @@ export function LivroPromoBanner({ variant = "inline" }: LivroPromoBannerProps) 
       {/* Text */}
       <div className="flex-1 text-center sm:text-left">
         {/* Badge */}
-        <span className="inline-block text-[10px] font-bold tracking-widest
-          bg-amber-100 dark:bg-amber-500/20
-          text-amber-700 dark:text-amber-400
-          border border-amber-200 dark:border-amber-500/30
-          px-2.5 py-0.5 rounded-full mb-2"
+        <span
+          className="inline-block text-[10px] font-bold tracking-widest
+            bg-amber-100 dark:bg-amber-500/20
+            text-amber-700 dark:text-amber-400
+            border border-amber-200 dark:border-amber-500/30
+            px-2.5 py-0.5 rounded-full mb-2"
         >
           📖 LIVRO DIGITAL — ACESSO VITALÍCIO
         </span>
@@ -125,7 +127,10 @@ export function LivroPromoBanner({ variant = "inline" }: LivroPromoBannerProps) 
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-3.5 w-3.5 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400" />
+              <Star
+                key={i}
+                className="h-3.5 w-3.5 text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400"
+              />
             ))}
             <span className="text-zinc-500 dark:text-stone-500 text-xs ml-1">+1.200 compradores</span>
           </div>
@@ -138,7 +143,7 @@ export function LivroPromoBanner({ variant = "inline" }: LivroPromoBannerProps) 
 
       {/* CTA */}
       <div className="flex-shrink-0">
-        <div className="flex items-center gap-2 bg-amber-500 group-hover:bg-amber-400 text-zinc-950 font-bold py-3 px-6 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-amber-200 dark:shadow-amber-900/30">
+        <div className="flex items-center gap-2 bg-amber-500 group-hover:bg-amber-400 text-zinc-950 font-bold py-3 px-6 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-amber-900/30">
           Quero o Livro
           <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
         </div>

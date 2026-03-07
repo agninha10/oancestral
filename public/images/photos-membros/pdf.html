@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-book: Testosterona Primal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca para gerar o PDF automaticamente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        h1, h2, h3, .font-oswald {
+            font-family: 'Oswald', sans-serif;
+        }
+        
+        p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            font-size: 1.125rem;
+        }
+
+        .text-primal-red { color: #b91c1c; }
+        .bg-primal-red { background-color: #b91c1c; }
+        
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9)), url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .chapter-bg-1 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(18, 18, 18, 1)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: top;
+        }
+        .chapter-bg-2 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(18, 18, 18, 1)), url('https://images.unsplash.com/photo-1600891964092-4316c288032e?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .chapter-bg-3 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(18, 18, 18, 1)), url('https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .chapter-bg-4 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(18, 18, 18, 1)), url('https://images.unsplash.com/photo-1526506159807-1c6e08811d73?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Oculta o botão de download na hora de gerar o PDF */
+        .html2pdf__page-break { height: 0; }
+        
+        /* Ajustes de layout para PDF (Tamanho A4) */
+        .pdf-page {
+            width: 100%;
+            min-height: 297mm; /* Altura A4 */
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- BOTÃO FLUTUANTE DE DOWNLOAD (Não aparecerá no PDF) -->
+    <button id="downloadBtn" onclick="gerarPDF()" class="fixed top-6 right-6 z-50 bg-red-700 hover:bg-red-800 text-white font-oswald text-xl uppercase tracking-widest py-3 px-6 rounded-sm shadow-[0_0_20px_rgba(185,28,28,0.5)] transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Transferir PDF
+    </button>
+
+    <!-- CONTAINER PRINCIPAL DO E-BOOK -->
+    <div id="ebook-content" class="bg-[#121212]">
+        
+        <!-- CAPA -->
+        <div class="pdf-page flex flex-col justify-center items-center hero-bg text-center px-6">
+            <h3 class="text-primal-red font-oswald tracking-widest uppercase text-2xl md:text-3xl mb-4 drop-shadow-md">O Guia Definitivo da Dieta da Selva</h3>
+            <h1 class="text-7xl md:text-9xl font-oswald font-bold text-white mb-6 uppercase tracking-tight shadow-black drop-shadow-2xl">
+                Testosterona <br> <span class="text-primal-red">Primal</span>
+            </h1>
+            <p class="text-xl md:text-3xl text-gray-300 max-w-3xl font-light mb-12 drop-shadow-md">
+                Como usar Carnes, Frutas e Jejum para resgatar a sua força, queimar gordura e dominar a sua biologia.
+            </p>
+            <div class="mt-16 border-t-2 border-red-700 pt-8 w-64 mx-auto">
+                <p class="font-oswald text-2xl uppercase tracking-widest text-white">O Ancestral</p>
+                <p class="text-md text-gray-400 mt-2">oancestral.com.br</p>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- AVISO LEGAL -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#121212] flex flex-col justify-center">
+            <h2 class="text-3xl font-oswald font-bold text-gray-500 mb-8 uppercase">Aviso Legal & Direitos de Autor</h2>
+            <div class="text-gray-400 text-xl space-y-6">
+                <p>Este material foi desenvolvido exclusivamente para fins informativos e educacionais. As informações contidas neste e-book não substituem o aconselhamento, diagnóstico ou tratamento médico profissional.</p>
+                <p>Procure sempre a orientação do seu médico ou de outro profissional de saúde qualificado com qualquer dúvida que possa ter em relação a uma condição médica ou antes de iniciar qualquer novo protocolo de dieta ou jejum.</p>
+                <p><strong>© 2026 O Ancestral. Todos os direitos reservados.</strong></p>
+                <p>Nenhuma parte desta publicação pode ser reproduzida, distribuída ou transmitida de qualquer forma ou por qualquer meio, incluindo fotocópia, gravação ou outros métodos eletrónicos ou mecânicos, sem a permissão prévia por escrito do editor.</p>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- ÍNDICE -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#1a1a1a]">
+            <h2 class="text-5xl font-oswald font-bold text-primal-red mb-12 uppercase border-b-2 border-red-700 pb-4 inline-block">Índice</h2>
+            <ul class="text-2xl font-oswald text-gray-300 space-y-8 uppercase tracking-wider w-full">
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>A Crise Moderna da Masculinidade</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Capítulo 1: A Fisiologia da Testosterona</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Capítulo 2: A Mentira do Colesterol</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Capítulo 3: Proteína Animal e Órgãos</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Capítulo 4: Inimigos Ocultos (Xenoestrogénios)</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Capítulo 5: Energia Limpa - O Papel das Frutas</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Capítulo 6: O Poder do Jejum Ancestral</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Capítulo 7: O Protocolo de 30 Dias</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Bónus: Plano de Refeições Primal</span></li>
+                <li class="flex justify-between border-b border-gray-800 pb-2"><span>Conclusão: A Soberania</span></li>
+            </ul>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- IMAGEM DE TRANSIÇÃO 1 -->
+        <div class="pdf-page chapter-bg-1 flex flex-col justify-end p-16 md:p-24">
+            <h2 class="text-7xl font-oswald font-bold text-white uppercase drop-shadow-xl">A Queda <br><span class="text-primal-red">do Homem</span></h2>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- INTRODUÇÃO -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#121212]">
+            <h2 class="text-5xl font-oswald font-bold text-primal-red mb-10 uppercase">A Crise Moderna da Masculinidade</h2>
+            <div class="text-gray-300 font-light text-xl space-y-6">
+                <p>Olhe à sua volta. O homem moderno está fraco, inflamado, apático, deprimido e com os níveis de testosterona mais baixos da história registada. A sociedade civilizada olha para esse declínio e diz que é "normal". Dizem que é apenas a idade a chegar, o stress do trabalho ou a sua genética.</p>
+                <p>Mas, se olhar para as fotografias de homens de há 60, 70 anos atrás — agricultores, trabalhadores braçais, os seus avós —, verá homens magros, fortes, com maxilares definidos e uma vitalidade que hoje parece ter desaparecido.</p>
+                <blockquote class="text-3xl text-white font-oswald my-12 border-l-4 border-red-700 pl-8 uppercase tracking-wide leading-tight">
+                    "O declínio da testosterona não é uma falha genética repentina. É um envenenamento em massa."
+                </blockquote>
+                <p>A dieta ocidental moderna, estruturada na base de grãos refinados, açúcares artificiais e, principalmente, óleos de sementes industriais (óleo de soja, canola, milho, girassol), destruiu a fundação hormonal masculina. O corpo humano, forjado ao longo de milhões de anos no topo da cadeia alimentar, não reconhece este lixo de prateleira de supermercado como combustível.</p>
+                <p>Quando substitui a gordura animal nutritiva por óleos de motor disfarçados de comida, o seu sistema endócrino entra em colapso. O seu corpo passa a produzir cortisol (o hormona do stress) em excesso e aromatiza (converte) a pouca testosterona que lhe resta em estrogénio (a hormona feminina).</p>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- INTRODUÇÃO CONTINUAÇÃO -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#1a1a1a]">
+            <h2 class="text-4xl font-oswald font-bold text-white mb-10 uppercase">A Dieta da Selva não é uma invenção</h2>
+            <div class="text-gray-300 font-light text-xl space-y-6">
+                <p>A <strong>Dieta da Selva</strong> é um resgate. É o retorno à sua soberania biológica. O homem foi feito para caçar, para jejuar, para devorar carnes ricas em gordura e para utilizar hidratos de carbono limpos apenas quando disponíveis na natureza.</p>
+                <p>O objetivo deste livro não é apenas fazê-lo perder peso. Perder peso é fácil; basta passar fome. O objetivo deste livro é a <span class="text-primal-red font-bold">Otimização Hormonal</span>. É transformar o seu corpo numa fornalha de queimar gordura e numa fábrica natural de testosterona.</p>
+                <p>Nas próximas páginas, vai descobrir como a combinação estratégica de proteínas animais, gorduras saturadas naturais, frutas e a prática implacável do jejum intermitente pode fazer um "reset" completo ao seu sistema endócrino em apenas 30 dias.</p>
+                <p>Prepare-se para desaprender tudo o que a nutrição convencional lhe ensinou. O que a televisão e a indústria alimentar promovem é exatamente o que mantém as pessoas doentes, dependentes e fracas.</p>
+                <p class="font-oswald text-4xl text-primal-red mt-24 uppercase tracking-wider text-center">
+                    Bem-vindo à Alcateia. O Ancestral aguarda.
+                </p>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- IMAGEM DE TRANSIÇÃO 2 -->
+        <div class="pdf-page chapter-bg-2 flex flex-col justify-end p-16 md:p-24">
+            <h2 class="text-7xl font-oswald font-bold text-white uppercase drop-shadow-xl">O Mito do <br><span class="text-primal-red">Colesterol</span></h2>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- CAPÍTULO 1 & 2 -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#121212]">
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-8 uppercase">Capítulo 1: A Fisiologia da Testosterona</h2>
+            <div class="text-gray-300 font-light text-xl mb-16 space-y-4">
+                <p>Para otimizar a testosterona, primeiro precisa de entender como ela é fabricada. Ela não surge do nada. A produção de testosterona começa no cérebro. O hipotálamo liberta a hormona libertadora de gonadotrofina (GnRH), que sinaliza à glândula pituitária para produzir a hormona luteinizante (LH).</p>
+                <p>O LH viaja pela corrente sanguínea até aos testículos, especificamente para as células de Leydig. É aqui que a magia acontece. Mas as células de Leydig são apenas as operárias; elas precisam de matéria-prima para construir a casa.</p>
+                <p class="text-3xl text-white font-bold my-8 uppercase font-oswald">Qual é essa matéria-prima? O Colesterol.</p>
+                <p>Sem colesterol, o seu corpo <strong>NÃO PODE</strong> produzir testosterona. Ponto final. A molécula de testosterona é literalmente derivada do colesterol. Quando reduz drasticamente a sua ingestão de gorduras e foca-se em dietas baseadas em plantas e baixo teor de gordura, está a cortar o fornecimento de matéria-prima da sua própria masculinidade.</p>
+            </div>
+
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-8 uppercase mt-12 border-t border-gray-800 pt-12">Capítulo 2: A Mentira do Colesterol</h2>
+            <div class="text-gray-300 font-light text-xl space-y-4">
+                <p>Durante mais de 50 anos, fomos alvo de uma lavagem cerebral monstruosa que demonizou a carne vermelha, as gemas de ovos e a gordura animal. Disseram-nos que a gordura saturada entupia artérias e que o colesterol causava ataques cardíacos.</p>
+                <blockquote class="text-3xl text-white font-oswald my-10 border-l-4 border-red-700 pl-8 uppercase tracking-wide leading-tight">
+                    A guerra contra o colesterol foi a guerra contra a testosterona.
+                </blockquote>
+                <p>A ciência moderna, livre dos lobbies da indústria do açúcar, já provou que o colesterol dietético tem pouca ou nenhuma correlação com o risco de doença cardíaca numa pessoa com um metabolismo saudável. O verdadeiro culpado das artérias entupidas é a <strong>inflamação</strong>, causada pelo excesso de hidratos de carbono refinados misturados com óleos de sementes processados.</p>
+                <p>As gorduras saturadas saudáveis — encontradas num bife do lombo, na costela, nos ovos, no sebo bovino e na manteiga pura — são vitais para a saúde neurológica, para a produção hormonal e para a integridade das paredes celulares.</p>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- CAPÍTULO 3 -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#1a1a1a]">
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-10 uppercase">Capítulo 3: Proteína Animal e Órgãos</h2>
+            <div class="text-gray-300 font-light text-xl space-y-6">
+                <p>Músculo é sobrevivência. O tecido muscular não é apenas estético; é o maior órgão endócrino do seu corpo. Ele suga a glicose do sangue, aumentando a sua sensibilidade à insulina e acelerando o seu metabolismo.</p>
+                <p>E a única maneira eficiente de construir e preservar músculos densos como granito é através da proteína de alto desempenho biológico. A proteína vegetal <strong>NÃO É</strong> igual à proteína animal. Às plantas faltam frequentemente aminoácidos essenciais (como leucina, crucial para o crescimento muscular) e possuem uma biodisponibilidade extremamente baixa devido aos antinutrientes que bloqueiam a sua absorção.</p>
+                <p>O corpo masculino exige o perfil completo de aminoácidos, creatina natural, carnosina, zinco e vitamina B12 encontrados apenas na carne.</p>
+                
+                <h3 class="text-3xl font-oswald text-white mt-12 mb-6 uppercase">Os Ruminantes: A Base Alimentar</h3>
+                <p>O foco da Dieta da Selva deve estar nos animais ruminantes: Boi, Carneiro, Cordeiro, Búfalo. Porquê? Porque o sistema digestivo deles (com múltiplos estômagos) atua como um filtro purificador. Mesmo que um boi coma grãos, a sua biologia converte isso numa gordura muito mais saudável para o consumo humano do que a gordura de animais monogástricos.</p>
+                
+                <div class="bg-[#111] p-10 mt-12 border-l-4 border-red-700">
+                    <h4 class="font-oswald text-3xl text-white mb-4 uppercase tracking-wider">O Superalimento Esquecido: O Fígado</h4>
+                    <p class="text-gray-300">Os nossos ancestrais não comiam apenas o músculo; eles priorizavam os órgãos. O fígado bovino é o verdadeiro multivitamínico da natureza. É a fonte mais densa de Vitamina A (Retinol), vitaminas do complexo B, Ferro Heme e Cobre do planeta. Consumir 100g a 200g de fígado por semana fará mais pela sua energia do que qualquer suplemento.</p>
+                </div>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- IMAGEM DE TRANSIÇÃO 3 -->
+        <div class="pdf-page chapter-bg-3 flex flex-col justify-end p-16 md:p-24">
+            <h2 class="text-7xl font-oswald font-bold text-white uppercase drop-shadow-xl">Energia <br><span class="text-primal-red">Ancestral</span></h2>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- CAPÍTULO 4 -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#121212]">
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-10 uppercase">Capítulo 4: Inimigos Ocultos (Xenoestrogénios)</h2>
+            <div class="text-gray-300 font-light text-xl space-y-6">
+                <p>Não basta apenas comer carne e frutas. Tem de eliminar ativamente os assassinos silenciosos da sua testosterona. O mundo moderno está infestado de <strong>xenoestrogénios</strong> — compostos químicos sintéticos que imitam a hormona feminina (estrogénio) no seu corpo.</p>
+                <p>Quando estes compostos entram no seu sistema, ligam-se aos seus recetores hormonais, bloqueando a testosterona e sinalizando ao corpo para armazenar gordura, reter líquidos e desenvolver tecidos indesejados.</p>
+                
+                <h3 class="text-3xl font-bold text-white mt-12 mb-8 font-oswald uppercase">Os 4 Grandes Vilões:</h3>
+                <ul class="space-y-6">
+                    <li class="bg-[#1a1a1a] p-8 rounded-lg border border-gray-800">
+                        <strong class="text-primal-red text-2xl block mb-3 font-oswald uppercase">1. Óleos de Sementes</strong>
+                        Óleo de soja, milho, canola, margarina. Estes óleos são extraídos quimicamente com solventes tóxicos e aquecidos a altas temperaturas. Oxidando rapidamente no seu corpo, causando inflamação profunda. Cozinhe apenas com Sebo Bovino, Banha de Porco, Ghee ou Manteiga.
+                    </li>
+                    <li class="bg-[#1a1a1a] p-8 rounded-lg border border-gray-800">
+                        <strong class="text-primal-red text-2xl block mb-3 font-oswald uppercase">2. A Soja</strong>
+                        A soja contém fitoestrogénios potentes. É barata e usada como enchimento em 90% dos alimentos ultraprocessados. Homens devem evitar a soja a todo o custo.
+                    </li>
+                    <li class="bg-[#1a1a1a] p-8 rounded-lg border border-gray-800">
+                        <strong class="text-primal-red text-2xl block mb-3 font-oswald uppercase">3. Plásticos e Ftalatos (BPA)</strong>
+                        Nunca aqueça comida em recipientes de plástico no micro-ondas. Beba água de garrafas de vidro ou aço inoxidável. Os plásticos libertam micropartículas estrogénicas.
+                    </li>
+                    <li class="bg-[#1a1a1a] p-8 rounded-lg border border-gray-800">
+                        <strong class="text-primal-red text-2xl block mb-3 font-oswald uppercase">4. Produtos de Cuidado Pessoal</strong>
+                        A maioria dos desodorizantes e champôs de supermercado estão repletos de parabenos que também agem como desreguladores endócrinos. Procure alternativas naturais.
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- CAPÍTULO 5 -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#1a1a1a]">
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-10 uppercase">Capítulo 5: Energia Limpa - O Papel das Frutas</h2>
+            <div class="text-gray-300 font-light text-xl space-y-6">
+                <p>Enquanto muitas dietas focam-se em eliminar todos os hidratos de carbono, a <strong>Dieta da Selva</strong> abraça o poder das frutas doces e do mel.</p>
+                <blockquote class="text-3xl text-white font-oswald my-12 border-l-4 border-red-700 pl-8 uppercase tracking-wide leading-tight">
+                    Não precisa de hidratos de carbono para sobreviver, mas precisa deles para performar explosivamente.
+                </blockquote>
+                <p>O grande problema dos hidratos de carbono modernos não é o macronutriente em si, mas a sua fonte de defesa. As plantas não querem ser comidas. Trigo, aveia e grãos integrais vêm carregados de "toxinas" de defesa e antinutrientes (ácido fítico, lectinas, glúten) que inflamam a parede intestinal.</p>
+                <p>As <strong>frutas</strong>, por outro lado, são a exceção à regra na botânica. Elas são os hidratos de carbono desenhados pela natureza para serem consumidos. Fornecem energia rápida e limpa para o cérebro e para abastecer os seus treinos intensos, sem a carga tóxica das sementes.</p>
+                
+                <h3 class="text-3xl font-bold text-white mt-12 mb-8 font-oswald uppercase">O Arsenal de Energia Primal:</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="border border-gray-700 p-8 rounded">
+                        <strong class="text-white text-2xl block mb-3 font-oswald uppercase">Melancia e Melão</strong>
+                        Altamente hidratantes, ricas em citrulina (melhora o fluxo sanguíneo no treino) e de fácil digestão.
+                    </div>
+                    <div class="border border-gray-700 p-8 rounded">
+                        <strong class="text-white text-2xl block mb-3 font-oswald uppercase">Banana e Maçã</strong>
+                        Fontes densas de energia. Perfeitas para comer antes e depois do seu treino de força com pesos pesados.
+                    </div>
+                    <div class="border border-gray-700 p-8 rounded">
+                        <strong class="text-white text-2xl block mb-3 font-oswald uppercase">Abacate e Coco</strong>
+                        Frutas excecionais pela sua densidade de gorduras saturadas saudáveis e potássio.
+                    </div>
+                    <div class="border border-primal-red p-8 rounded bg-red-900 bg-opacity-10">
+                        <strong class="text-primal-red text-2xl block mb-3 font-oswald uppercase">O Mel Cru</strong>
+                        Um verdadeiro elixir dourado. Antibacteriano, rico em enzimas e a melhor fonte de energia pós-treino da natureza.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- IMAGEM DE TRANSIÇÃO 4 -->
+        <div class="pdf-page chapter-bg-4 flex flex-col justify-end p-16 md:p-24">
+            <h2 class="text-7xl font-oswald font-bold text-white uppercase drop-shadow-xl">A Forja do <br><span class="text-primal-red">Jejum</span></h2>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- CAPÍTULO 6 -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#121212]">
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-10 uppercase">Capítulo 6: O Poder do Jejum Ancestral</h2>
+            <div class="text-gray-300 font-light text-xl space-y-6">
+                <p>Os seus ancestrais caçadores-recoletores não acordavam e comiam uma taça de cereais com leite desnatado. Não comiam de três em três horas para "manter o metabolismo acelerado" — essa é uma das maiores mentiras já contadas pela indústria de suplementos.</p>
+                <p>Na natureza predatória, o homem acordava, caçava em estado de alerta máximo (com o sistema nervoso simpático ativado) e só comia horas depois, ao abater a presa. O corpo humano não foi feito para estar o tempo todo em estado de digestão. A digestão constante drena a sua energia e paralisa a queima de gordura.</p>
+                
+                <h3 class="text-3xl font-oswald text-white mt-16 mb-10 uppercase border-b border-gray-800 pb-4">A Magia Biológica da Fome</h3>
+                <ul class="space-y-12">
+                    <li class="flex items-start">
+                        <span class="text-primal-red text-5xl mr-6 mt-1 font-bold font-oswald">1.</span>
+                        <div>
+                            <strong class="text-white text-2xl font-oswald uppercase tracking-wider block mb-2">O Reset da Insulina</strong>
+                            A resistência à insulina é a raiz de quase todas as doenças modernas (obesidade, diabetes, letargia). O jejum zera a sua insulina. A sua sensibilidade dispara. O seu corpo volta a utilizar a sua própria gordura abdominal como combustível primário.
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-primal-red text-5xl mr-6 mt-1 font-bold font-oswald">2.</span>
+                        <div>
+                            <strong class="text-white text-2xl font-oswald uppercase tracking-wider block mb-2">Autofagia Celular</strong>
+                            Após cerca de 16-18 horas sem comer, o corpo inicia a Autofagia. É um estado de sobrevivência onde o corpo, procurando energia, começa a devorar, reciclar e eliminar as suas próprias células velhas e defeituosas. É o anti-aging mais poderoso do mundo.
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-primal-red text-5xl mr-6 mt-1 font-bold font-oswald">3.</span>
+                        <div>
+                            <strong class="text-white text-2xl font-oswald uppercase tracking-wider block mb-2">A Explosão da Hormona do Crescimento (GH)</strong>
+                            Para proteger a sua massa muscular durante períodos sem comida, o cérebro ordena a libertação maciça de Hormona do Crescimento Humano. Estudos mostram que o GH pode aumentar de 3x a 5x durante jejuns curtos, estimulando a lipólise.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- CAPÍTULO 7 -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#1a1a1a]">
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-10 uppercase">Capítulo 7: O Protocolo de 30 Dias</h2>
+            <div class="text-gray-300 font-light text-xl">
+                <p>A teoria está dada. Agora vamos à prática. Este não é um programa flexível; é um protocolo de reprogramação biológica. Siga estas 5 regras estritas durante os próximos 30 dias para dominar a sua testosterona e destruir a gordura corporal.</p>
+                
+                <div class="space-y-10 mt-12">
+                    <div class="border-l-4 border-red-700 pl-8 py-2 bg-[#222] p-6">
+                        <h4 class="font-oswald text-3xl text-white mb-3 uppercase tracking-wide">Regra 1: O Jejum Implacável (16/8)</h4>
+                        <p>Salte o pequeno-almoço todos os dias. A sua primeira refeição acontecerá apenas entre as 12h e as 14h. A sua última refeição será até às 20h. Durante o período de jejum, consumirá apenas: Água (com sal grosso/integral), café preto sem açúcar e chás.</p>
+                    </div>
+                    <div class="border-l-4 border-red-700 pl-8 py-2 bg-[#222] p-6">
+                        <h4 class="font-oswald text-3xl text-white mb-3 uppercase tracking-wide">Regra 2: Prioridade Extrema à Carne</h4>
+                        <p>Ao quebrar o jejum, a base do seu prato será sempre proteína e gordura animal. Carnes vermelhas e ovos. A gordura deve vir junto com a carne, nunca fuja dela. A gordura traz saciedade e sinaliza ao cérebro para produzir testosterona.</p>
+                    </div>
+                    <div class="border-l-4 border-red-700 pl-8 py-2 bg-[#222] p-6">
+                        <h4 class="font-oswald text-3xl text-white mb-3 uppercase tracking-wide">Regra 3: Frutas Apenas Como Combustível</h4>
+                        <p>Se tem muita gordura a perder, limite as frutas a uma ou duas porções por dia. Se treina pesado, use frutas (banana, melancia) e mel à volta da janela do seu treino. Nunca consuma pães, massas ou açúcar artificial.</p>
+                    </div>
+                    <div class="border-l-4 border-red-700 pl-8 py-2 bg-[#222] p-6">
+                        <h4 class="font-oswald text-3xl text-white mb-3 uppercase tracking-wide">Regra 4: Levantamento de Peso Pesado</h4>
+                        <p>Precisa de estímulo. A nutrição é o combustível, mas o ferro é o gatilho da testosterona. Foque-se em exercícios compostos pesados, 3 a 4 vezes por semana: Agachamentos, Peso Morto, Supino, Elevações. Evite maratonas de cardio.</p>
+                    </div>
+                    <div class="border-l-4 border-red-700 pl-8 py-2 bg-[#222] p-6">
+                        <h4 class="font-oswald text-3xl text-white mb-3 uppercase tracking-wide">Regra 5: Sol, Aterramento e Sono</h4>
+                        <p>Exponha o máximo da sua pele ao sol da manhã por 15 a 30 minutos todos os dias. Durma pelo menos 7 a 8 horas num quarto completamente escuro para maximizar a sua produção natural de hormonas reparadoras.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- BÔNUS: PLANO DE REFEIÇÕES -->
+        <div class="pdf-page py-20 px-12 md:px-24 bg-[#121212]">
+            <h2 class="text-4xl font-oswald font-bold text-primal-red mb-10 uppercase">Bónus: O Menu Primal (3 Dias)</h2>
+            <p class="text-gray-300 font-light text-xl mb-12">Aqui está um exemplo exato de como a Dieta da Selva se parece na prática, combinando o jejum intermitente (16h sem comer) com duas refeições massivas e altamente nutritivas.</p>
+            
+            <div class="space-y-12 text-gray-300 text-lg">
+                <div class="bg-[#1a1a1a] p-10 border-t-4 border-red-700 shadow-lg">
+                    <h3 class="font-oswald text-4xl text-white mb-6 uppercase">Dia 1: O Início do Fogo</h3>
+                    <ul class="space-y-4">
+                        <li><strong class="text-primal-red text-xl">07:00 - 12:00 (Jejum):</strong> Água com uma pitada de sal marinho. 1 a 2 chávenas de café preto (sem açúcar).</li>
+                        <li><strong class="text-primal-red text-xl">12:30 (Quebra de Jejum):</strong> 4 a 5 Ovos mexidos na manteiga. 200g de carne picada bovina bem temperada. 1 maçã inteira de sobremesa.</li>
+                        <li><strong class="text-primal-red text-xl">17:00 (Pré-treino opcional):</strong> 1 Banana esmagada com 1 colher de sopa de Mel cru.</li>
+                        <li><strong class="text-primal-red text-xl">19:30 (Jantar Primal):</strong> 350g a 400g de Bife do Lombo selado na frigideira de ferro com a própria gordura. Opcional: Abacate como acompanhamento.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-[#1a1a1a] p-10 border-t-4 border-red-700 shadow-lg">
+                    <h3 class="font-oswald text-4xl text-white mb-6 uppercase">Dia 2: A Carga Nutricional</h3>
+                    <ul class="space-y-4">
+                        <li><strong class="text-primal-red text-xl">07:00 - 12:00 (Jejum):</strong> Água, café preto. Trabalho focado.</li>
+                        <li><strong class="text-primal-red text-xl">12:30 (Quebra de Jejum):</strong> 200g de Fígado Bovino acebolado na manteiga (o multivitamínico). 1 fatia generosa de melancia.</li>
+                        <li><strong class="text-primal-red text-xl">19:30 (Jantar Primal):</strong> Frango Ancestral ao Molho de Vinho (Pedaços de frango selados na banha de porco, cozidos em vinho branco seco e ervas frescas). 1 Cacho de uvas.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-[#1a1a1a] p-10 border-t-4 border-red-700 shadow-lg">
+                    <h3 class="font-oswald text-4xl text-white mb-6 uppercase">Dia 3: Domínio e Força</h3>
+                    <ul class="space-y-4">
+                        <li><strong class="text-primal-red text-xl">07:00 - 13:00 (Jejum Estendido):</strong> Apenas Água e Chá verde.</li>
+                        <li><strong class="text-primal-red text-xl">13:00 (Quebra de Jejum):</strong> Hambúrgueres rústicos (feitos com 300g de carne picada e 20% de gordura bovina), com 2 ovos estrelados por cima. Sem pão. 1 Laranja.</li>
+                        <li><strong class="text-primal-red text-xl">19:30 (Jantar Primal):</strong> Costela bovina ou suína assada lentamente no forno até soltar do osso. Opcional: Ananás fatiado (ajuda na digestão da carne).</li>
+                    </ul>
+                </div>
+                
+                <p class="text-2xl font-oswald text-primal-red mt-10 text-center uppercase tracking-widest border-y border-gray-800 py-6">Regra de Ouro: Coma a carne até se sentir completamente saciado. Não conte calorias. Conte nutrientes.</p>
+            </div>
+        </div>
+        <div class="html2pdf__page-break"></div>
+
+        <!-- CONCLUSÃO E CTA -->
+        <div class="pdf-page flex flex-col justify-center items-center text-center px-6 bg-[#111] relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900 via-transparent to-transparent"></div>
+            <div class="relative z-10 w-full px-12">
+                <h2 class="text-7xl font-oswald font-bold text-white mb-8 uppercase tracking-wide">Abrace a <span class="text-primal-red">Soberania</span></h2>
+                <p class="text-2xl text-gray-300 max-w-4xl font-light mb-16 mx-auto leading-relaxed">
+                    A Dieta da Selva não é uma moda. É a realidade da sua biologia. Quando retira os venenos modernos e alimenta o seu corpo com a força da natureza, a letargia, a gordura e a fraqueza deixam de existir. O vigor físico e o domínio mental passam a ser o seu estado natural.
+                </p>
+                
+                <div class="bg-[#1a1a1a] border border-gray-800 p-16 max-w-4xl mx-auto shadow-2xl relative">
+                    <div class="absolute top-0 left-0 w-full h-3 bg-primal-red"></div>
+                    <h3 class="text-5xl font-oswald text-white mb-8 uppercase">Tem o Manual. Aja.</h3>
+                    <p class="text-gray-400 mb-12 text-2xl font-light">
+                        O caminho para a sua melhor versão está traçado. Para ter acesso a receitas avançadas, protocolos de treino e fazer parte da nossa Alcateia, visite a plataforma oficial:
+                    </p>
+                    <a href="https://oancestral.com.br" class="inline-block bg-primal-red text-white font-oswald uppercase tracking-widest py-6 px-16 text-3xl mb-12">
+                        OANCESTRAL.COM.BR
+                    </a>
+                    <div class="mt-8 pt-8 border-t border-gray-800 flex items-center justify-center space-x-3 text-gray-500 font-oswald tracking-widest text-2xl">
+                        <span>Siga no Instagram:</span>
+                        <strong class="text-white">@OANCESTRAL.COM.BR</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script para gerar o PDF -->
+    <script>
+        function gerarPDF() {
+            // Esconder o botão durante a geração
+            const btn = document.getElementById('downloadBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'A Gerar PDF... Aguarde';
+            btn.style.opacity = '0.5';
+            btn.disabled = true;
+
+            // Elemento que será convertido
+            const element = document.getElementById('ebook-content');
+
+            // Configurações do html2pdf
+            const opt = {
+                margin:       0,
+                filename:     'E-book_Testosterona_Primal.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: 'css', before: '.html2pdf__page-break' }
+            };
+
+            // Gerar e Descarregar
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restaurar o botão
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

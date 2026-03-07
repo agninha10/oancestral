@@ -11,10 +11,11 @@ interface JejumPromoBannerProps {
 /**
  * Banner de propaganda do ebook "Guia Definitivo do Jejum Intermitente".
  *
- * variant="inline"  — faixa horizontal larga, para inserir entre posts
- * variant="sidebar" — card vertical compacto, para sidebar
+ * variant="inline"  — faixa horizontal larga
+ * variant="sidebar" — card vertical compacto
  *
- * Suporta light mode e dark mode corretamente.
+ * Dark mode: cores originais (zinc-900 / stone-100).
+ * Light mode: fundo purple-50, textos zinc.
  */
 export function JejumPromoBanner({ variant = "inline" }: JejumPromoBannerProps) {
   if (variant === "sidebar") {
@@ -23,13 +24,16 @@ export function JejumPromoBanner({ variant = "inline" }: JejumPromoBannerProps) 
         href={JEJUM_URL}
         className="group block rounded-2xl overflow-hidden
           border border-purple-200 dark:border-purple-800/40
-          bg-white dark:bg-gradient-to-b dark:from-zinc-900 dark:to-purple-950/30
+          bg-white dark:bg-zinc-900
           hover:border-purple-400 dark:hover:border-purple-600/60
-          shadow-sm hover:shadow-lg hover:shadow-purple-100 dark:hover:shadow-purple-900/20
+          shadow-sm hover:shadow-lg dark:hover:shadow-purple-900/20
           transition-all duration-300"
       >
         {/* Cover image */}
-        <div className="relative w-full aspect-[3/2] overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-950 dark:to-zinc-900 flex items-center justify-center">
+        <div className="relative w-full aspect-[3/2] overflow-hidden
+          bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-950 dark:to-zinc-900
+          flex items-center justify-center"
+        >
           <Image
             src="/images/capa-guia-jejum.png"
             alt="Guia do Jejum Intermitente"
@@ -61,7 +65,10 @@ export function JejumPromoBanner({ variant = "inline" }: JejumPromoBannerProps) 
           {/* Stars */}
           <div className="flex items-center gap-1 mb-3">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-3 w-3 text-purple-500 fill-purple-500 dark:text-purple-400 dark:fill-purple-400" />
+              <Star
+                key={i}
+                className="h-3 w-3 text-purple-500 fill-purple-500 dark:text-purple-400 dark:fill-purple-400"
+              />
             ))}
             <span className="text-zinc-500 dark:text-stone-500 text-[10px] ml-1">+800 alunos</span>
           </div>
@@ -76,27 +83,27 @@ export function JejumPromoBanner({ variant = "inline" }: JejumPromoBannerProps) 
     );
   }
 
-  // variant="inline" — faixa horizontal
+  // ── variant="inline" ──────────────────────────────────────────────────────
   return (
     <Link
       href={JEJUM_URL}
       className="group relative flex flex-col sm:flex-row items-center gap-6 rounded-2xl overflow-hidden
         border border-purple-200 dark:border-purple-800/40
-        bg-purple-50 dark:bg-gradient-to-r dark:from-zinc-900 dark:via-purple-950/20 dark:to-zinc-900
+        bg-purple-50 dark:bg-zinc-900 dark:bg-gradient-to-r dark:from-zinc-900 dark:via-purple-950/20 dark:to-zinc-900
         hover:border-purple-400 dark:hover:border-purple-600/60
-        shadow-sm hover:shadow-xl hover:shadow-purple-100 dark:hover:shadow-purple-900/20
         transition-all duration-300
+        hover:shadow-xl hover:shadow-purple-100 dark:hover:shadow-purple-900/20
         p-6 sm:p-8"
     >
-      {/* Decorative background glow — only visible dark mode */}
+      {/* Decorative glow — dark mode only */}
       <div className="pointer-events-none absolute top-0 right-0 w-48 h-48 bg-purple-500/5 rounded-full blur-3xl hidden dark:block" />
 
-      {/* Icon / Cover */}
-      <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden
-        bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-zinc-900
-        flex items-center justify-center
-        shadow-lg shadow-purple-200 dark:shadow-black/50
-        border border-purple-200 dark:border-transparent"
+      {/* Icon */}
+      <div
+        className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden
+          bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-zinc-900
+          flex items-center justify-center
+          shadow-md shadow-purple-200 dark:shadow-2xl dark:shadow-black/50"
       >
         <Zap className="h-10 w-10 text-purple-600 dark:text-purple-400" />
       </div>
@@ -104,11 +111,12 @@ export function JejumPromoBanner({ variant = "inline" }: JejumPromoBannerProps) 
       {/* Text */}
       <div className="flex-1 text-center sm:text-left">
         {/* Badge */}
-        <span className="inline-block text-[10px] font-bold tracking-widest
-          bg-purple-100 dark:bg-purple-500/20
-          text-purple-700 dark:text-purple-400
-          border border-purple-200 dark:border-purple-500/30
-          px-2.5 py-0.5 rounded-full mb-2"
+        <span
+          className="inline-block text-[10px] font-bold tracking-widest
+            bg-purple-100 dark:bg-purple-500/20
+            text-purple-700 dark:text-purple-400
+            border border-purple-200 dark:border-purple-500/30
+            px-2.5 py-0.5 rounded-full mb-2"
         >
           ⚡ GUIA COMPLETO — DOWNLOAD IMEDIATO
         </span>
@@ -140,7 +148,7 @@ export function JejumPromoBanner({ variant = "inline" }: JejumPromoBannerProps) 
 
       {/* CTA */}
       <div className="flex-shrink-0">
-        <div className="flex items-center gap-2 bg-purple-600 group-hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-purple-300 dark:shadow-purple-900/30">
+        <div className="flex items-center gap-2 bg-purple-600 group-hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-colors whitespace-nowrap shadow-lg shadow-purple-900/30">
           Quero o Guia
           <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
         </div>
