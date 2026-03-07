@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerSchema } from '@/lib/validations/auth'
 import { hashPassword } from '@/lib/auth/password'
-import { generateToken, sendVerificationEmail } from '@/lib/auth/email'
+import { generateVerificationCode, sendVerificationEmail } from '@/lib/auth/email'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
         // Hash password
         const hashedPassword = await hashPassword(password)
 
-        // Generate verification token
-        const verificationToken = generateToken()
+        // Generate 6-digit verification code (matches checkout flow + new VerifyEmail template)
+        const verificationToken = generateVerificationCode()
         const verificationTokenExpires = new Date(
             Date.now() + 1000 * 60 * 60 * 24
         )
@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
             },
         })
 
-        // Send verification email
-        await sendVerificationEmail(email, verificationToken)
+        // Send verification email (6-digit code + name for personalisation)
+        await sendVerificationEmail(email, verificationToken, name)
 
         return NextResponse.json(
             {

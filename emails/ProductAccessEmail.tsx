@@ -118,13 +118,22 @@ export default function ProductAccessEmail({
                             </Text>
                         </Section>
 
-                        {/* ── Footer ─────────────────────────────────────────── */}
+                        {/* ── Footer com unsubscribe ─────────────────────────── */}
                         <Section className="text-center mt-8">
                             <Text className="text-xs text-stone-600 m-0">
                                 O Ancestral • Sabedoria que atravessa gerações
                             </Text>
-                            <Text className="text-xs text-stone-700 mt-1 m-0">
+                            <Text className="text-xs text-stone-700 mt-1 mb-0">
                                 Este e-mail foi enviado a pedido da equipe de suporte.
+                            </Text>
+                            <Text className="text-xs text-stone-700 mt-2 mb-0">
+                                Não quer mais receber nossos e-mails?{' '}
+                                <a
+                                    href={`https://oancestral.com.br/api/unsubscribe`}
+                                    className="text-stone-500 underline"
+                                >
+                                    Cancelar inscrição
+                                </a>
                             </Text>
                         </Section>
 

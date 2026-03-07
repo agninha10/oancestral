@@ -14,7 +14,8 @@ export function generateVerificationCode(): string {
 
 export async function sendVerificationEmail(
     email: string,
-    token: string
+    code: string,
+    name?: string
 ): Promise<void> {
     const apiKey = process.env.RESEND_API_KEY
 
@@ -28,7 +29,7 @@ export async function sendVerificationEmail(
         from: 'O Ancestral <no-reply@oancestral.com.br>',
         to: email,
         subject: 'Confirme seu e-mail no O Ancestral',
-        react: VerifyEmail({ token }),
+        react: VerifyEmail({ code, name }),
     })
 }
 

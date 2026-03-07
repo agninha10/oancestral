@@ -97,10 +97,19 @@ export default function WelcomeEmail({ name, verificationCode }: WelcomeEmailPro
               </Text>
             </Section>
 
-            {/* Footer */}
+            {/* Footer com unsubscribe */}
             <Section className="text-center mt-8">
-              <Text className="text-xs text-stone-600">
+              <Text className="text-xs text-stone-600 m-0">
                 O Ancestral • Sabedoria que atravessa gerações
+              </Text>
+              <Text className="text-xs text-stone-700 mt-2 m-0">
+                Não quer mais receber nossos e-mails?{' '}
+                <a
+                  href={`${baseUrl}/api/unsubscribe`}
+                  className="text-stone-500 underline"
+                >
+                  Cancelar inscrição
+                </a>
               </Text>
             </Section>
           </Container>
