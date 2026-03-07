@@ -14,22 +14,12 @@ type BlogPostCardProps = {
         slug: string;
         excerpt: string;
         coverImage: string | null;
-        category: string;
+        category: { name: string; slug: string } | null;
         readTime: number;
-        publishedAt: Date | null;
-        createdAt: Date;
+        publishedAt: Date | string | null;
+        createdAt: Date | string;
         tags: string[];
     };
-};
-
-const categoryLabels: Record<string, string> = {
-    NUTRITION: 'Nutrição',
-    FASTING: 'Jejum',
-    TRAINING: 'Treino',
-    MINDSET: 'Mindset',
-    LIFESTYLE: 'Estilo de Vida',
-    SCIENCE: 'Ciência',
-    OTHER: 'Outros',
 };
 
 const categoryColors: Record<string, string> = {
@@ -43,7 +33,7 @@ const categoryColors: Record<string, string> = {
 };
 
 export function BlogPostCard({ post }: BlogPostCardProps) {
-    const publishDate = post.publishedAt || post.createdAt;
+    const publishDate = new Date(post.publishedAt ?? post.createdAt);
 
     return (
         <motion.div
@@ -72,11 +62,13 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
 
                         {/* Category badge */}
-                        <div className="absolute top-3 left-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ${categoryColors[post.category]}`}>
-                                {categoryLabels[post.category]}
-                            </span>
-                        </div>
+                        {post.category && (
+                            <div className="absolute top-3 left-3">
+                                <span className={`px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ${categoryColors[post.category.slug] ?? categoryColors.OTHER}`}>
+                                    {post.category.name}
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Content */}

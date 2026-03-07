@@ -73,7 +73,9 @@ export async function RelatedContent({ currentId, category, type }: Props) {
                                 slug: post.slug,
                                 excerpt: post.excerpt,
                                 coverImage: post.coverImage,
-                                category: toCategoryKey(post.category?.slug),
+                                category: post.category
+                                    ? { name: post.category.name, slug: post.category.slug }
+                                    : null,
                                 readTime: post.readTime,
                                 publishedAt: post.publishedAt,
                                 createdAt: post.createdAt,
