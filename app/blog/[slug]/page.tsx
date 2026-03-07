@@ -13,6 +13,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Suspense } from 'react';
 import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
+import { LivroPromoBanner } from '@/components/promo/livro-promo-banner';
+import { JejumPromoBanner } from '@/components/promo/jejum-promo-banner';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -108,6 +110,14 @@ export default async function BlogPostPage({ params }: Props) {
     const publishDate = post.publishedAt || post.createdAt;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://oancestral.com.br';
 
+    // Determine which promo to show based on category or tags
+    const fastingKeywords = ['jejum', 'fasting', 'jejum-intermitente', 'intermittent-fasting'];
+    const isFastingPost =
+        post.category?.slug === 'FASTING' ||
+        post.tags.some((tag: string) =>
+            fastingKeywords.some((kw) => tag.toLowerCase().includes(kw))
+        );
+
     // Fallback for color mapping based on simple hashing or default
     const getCategoryColor = (catName?: string) => {
         if (!catName) return categoryColors.OTHER;
@@ -181,6 +191,15 @@ export default async function BlogPostPage({ params }: Props) {
 
                         {/* Inline CTA */}
                         <InlineCTA />
+
+                        {/* Contextual product promo */}
+                        <div className="my-10">
+                            {isFastingPost ? (
+                                <JejumPromoBanner variant="inline" />
+                            ) : (
+                                <LivroPromoBanner variant="inline" />
+                            )}
+                        </div>
 
                         {/* Tags */}
                         {post.tags.length > 0 && (
