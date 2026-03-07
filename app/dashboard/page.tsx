@@ -4,7 +4,7 @@ import { getSession } from '@/lib/auth/session'
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BookOpen, PlayCircle, TrendingUp, Award } from 'lucide-react'
+import { BookOpen, PlayCircle, TrendingUp, Award, Download } from 'lucide-react'
 
 export default async function DashboardPage() {
     const session = await getSession()
@@ -35,6 +35,15 @@ export default async function DashboardPage() {
 
     // Estatísticas do usuário
     const enrolledCoursesCount = user.enrollments.length;
+
+    // Ebooks adquiridos
+    const ebookCount = await prisma.transaction.count({
+        where: {
+            userId:  session.userId,
+            status:  "PAID",
+            product: { in: ["livro-ancestral", "jejum"] },
+        },
+    });
     
     const completedLessonsCount = await prisma.userProgress.count({
         where: {
@@ -180,6 +189,30 @@ export default async function DashboardPage() {
                         </Button>
                     </CardContent>
                 </Card>
+
+                {ebookCount > 0 && (
+                    <Card className="border-2 border-amber-500/20 hover:border-amber-500/40 transition-colors bg-amber-950/10">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Download className="h-5 w-5 text-amber-500" />
+                                Meus Ebooks
+                                <span className="ml-auto text-xs bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded-full font-medium">
+                                    {ebookCount}
+                                </span>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground mb-4">
+                                Seus ebooks adquiridos prontos para download
+                            </p>
+                            <Button asChild className="w-full bg-amber-600 hover:bg-amber-700 text-white">
+                                <Link href="/dashboard/ebooks">
+                                    Baixar Ebooks
+                                </Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
         </div>
     )

@@ -10,6 +10,7 @@ import {
     User,
     Settings,
     LogOut,
+    Download,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 
@@ -35,6 +36,11 @@ const navigation = [
         name: 'Meus Cursos',
         href: '/dashboard/cursos',
         icon: PlayCircle,
+    },
+    {
+        name: 'Meus Ebooks',
+        href: '/dashboard/ebooks',
+        icon: Download,
     },
     {
         name: 'Receitas',
