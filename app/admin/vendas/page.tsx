@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ProcessPaymentButton } from "@/components/admin/process-payment-button";
 import { GrantAccessDialog } from "@/components/admin/grant-access-dialog";
+import { ResendAccessButton } from "@/components/admin/resend-access-button";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const formatCurrency = (cents: number) =>
@@ -292,9 +293,17 @@ export default async function VendasPage() {
 
                       {/* Ações */}
                       <TableCell>
-                        {t.status === "PENDING" && (
-                          <ProcessPaymentButton transactionId={t.id} />
-                        )}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {t.status === "PENDING" && (
+                            <ProcessPaymentButton transactionId={t.id} />
+                          )}
+                          {t.status === "PAID" && (
+                            <ResendAccessButton
+                              transactionId={t.id}
+                              customerEmail={t.user.email}
+                            />
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
