@@ -15,6 +15,7 @@ import { Suspense } from 'react';
 import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
 import { LivroPromoBanner } from '@/components/promo/livro-promo-banner';
 import { JejumPromoBanner } from '@/components/promo/jejum-promo-banner';
+import { ShareButtons } from '@/components/ui/share-buttons';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -186,6 +187,11 @@ export default async function BlogPostPage({ params }: Props) {
                                 <span>{post.readTime} min de leitura</span>
                             </div>
                         </div>
+
+                        {/* Share — topo do post */}
+                        <div className="mt-6 pt-6 border-t border-border/40">
+                            <ShareButtons title={post.title} description={post.excerpt} />
+                        </div>
                     </section>
 
                     {/* Content */}
@@ -222,6 +228,14 @@ export default async function BlogPostPage({ params }: Props) {
                                 ))}
                             </div>
                         )}
+
+                        {/* Share — rodapé do post (pós-leitura, maior conversão) */}
+                        <div className="mt-12 pt-8 border-t border-border/40">
+                            <p className="text-base font-semibold text-foreground mb-4">
+                                Gostou? Compartilhe com alguém que precisa disso 👇
+                            </p>
+                            <ShareButtons title={post.title} description={post.excerpt} />
+                        </div>
 
                         {/* Newsletter */}
                         <div className="mt-16">

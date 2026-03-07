@@ -15,6 +15,7 @@ import { Clock, Users, ChefHat } from 'lucide-react';
 import { Suspense } from 'react';
 import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
 import { LivroPromoBanner } from '@/components/promo/livro-promo-banner';
+import { ShareButtons } from '@/components/ui/share-buttons';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -183,6 +184,14 @@ export default async function RecipePage({ params }: Props) {
                                         <ChefHat className="w-5 h-5" />
                                         <span>{recipe.author.name}</span>
                                     </div>
+                                </div>
+
+                                {/* Share buttons — abaixo dos metadados da receita */}
+                                <div className="mt-6 pt-6 border-t border-neutral-700/50">
+                                    <ShareButtons
+                                        title={recipe.title}
+                                        description={recipe.description}
+                                    />
                                 </div>
                             </div>
                         </div>
