@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Oswald } from 'next/font/google'
 import { Shield, Lock, CheckCircle2, AlertTriangle, Flame, Zap, Star } from 'lucide-react'
+import { LandingNav } from './landing-nav'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Fonte de impacto — Oswald (condensed bold) só para esta página
@@ -205,6 +206,9 @@ export default function TestosteronaPrimalPage() {
       `}</style>
 
             <div className={`${oswald.variable} bg-zinc-950 text-zinc-100`}>
+                {/* ── Navegação fixa da landing page ── */}
+                <LandingNav />
+
                 {/* ═══════════════════════════════════════════════════════════════
           1. HERO — Primeira Dobra
         ═══════════════════════════════════════════════════════════════ */}
