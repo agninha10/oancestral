@@ -32,20 +32,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    const ogImage = post.coverImage ?? '/images/og-blog.png';
+
     return {
-        title: `${post.title} | Blog O Ancestral`,
+        title: post.title,  // template → "Título do Post | O Ancestral"
         description: post.excerpt,
-        alternates: {
-            canonical: `/blog/${slug}`,
-        },
+        alternates: { canonical: `/blog/${slug}` },
         openGraph: {
             title: post.title,
             description: post.excerpt,
             type: 'article',
-            images: post.coverImage ? [{ url: post.coverImage }] : [],
+            url: `https://oancestral.com.br/blog/${slug}`,
+            images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
             publishedTime: post.publishedAt?.toISOString(),
             modifiedTime: post.updatedAt.toISOString(),
             tags: post.tags,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.title,
+            description: post.excerpt,
+            images: [ogImage],
         },
     };
 }

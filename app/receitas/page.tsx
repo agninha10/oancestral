@@ -3,11 +3,38 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { RecipeListClient } from './recipe-list-client';
 
+const OG_IMAGE = '/images/og-receitas.png';
+
 export const metadata: Metadata = {
+    // Usa o template do layout → "Receitas Ancestrais | O Ancestral"
     title: 'Receitas Ancestrais',
-    description: 'Descubra receitas nutritivas e deliciosas alinhadas com princípios ancestrais: carnívora, low carb, cetogênica e muito mais.',
-    alternates: {
-        canonical: '/receitas',
+    description:
+        'Mais de 100 receitas baseadas em alimentos reais: carnívora, low-carb, cetogênica e paleo. Sem ultra-processados, sem inflamação — com sabor de verdade.',
+    keywords: [
+        'receitas ancestrais',
+        'receitas low carb',
+        'receitas carnívoras',
+        'receitas cetogênicas',
+        'receitas paleo',
+        'receitas sem glúten',
+        'receitas sem ultra-processados',
+        'dieta ancestral receitas',
+    ],
+    alternates: { canonical: '/receitas' },
+    openGraph: {
+        title: 'Receitas Ancestrais | O Ancestral',
+        description:
+            'Mais de 100 receitas baseadas em alimentos reais: carnívora, low-carb, cetogênica e paleo. Sem ultra-processados, sem inflamação.',
+        type: 'website',
+        url: 'https://oancestral.com.br/receitas',
+        images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'Receitas Ancestrais — O Ancestral' }],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Receitas Ancestrais | O Ancestral',
+        description:
+            'Mais de 100 receitas baseadas em alimentos reais: carnívora, low-carb, cetogênica e paleo.',
+        images: [OG_IMAGE],
     },
 };
 

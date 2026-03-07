@@ -32,19 +32,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    const ogImage = recipe.coverImage ?? '/images/og-receitas.png';
+
     return {
-        title: `${recipe.title} | Receitas Ancestrais`,
+        title: recipe.title,  // template → "Nome da Receita | O Ancestral"
         description: recipe.description,
-        alternates: {
-            canonical: `/receitas/${slug}`,
-        },
+        alternates: { canonical: `/receitas/${slug}` },
         openGraph: {
-            title: recipe.title,
+            title: `${recipe.title} | Receitas Ancestrais — O Ancestral`,
             description: recipe.description,
             type: 'article',
-            images: recipe.coverImage
-                ? [{ url: recipe.coverImage }]
-                : [{ url: '/placeholder-receita.jpg' }],
+            url: `https://oancestral.com.br/receitas/${slug}`,
+            images: [{ url: ogImage, width: 1200, height: 630, alt: recipe.title }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: `${recipe.title} | Receitas Ancestrais`,
+            description: recipe.description,
+            images: [ogImage],
         },
     };
 }

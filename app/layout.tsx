@@ -33,12 +33,21 @@ export const metadata: Metadata = {
     title: "O Ancestral - Estilo de Vida Ancestral",
     description:
       "Plataforma completa de estilo de vida ancestral: alimentação, dieta, treinos e jejum.",
+    images: [
+      {
+        url: "/images/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "O Ancestral — Estilo de Vida Ancestral",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "O Ancestral - Estilo de Vida Ancestral",
     description:
       "Plataforma completa de estilo de vida ancestral: alimentação, dieta, treinos e jejum.",
+    images: ["/images/og-default.png"],
   },
   robots: {
     index: true,
