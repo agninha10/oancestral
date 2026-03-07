@@ -94,6 +94,23 @@ export const PRODUCT_ACCESS_CONFIG: Record<string, ProductAccessConfig> = {
         emailCTALabel: 'Acessar Meus Downloads',
     },
 
+    // ── Testosterona Primal ───────────────────────────────────────────────────
+    'testosterona-primal': {
+        label: 'Testosterona Primal',
+        type: 'ebook',
+        emoji: '🔥',
+        privateFilePath: 'ebooks/testo.pdf',
+        accessUrl: '/dashboard',
+        emailSubject: 'Seu E-book Testosterona Primal — Acesso ao Download',
+        emailTitle: 'O Protocolo chegou!',
+        emailSubtitle: 'Testosterona Primal — Dieta da Selva',
+        emailBody:
+            'Seu e-book já está disponível no portal. Acesse com seu e-mail e senha, ' +
+            'vá até "Meus Downloads" e baixe o PDF a qualquer momento. ' +
+            'Bons 30 dias de protocolo.',
+        emailCTALabel: 'Acessar Meus Downloads',
+    },
+
     // ── Assinatura Mensal ─────────────────────────────────────────────────────
     mensal: {
         label: 'Assinatura Mensal — Clã Ancestral',
