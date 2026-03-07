@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -58,10 +59,19 @@ export function HeroSection() {
                     <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                             <div className="flex -space-x-2">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div
-                                        key={i}
-                                        className="h-8 w-8 rounded-full border-2 border-background bg-gradient-to-br from-primary to-accent"
+                                {[
+                                    { src: "/images/photos-membros/gabriel.jpg", alt: "Gabriel" },
+                                    { src: "/images/photos-membros/julia.png", alt: "Julia" },
+                                    { src: "/images/photos-membros/larissa.png", alt: "Larissa" },
+                                    { src: "/images/photos-membros/thais.png", alt: "Thaís" },
+                                ].map((member) => (
+                                    <Image
+                                        key={member.alt}
+                                        src={member.src}
+                                        alt={member.alt}
+                                        width={32}
+                                        height={32}
+                                        className="h-8 w-8 rounded-full border-2 border-background object-cover"
                                     />
                                 ))}
                             </div>
