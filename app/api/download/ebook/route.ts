@@ -2,23 +2,27 @@
  * GET /api/download/ebook?product=livro-ancestral
  *
  * Rota protegida para download de ebooks.
- * Verifica autenticação + compra confirmada antes de redirecionar ao arquivo.
+ * Verifica autenticação + compra confirmada antes de servir o arquivo.
  *
- * Env vars:
- *   EBOOK_LIVRO_ANCESTRAL_DOWNLOAD_URL — URL direta do PDF (Google Drive, S3, etc.)
- *   EBOOK_JEJUM_DOWNLOAD_URL           — URL direta do PDF do ebook de jejum
+ * Arquivos ficam em: /private/ebooks/<product>.pdf
+ * (fora de /public — não acessíveis diretamente via URL)
  */
 
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { readFile } from "fs/promises";
+import path from "path";
 
-const DOWNLOAD_URLS: Record<string, string | undefined> = {
-  "livro-ancestral": process.env.EBOOK_LIVRO_ANCESTRAL_DOWNLOAD_URL,
-  "jejum":           process.env.EBOOK_JEJUM_DOWNLOAD_URL,
+const EBOOK_FILES: Record<string, string> = {
+  "livro-ancestral": "livro-ancestral.pdf",
+  "jejum":           "jejum.pdf",
 };
 
-const VALID_PRODUCTS = Object.keys(DOWNLOAD_URLS) as string[];
+const EBOOK_NAMES: Record<string, string> = {
+  "livro-ancestral": "Manual da Cozinha Ancestral.pdf",
+  "jejum":           "Guia do Jejum Intermitente.pdf",
+};
 
 export async function GET(req: Request) {
   // 1. Auth check
@@ -33,40 +37,49 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const product = searchParams.get("product") ?? "";
 
-  if (!VALID_PRODUCTS.includes(product)) {
+  if (!EBOOK_FILES[product]) {
     return NextResponse.json({ error: "Produto inválido" }, { status: 400 });
   }
 
-  // 3. Check if user has a paid transaction for this product
+  // 3. Check paid transaction
   const transaction = await prisma.transaction.findFirst({
-    where: {
-      userId:  session.userId,
-      product,
-      status:  "PAID",
-    },
+    where: { userId: session.userId, product, status: "PAID" },
   });
 
   if (!transaction) {
     return NextResponse.json(
-      { error: "Você não possui esse produto. Adquira em oancestral.com.br" },
+      { error: "Você não possui esse produto." },
       { status: 403 }
     );
   }
 
-  // 4. Get download URL
-  const downloadUrl = DOWNLOAD_URLS[product];
+  // 4. Read file from private/ebooks/
+  const filePath = path.join(process.cwd(), "private", "ebooks", EBOOK_FILES[product]);
 
-  if (!downloadUrl) {
-    // File URL not configured yet — return friendly error
-    return NextResponse.json(
+  let fileBuffer: Buffer;
+  try {
+    fileBuffer = await readFile(filePath);
+  } catch {
+    // File not uploaded yet — return friendly message
+    return new NextResponse(
+      "O arquivo ainda não está disponível. Entre em contato pelo suporte.",
       {
-        error: "Download temporariamente indisponível. Entre em contato pelo suporte.",
-        product,
-      },
-      { status: 503 }
+        status: 503,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      }
     );
   }
 
-  // 5. Redirect to the actual file (Google Drive / S3 / CDN)
-  return NextResponse.redirect(downloadUrl);
+  // 5. Serve file with download headers
+  const filename = encodeURIComponent(EBOOK_NAMES[product]);
+  return new NextResponse(new Uint8Array(fileBuffer), {
+    status: 200,
+    headers: {
+      "Content-Type":        "application/pdf",
+      "Content-Disposition": `attachment; filename="${EBOOK_NAMES[product]}"; filename*=UTF-8''${filename}`,
+      "Content-Length":      fileBuffer.byteLength.toString(),
+      "Cache-Control":       "private, no-store",
+      "X-Robots-Tag":        "noindex",
+    },
+  });
 }

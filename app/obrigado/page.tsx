@@ -9,8 +9,10 @@ import {
   BookOpen,
   Flame,
   Star,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { KiwifyUpsell } from "@/components/kiwify/kiwify-upsell";
 
 export const metadata: Metadata = {
   title: "Compra Confirmada! | O Ancestral",
@@ -189,10 +191,45 @@ export default async function ObrigadoPage({
       </div>
 
       {/* ── Upsell box ───────────────────────────────────────────── */}
-      {upsell && (
+      {product === "livro-ancestral" ? (
+        /* Kiwify one-click upsell — jejum ebook */
         <div className="mt-14 w-full max-w-lg">
           <div className="relative rounded-2xl bg-gradient-to-br from-amber-950/60 to-zinc-900 border border-amber-800/40 p-6 overflow-hidden">
-            {/* Badge */}
+            <div className="absolute top-4 right-4">
+              <span className="bg-amber-500 text-zinc-950 text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full">
+                OFERTA ÚNICA
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="h-5 w-5 text-amber-400" />
+              <h3 className="text-amber-300 font-bold text-lg">
+                Adicione o Guia do Jejum — só agora!
+              </h3>
+            </div>
+            <p className="text-stone-400 text-sm leading-relaxed mb-4">
+              O Jejum Intermitente potencializa cada receita do seu livro. Protocolo
+              completo: quando comer, como quebrar o jejum e os erros que sabotam os
+              resultados. Por apenas{" "}
+              <span className="text-amber-400 font-semibold">R$ 29,90</span> — sem
+              redigitar seus dados.
+            </p>
+
+            <div className="flex items-center gap-1.5 mb-5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
+              ))}
+              <span className="text-stone-500 text-xs ml-1">+800 estudantes</span>
+            </div>
+
+            {/* Kiwify one-click upsell widget — product ID: 0HNSqJS (jejum) */}
+            <KiwifyUpsell productId="0HNSqJS" />
+          </div>
+        </div>
+      ) : upsell ? (
+        /* Static upsell for other products */
+        <div className="mt-14 w-full max-w-lg">
+          <div className="relative rounded-2xl bg-gradient-to-br from-amber-950/60 to-zinc-900 border border-amber-800/40 p-6 overflow-hidden">
             <div className="absolute top-4 right-4">
               <span className="bg-amber-500 text-zinc-950 text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full">
                 {upsell.badge}
@@ -207,14 +244,11 @@ export default async function ObrigadoPage({
               {upsell.description}
             </p>
 
-            {/* Social proof stars */}
             <div className="flex items-center gap-1.5 mb-5">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="h-4 w-4 text-amber-400 fill-amber-400" />
               ))}
-              <span className="text-stone-500 text-xs ml-1">
-                +1.200 clientes satisfeitos
-              </span>
+              <span className="text-stone-500 text-xs ml-1">+1.200 clientes satisfeitos</span>
             </div>
 
             <Button
@@ -228,7 +262,7 @@ export default async function ObrigadoPage({
             </Button>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* ── Footer note ──────────────────────────────────────────── */}
       <p className="mt-12 text-stone-600 text-xs text-center max-w-sm">
