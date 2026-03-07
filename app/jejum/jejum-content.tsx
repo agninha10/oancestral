@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Header } from "@/components/layout/header"
+import { TransformationSection } from "./transformation-section"
 
 const PRICE = "29,90"
 const OLD_PRICE = "97,90"
@@ -410,6 +411,9 @@ export default function JejumContent() {
           </div>
         </div>
       </section>
+
+      {/* ── PROVA SOCIAL: TRANSFORMAÇÃO PESSOAL ── */}
+      <TransformationSection />
 
       {/* ── CHECKOUT / PREÇO ── */}
       <section id="checkout" className="py-20 px-4 bg-gradient-to-b from-stone-950 via-amber-950/10 to-stone-950">
