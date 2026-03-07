@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { CheckoutFormDialog } from "@/components/checkout/checkout-form-dialog";
+import { KiwifyCheckoutDialog } from "@/components/checkout/kiwify-checkout-dialog";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 
@@ -17,10 +16,8 @@ export default function AssinaturaPage() {
   const [loading, setLoading] = useState(false);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
   const [selectedFrequency, setSelectedFrequency] = useState<"monthly" | "yearly">("yearly");
-  const [userData, setUserData] = useState({ name: "", email: "", cellphone: "" });
+  const [userData, setUserData] = useState({ name: "", email: "", phone: "" });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const router = useRouter();
 
   // Carregar dados do usuário ao montar o componente
   useEffect(() => {
@@ -33,7 +30,7 @@ export default function AssinaturaPage() {
           const newUserData = {
             name: user.name || "",
             email: user.email || "",
-            cellphone: user.whatsapp || "",
+            phone: user.whatsapp || "",
           };
           console.log("[ASSINATURA] Loaded user data:", newUserData);
           setUserData(newUserData);
@@ -53,60 +50,8 @@ export default function AssinaturaPage() {
   }, []);
 
   const handleCheckoutClick = (frequency: "monthly" | "yearly") => {
-    setCheckoutError(null);
     setSelectedFrequency(frequency);
     setShowCheckoutForm(true);
-  };
-
-  const handleCheckoutSubmit = async (formData: {
-    name: string;
-    email: string;
-    cellphone: string;
-    taxId: string;
-    password?: string;
-  }) => {
-    setLoading(true);
-    setCheckoutError(null);
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          frequency: selectedFrequency,
-          name: formData.name,
-          email: formData.email,
-          cellphone: formData.cellphone,
-          taxId: formData.taxId,
-          password: formData.password,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.error || "Erro ao criar checkout";
-        console.error("[CHECKOUT_ERROR]", errorMessage);
-        setCheckoutError(errorMessage);
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
-      
-      if (!data.url) {
-        console.error("[CHECKOUT_ERROR] No payment URL received");
-        setCheckoutError("Erro ao obter link de pagamento. Tente novamente.");
-        setLoading(false);
-        return;
-      }
-
-      // Redirecionar para o pagamento
-      window.location.href = data.url;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erro inesperado ao processar pagamento. Tente novamente.";
-      console.error("[CHECKOUT_ERROR]", error);
-      setCheckoutError(errorMessage);
-      setLoading(false);
-    }
   };
 
   const benefits = [
@@ -373,16 +318,13 @@ export default function AssinaturaPage() {
 
       <Footer />
 
-      {/* Checkout Form Dialog */}
-      <CheckoutFormDialog
+      {/* Checkout Dialog (Kiwify) */}
+      <KiwifyCheckoutDialog
         open={showCheckoutForm}
         onOpenChange={setShowCheckoutForm}
+        product={selectedFrequency === "yearly" ? "anual" : "mensal"}
         defaultValues={userData}
-        frequency={selectedFrequency}
-        onSubmit={handleCheckoutSubmit}
         isLoggedIn={isLoggedIn}
-        error={checkoutError}
-        onErrorChange={setCheckoutError}
       />
     </div>
   );

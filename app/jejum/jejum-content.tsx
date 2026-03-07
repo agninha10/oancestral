@@ -59,7 +59,7 @@ function maskPhone(value: string) {
 export default function JejumContent() {
   const [showSticky, setShowSticky] = useState(false)
   const [showCheckout, setShowCheckout] = useState(false)
-  const [checkoutForm, setCheckoutForm] = useState({ name: "", email: "", cellphone: "", taxId: "" })
+  const [checkoutForm, setCheckoutForm] = useState({ name: "", email: "", phone: "" })
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState("")
   const countdown = useCountdown(2)
@@ -74,7 +74,7 @@ export default function JejumContent() {
           ...prev,
           name: name || prev.name,
           email: email || prev.email,
-          cellphone: whatsapp ? maskPhone(whatsapp) : prev.cellphone,
+          phone: whatsapp ? maskPhone(whatsapp) : prev.phone,
         }))
       })
       .catch(() => {})
@@ -99,17 +99,14 @@ export default function JejumContent() {
     setCheckoutError("")
 
     try {
-      const res = await fetch("/api/checkout/ebook", {
+      const res = await fetch("/api/checkout/kiwify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...checkoutForm,
-          taxId: checkoutForm.taxId.replace(/\D/g, ""),
-        }),
+        body: JSON.stringify({ product: "jejum", ...checkoutForm }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Erro ao processar pagamento")
-      // Redireciona para o link do AbacatePay
+      // Redireciona para o checkout Kiwify
       window.location.href = data.url
     } catch (err: unknown) {
       setCheckoutError(err instanceof Error ? err.message : "Erro ao processar. Tente novamente.")
@@ -472,7 +469,7 @@ export default function JejumContent() {
                 {/* Ícones de segurança */}
                 <div className="flex items-center justify-center gap-2 text-stone-500 text-xs mb-6">
                   <Lock className="h-3.5 w-3.5" />
-                  Pix • Cartão de Crédito • Boleto — Ambiente 100% seguro (AbacatePay)
+                  Pix • Cartão de Crédito — Ambiente 100% seguro (Kiwify)
                 </div>
 
                 {/* Checklist */}
@@ -702,7 +699,7 @@ export default function JejumContent() {
                 <div className="flex items-center justify-between px-6 py-4 border-b border-stone-800">
                   <div>
                     <h3 className="text-lg font-bold text-stone-100">Finalizar Compra</h3>
-                    <p className="text-xs text-stone-500">Pix ou Cartão de Crédito — processado pelo AbacatePay</p>
+                    <p className="text-xs text-stone-500">Pix ou Cartão de Crédito — processado pelo Kiwify</p>
                   </div>
                   <button
                     onClick={() => !checkoutLoading && setShowCheckout(false)}
@@ -758,37 +755,15 @@ export default function JejumContent() {
 
                   <div className="space-y-1.5">
                     <label className="flex items-center gap-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">
-                      <MessageSquare className="h-3 w-3" /> WhatsApp
+                      <MessageSquare className="h-3 w-3" /> WhatsApp{" "}
+                      <span className="normal-case text-stone-600 font-normal">(opcional)</span>
                     </label>
                     <input
                       type="tel"
-                      required
                       disabled={checkoutLoading}
-                      value={checkoutForm.cellphone}
-                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, cellphone: maskPhone(e.target.value) }))}
+                      value={checkoutForm.phone}
+                      onChange={(e) => setCheckoutForm(prev => ({ ...prev, phone: maskPhone(e.target.value) }))}
                       placeholder="(11) 99999-9999"
-                      className="w-full px-4 py-3 rounded-xl bg-stone-800/60 border border-stone-700/60 text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all text-sm disabled:opacity-50"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="flex items-center gap-1.5 text-xs font-semibold text-stone-400 uppercase tracking-wider">
-                      <Shield className="h-3 w-3" /> CPF
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      disabled={checkoutLoading}
-                      value={checkoutForm.taxId}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, "").slice(0, 11)
-                        const masked = digits
-                          .replace(/(\d{3})(\d)/, "$1.$2")
-                          .replace(/(\d{3}\.\d{3})(\d)/, "$1.$2")
-                          .replace(/(\d{3}\.\d{3}\.\d{3})(\d)/, "$1-$2")
-                        setCheckoutForm(prev => ({ ...prev, taxId: masked }))
-                      }}
-                      placeholder="000.000.000-00"
                       className="w-full px-4 py-3 rounded-xl bg-stone-800/60 border border-stone-700/60 text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 transition-all text-sm disabled:opacity-50"
                     />
                   </div>
