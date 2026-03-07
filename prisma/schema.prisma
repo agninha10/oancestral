@@ -159,6 +159,7 @@ enum BlogOfferBanner {
   AUTO        // detecta pela categoria/tags (padrão)
   LIVRO       // Manual da Cozinha Ancestral
   JEJUM       // Guia do Jejum Intermitente
+  TESTO       // Testosterona Primal
   MEMBERSHIP  // Assinatura Premium
   NONE        // sem banner
 }

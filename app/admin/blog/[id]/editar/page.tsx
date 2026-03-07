@@ -418,6 +418,7 @@ export default function EditarPostBlogPage() {
                             { value: 'AUTO',       emoji: '🤖', label: 'Automático',       desc: 'Detecta pela categoria/tags' },
                             { value: 'LIVRO',      emoji: '📖', label: 'Livro de Receitas', desc: 'Manual da Cozinha Ancestral — R$49' },
                             { value: 'JEJUM',      emoji: '⚡', label: 'Guia de Jejum',     desc: 'Jejum Intermitente — R$29,90' },
+                            { value: 'TESTO',      emoji: '🔥', label: 'Testosterona Primal', desc: 'Dieta da Selva — R$29,90' },
                             { value: 'MEMBERSHIP', emoji: '👑', label: 'Assinatura',        desc: 'Plano Premium — a partir de R$35/mês' },
                             { value: 'NONE',       emoji: '🚫', label: 'Nenhum',            desc: 'Sem banner de oferta' },
                         ].map((opt) => (

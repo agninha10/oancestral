@@ -403,7 +403,7 @@ export default function TestosteronaPrimalPage() {
                                             className="overflow-hidden border-r border-zinc-800"
                                         >
                                             <Image
-                                                src={HERO_IMG}
+                                                src="/images/capa-livro-testo.png"
                                                 alt="Capa do E-book Testosterona Primal — Guia da Dieta da Selva para homens"
                                                 width={288}
                                                 height={384}

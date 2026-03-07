@@ -14,6 +14,7 @@ import { Suspense } from 'react';
 import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
 import { LivroPromoBanner } from '@/components/promo/livro-promo-banner';
 import { JejumPromoBanner } from '@/components/promo/jejum-promo-banner';
+import { TestoPrimalPromoBanner } from '@/components/promo/testo-primal-promo-banner';
 import { MembershipPromoBanner } from '@/components/promo/membership-promo-banner';
 import { ShareButtons } from '@/components/ui/share-buttons';
 import { LeadMagnetModal } from '@/components/newsletter/lead-magnet-modal';
@@ -120,7 +121,7 @@ export default async function BlogPostPage({ params }: Props) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://oancestral.com.br';
 
     // Resolve qual banner de oferta exibir
-    const resolveOffer = (): 'LIVRO' | 'JEJUM' | 'MEMBERSHIP' | 'NONE' => {
+    const resolveOffer = (): 'LIVRO' | 'JEJUM' | 'TESTO' | 'MEMBERSHIP' | 'NONE' => {
         if (post.offerBanner === 'AUTO') {
             // Detecção automática pela categoria/tags (comportamento legado)
             const fastingKeywords = ['jejum', 'fasting', 'jejum-intermitente', 'intermittent-fasting'];
@@ -131,7 +132,7 @@ export default async function BlogPostPage({ params }: Props) {
                 );
             return isFasting ? 'JEJUM' : 'LIVRO';
         }
-        return post.offerBanner as 'LIVRO' | 'JEJUM' | 'MEMBERSHIP' | 'NONE';
+        return post.offerBanner as 'LIVRO' | 'JEJUM' | 'TESTO' | 'MEMBERSHIP' | 'NONE';
     };
     const offerBanner = resolveOffer();
 
@@ -209,6 +210,7 @@ export default async function BlogPostPage({ params }: Props) {
                             <div className="my-10">
                                 {offerBanner === 'JEJUM'      && <JejumPromoBanner      variant="inline" />}
                                 {offerBanner === 'LIVRO'      && <LivroPromoBanner      variant="inline" />}
+                                {offerBanner === 'TESTO'      && <TestoPrimalPromoBanner variant="inline" />}
                                 {offerBanner === 'MEMBERSHIP' && <MembershipPromoBanner variant="inline" />}
                             </div>
                         )}

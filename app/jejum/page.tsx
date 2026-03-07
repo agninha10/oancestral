@@ -157,10 +157,9 @@ export const metadata: Metadata = {
     // ── CATEGORIA / CLASSIFICAÇÃO ─────────────────────────────────────────
     category: 'Saúde, Nutrição e Jejum Intermitente',
 
-    // ── VERIFICAÇÃO (adicione os códigos reais aqui) ──────────────────────
-    verification: {
-        google: 'COLE_SEU_GOOGLE_SEARCH_CONSOLE_ID_AQUI',
-    },
+    // ── VERIFICAÇÃO ───────────────────────────────────────────────────────
+    // Cole o código real do Google Search Console quando disponível:
+    // verification: { google: 'SEU_CODIGO_AQUI' },
 };
 
 export default function JejumPage() {
