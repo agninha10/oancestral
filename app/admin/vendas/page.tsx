@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ProcessPaymentButton } from "@/components/admin/process-payment-button";
+import { GrantAccessDialog } from "@/components/admin/grant-access-dialog";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const formatCurrency = (cents: number) =>
@@ -128,11 +129,14 @@ export default async function VendasPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Vendas & Financeiro</h1>
-        <p className="text-muted-foreground mt-2">
-          Acompanhe pagamentos do AbacatePay e Kiwify em tempo real
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Vendas & Financeiro</h1>
+          <p className="text-muted-foreground mt-2">
+            Acompanhe pagamentos do AbacatePay e Kiwify em tempo real
+          </p>
+        </div>
+        <GrantAccessDialog />
       </div>
 
       {/* Dev warning */}
