@@ -90,12 +90,32 @@ export async function POST(req: Request) {
 
     console.log(`[KIWIFY WEBHOOK] order=${order_id} status=${order_status} email=${customer?.email}`);
 
+    // Log full payload in non-production for debugging
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[KIWIFY WEBHOOK] Full payload:", JSON.stringify(payload, null, 2));
+    } else {
+      // In production, log just the key fields to help identify product_id format
+      console.log("[KIWIFY WEBHOOK] product_id fields:", {
+        product_id: payload.product_id,
+        product_dot_id: payload.product?.id,
+        product_dot_name: payload.product?.name,
+      });
+    }
+
     // 3. Resolve product
     const rawProductId = payload.product_id ?? payload.product?.id ?? "";
     const config = resolveProduct(rawProductId);
 
     if (!config) {
-      console.warn(`[KIWIFY WEBHOOK] Unknown product_id: ${rawProductId} — recording as-is`);
+      console.warn(
+        `[KIWIFY WEBHOOK] Unknown product_id="${rawProductId}" — transaction will be saved without product mapping. ` +
+        `Expected one of: ${[
+          process.env.KIWIFY_LIVRO_ANCESTRAL_PRODUCT_ID,
+          process.env.KIWIFY_JEJUM_PRODUCT_ID,
+          process.env.KIWIFY_MENSAL_PRODUCT_ID,
+          process.env.KIWIFY_ANUAL_PRODUCT_ID,
+        ].filter(Boolean).join(", ")}`
+      );
     }
 
     // 4. Handle by status
