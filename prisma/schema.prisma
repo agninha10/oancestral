@@ -154,6 +154,15 @@ model RecipeInstruction {
   @@map("recipe_instructions")
 }
 
+// Offer banner to show inside a blog post
+enum BlogOfferBanner {
+  AUTO        // detecta pela categoria/tags (padrão)
+  LIVRO       // Manual da Cozinha Ancestral
+  JEJUM       // Guia do Jejum Intermitente
+  MEMBERSHIP  // Assinatura Premium
+  NONE        // sem banner
+}
+
 // Blog Post model
 model BlogPost {
   id         String   @id @default(cuid())
@@ -169,6 +178,9 @@ model BlogPost {
   metaTitle       String?
   metaDescription String?
   coverImageAlt   String?
+
+  // Monetização
+  offerBanner BlogOfferBanner @default(AUTO)
 
   // Metadata
   published   Boolean   @default(false)
@@ -317,6 +329,7 @@ enum NewsletterSource {
   RECIPE_POPUP
   INLINE_CTA
   HOMEPAGE
+  LEAD_MAGNET
   OTHER
 }
 

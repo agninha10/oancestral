@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 const newsletterSchema = z.object({
     email: z.string().email('Email inválido'),
-    source: z.enum(['BLOG_FOOTER', 'RECIPE_POPUP', 'INLINE_CTA', 'HOMEPAGE', 'OTHER']).default('OTHER'),
+    source: z.enum(['BLOG_FOOTER', 'RECIPE_POPUP', 'INLINE_CTA', 'HOMEPAGE', 'LEAD_MAGNET', 'OTHER']).default('OTHER'),
     tags: z.array(z.string()).optional().default([]),
 });
 

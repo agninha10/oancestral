@@ -38,6 +38,7 @@ interface BlogPost {
     published: boolean;
     featured: boolean;
     isPremium: boolean;
+    offerBanner: string;
     metaTitle: string | null;
     metaDescription: string | null;
     coverImageAlt: string | null;
@@ -63,6 +64,7 @@ export default function EditarPostBlogPage() {
         published: false,
         featured: false,
         isPremium: false,
+        offerBanner: 'AUTO',
         metaTitle: '',
         metaDescription: '',
         coverImageAlt: '',
@@ -90,6 +92,7 @@ export default function EditarPostBlogPage() {
                     published: post.published,
                     featured: post.featured,
                     isPremium: post.isPremium,
+                    offerBanner: post.offerBanner || 'AUTO',
                     metaTitle: post.metaTitle || '',
                     metaDescription: post.metaDescription || '',
                     coverImageAlt: post.coverImageAlt || '',
@@ -398,6 +401,43 @@ export default function EditarPostBlogPage() {
                         <p className="text-xs text-muted-foreground">
                             Melhora acessibilidade e indexação no Google Imagens.
                         </p>
+                    </div>
+                </Card>
+
+                {/* Monetização */}
+                <Card className="p-6 space-y-4">
+                    <div>
+                        <h2 className="text-xl font-semibold">Banner de Oferta</h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Escolha qual oferta aparece dentro deste post para converter leitores em clientes.
+                        </p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {[
+                            { value: 'AUTO',       emoji: '🤖', label: 'Automático',       desc: 'Detecta pela categoria/tags' },
+                            { value: 'LIVRO',      emoji: '📖', label: 'Livro de Receitas', desc: 'Manual da Cozinha Ancestral — R$49' },
+                            { value: 'JEJUM',      emoji: '⚡', label: 'Guia de Jejum',     desc: 'Jejum Intermitente — R$29,90' },
+                            { value: 'MEMBERSHIP', emoji: '👑', label: 'Assinatura',        desc: 'Plano Premium — a partir de R$35/mês' },
+                            { value: 'NONE',       emoji: '🚫', label: 'Nenhum',            desc: 'Sem banner de oferta' },
+                        ].map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => setFormData((prev) => ({ ...prev, offerBanner: opt.value }))}
+                                className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
+                                    formData.offerBanner === opt.value
+                                        ? 'border-primary bg-primary/10 ring-1 ring-primary'
+                                        : 'border-border hover:border-primary/40 hover:bg-muted/50'
+                                }`}
+                            >
+                                <span className="text-2xl leading-none mt-0.5">{opt.emoji}</span>
+                                <div>
+                                    <p className="text-sm font-semibold">{opt.label}</p>
+                                    <p className="text-xs text-muted-foreground">{opt.desc}</p>
+                                </div>
+                            </button>
+                        ))}
                     </div>
                 </Card>
 

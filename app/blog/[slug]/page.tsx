@@ -5,7 +5,6 @@ import { prisma } from '@/lib/prisma';
 import { ArticleSchemaScript } from '@/lib/seo/article-schema';
 import { ReadingProgressBar } from '@/components/content/reading-progress-bar';
 import { NewsletterBox } from '@/components/newsletter/newsletter-box';
-import { InlineCTA } from '@/components/newsletter/inline-cta';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Calendar, Clock, User } from 'lucide-react';
@@ -15,7 +14,9 @@ import { Suspense } from 'react';
 import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
 import { LivroPromoBanner } from '@/components/promo/livro-promo-banner';
 import { JejumPromoBanner } from '@/components/promo/jejum-promo-banner';
+import { MembershipPromoBanner } from '@/components/promo/membership-promo-banner';
 import { ShareButtons } from '@/components/ui/share-buttons';
+import { LeadMagnetModal } from '@/components/newsletter/lead-magnet-modal';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -118,24 +119,25 @@ export default async function BlogPostPage({ params }: Props) {
     const publishDate = post.publishedAt || post.createdAt;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://oancestral.com.br';
 
-    // Determine which promo to show based on category or tags
-    const fastingKeywords = ['jejum', 'fasting', 'jejum-intermitente', 'intermittent-fasting'];
-    const isFastingPost =
-        post.category?.slug === 'FASTING' ||
-        post.tags.some((tag: string) =>
-            fastingKeywords.some((kw) => tag.toLowerCase().includes(kw))
-        );
-
-    // Fallback for color mapping based on simple hashing or default
-    const getCategoryColor = (catName?: string) => {
-        if (!catName) return categoryColors.OTHER;
-        // Try to map based on common terms if needed, otherwise default
-        // For now, simpler to just return a default or random from the set if we don't have exact mapping
-        return categoryColors.OTHER;
+    // Resolve qual banner de oferta exibir
+    const resolveOffer = (): 'LIVRO' | 'JEJUM' | 'MEMBERSHIP' | 'NONE' => {
+        if (post.offerBanner === 'AUTO') {
+            // Detecção automática pela categoria/tags (comportamento legado)
+            const fastingKeywords = ['jejum', 'fasting', 'jejum-intermitente', 'intermittent-fasting'];
+            const isFasting =
+                post.category?.slug === 'FASTING' ||
+                post.tags.some((tag: string) =>
+                    fastingKeywords.some((kw) => tag.toLowerCase().includes(kw))
+                );
+            return isFasting ? 'JEJUM' : 'LIVRO';
+        }
+        return post.offerBanner as 'LIVRO' | 'JEJUM' | 'MEMBERSHIP' | 'NONE';
     };
+    const offerBanner = resolveOffer();
 
     return (
         <div className="flex min-h-screen flex-col">
+            <LeadMagnetModal />
             <Header />
             <ArticleSchemaScript post={post} baseUrl={baseUrl} />
             <ReadingProgressBar />
@@ -202,17 +204,14 @@ export default async function BlogPostPage({ params }: Props) {
                             dangerouslySetInnerHTML={{ __html: normalizeContent(post.content) }}
                         />
 
-                        {/* Inline CTA */}
-                        <InlineCTA />
-
-                        {/* Contextual product promo */}
-                        <div className="my-10">
-                            {isFastingPost ? (
-                                <JejumPromoBanner variant="inline" />
-                            ) : (
-                                <LivroPromoBanner variant="inline" />
-                            )}
-                        </div>
+                        {/* Oferta contextual — controlada pelo admin */}
+                        {offerBanner !== 'NONE' && (
+                            <div className="my-10">
+                                {offerBanner === 'JEJUM'      && <JejumPromoBanner      variant="inline" />}
+                                {offerBanner === 'LIVRO'      && <LivroPromoBanner      variant="inline" />}
+                                {offerBanner === 'MEMBERSHIP' && <MembershipPromoBanner variant="inline" />}
+                            </div>
+                        )}
 
                         {/* Tags */}
                         {post.tags.length > 0 && (

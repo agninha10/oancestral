@@ -120,6 +120,7 @@ export async function PUT(
                 published: body.published,
                 featured: body.featured,
                 isPremium: body.isPremium,
+                offerBanner: body.offerBanner ?? 'AUTO',
                 publishedAt: body.published && !post.published ? new Date() : post.publishedAt,
                 metaTitle: body.metaTitle ?? null,
                 metaDescription: body.metaDescription ?? null,
