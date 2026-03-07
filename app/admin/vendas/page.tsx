@@ -1,14 +1,15 @@
-import { prisma } from '@/lib/prisma';
-import { 
-  DollarSign, 
-  CreditCard, 
-  TrendingUp, 
+import { prisma } from "@/lib/prisma";
+import {
+  DollarSign,
+  CreditCard,
+  TrendingUp,
   Activity,
   Calendar,
-  User
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+  ShoppingBag,
+  AlertCircle,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -16,111 +17,113 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { ProcessPaymentButton } from '@/components/admin/process-payment-button';
+} from "@/components/ui/table";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { ProcessPaymentButton } from "@/components/admin/process-payment-button";
 
-// Formatar valores em BRL
-const formatCurrency = (cents: number) => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(cents / 100);
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const formatCurrency = (cents: number) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+    cents / 100
+  );
+
+const getInitials = (name: string) =>
+  name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+
+const PRODUCT_LABELS: Record<string, string> = {
+  "livro-ancestral": "Livro Ancestral (Vitalício)",
+  jejum: "Jejum Intermitente (Ebook)",
+  mensal: "Assinatura Mensal",
+  anual: "Assinatura Anual",
 };
 
-// Obter iniciais do nome
-const getInitials = (name: string) => {
-  return name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
+function productLabel(product: string | null, amount: number): string {
+  if (product) return PRODUCT_LABELS[product] ?? product;
+  // Legacy AbacatePay rows without product field
+  return amount >= 10_000 ? "Anual (legado)" : "Mensal (legado)";
+}
 
-// Componente de Status Badge
+// ── Sub-components ────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
-  const styles = {
-    PAID: 'bg-green-500/20 text-green-500 border-green-500/30',
-    PENDING: 'bg-yellow-500/20 text-yellow-500 border-yellow-500/30',
-    FAILED: 'bg-red-500/20 text-red-500 border-red-500/30',
-    CANCELED: 'bg-gray-500/20 text-gray-500 border-gray-500/30',
+  const styles: Record<string, string> = {
+    PAID: "bg-green-500/20 text-green-400 border-green-500/30",
+    PENDING: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    FAILED: "bg-red-500/20 text-red-400 border-red-500/30",
+    CANCELED: "bg-stone-500/20 text-stone-400 border-stone-500/30",
   };
-
-  const labels = {
-    PAID: 'Pago',
-    PENDING: 'Pendente',
-    FAILED: 'Falhou',
-    CANCELED: 'Cancelado',
+  const labels: Record<string, string> = {
+    PAID: "Pago",
+    PENDING: "Pendente",
+    FAILED: "Falhou",
+    CANCELED: "Cancelado",
   };
-
   return (
-    <Badge 
-      variant="outline" 
-      className={`${styles[status as keyof typeof styles]} font-medium`}
-    >
-      {labels[status as keyof typeof labels] || status}
+    <Badge variant="outline" className={`${styles[status] ?? ""} font-medium`}>
+      {labels[status] ?? status}
     </Badge>
   );
 }
 
-// Componente de KPI Card
-function KPICard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  description 
-}: { 
-  title: string; 
-  value: string; 
-  icon: any; 
+function SourceBadge({ source }: { source: string }) {
+  return source === "KIWIFY" ? (
+    <Badge className="bg-violet-500/20 text-violet-400 border border-violet-500/30 font-medium text-[10px]">
+      Kiwify
+    </Badge>
+  ) : (
+    <Badge className="bg-blue-500/20 text-blue-400 border border-blue-500/30 font-medium text-[10px]">
+      AbacatePay
+    </Badge>
+  );
+}
+
+function KPICard({
+  title,
+  value,
+  icon: Icon,
+  description,
+}: {
+  title: string;
+  value: string;
+  icon: React.ElementType;
   description?: string;
 }) {
   return (
     <Card className="bg-stone-900 border-stone-800">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-stone-400">
-          {title}
-        </CardTitle>
+        <CardTitle className="text-sm font-medium text-stone-400">{title}</CardTitle>
         <Icon className="h-5 w-5 text-amber-500" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-stone-50">{value}</div>
-        {description && (
-          <p className="text-xs text-stone-500 mt-1">{description}</p>
-        )}
+        {description && <p className="text-xs text-stone-500 mt-1">{description}</p>}
       </CardContent>
     </Card>
   );
 }
 
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default async function VendasPage() {
-  // Buscar todas as transações com dados do usuário
   const transactions = await prisma.transaction.findMany({
     include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
-      },
+      user: { select: { id: true, name: true, email: true } },
     },
-    orderBy: {
-      createdAt: 'desc',
-    },
+    orderBy: { createdAt: "desc" },
   });
 
-  // Calcular métricas
-  const paidTransactions = transactions.filter(t => t.status === 'PAID');
-  const pendingTransactions = transactions.filter(t => t.status === 'PENDING');
-  
-  const faturamentoTotal = paidTransactions.reduce((sum, t) => sum + t.amount, 0);
-  const vendasPendentes = pendingTransactions.reduce((sum, t) => sum + t.amount, 0);
-  const totalVendas = paidTransactions.length;
-  const ticketMedio = totalVendas > 0 ? faturamentoTotal / totalVendas : 0;
+  const paid = transactions.filter((t) => t.status === "PAID");
+  const pending = transactions.filter((t) => t.status === "PENDING");
+
+  const faturamentoTotal = paid.reduce((s, t) => s + t.amount, 0);
+  const vendasPendentes = pending.reduce((s, t) => s + t.amount, 0);
+  const ticketMedio = paid.length > 0 ? faturamentoTotal / paid.length : 0;
+
+  // Break down by product
+  const kiwifyPaid = paid.filter((t) => t.source === "KIWIFY");
+  const livros = paid.filter((t) => t.product === "livro-ancestral");
+  const jejuns = paid.filter((t) => t.product === "jejum");
+  const assinaturas = paid.filter((t) => t.product === "mensal" || t.product === "anual");
 
   return (
     <div className="space-y-8">
@@ -128,28 +131,38 @@ export default async function VendasPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Vendas & Financeiro</h1>
         <p className="text-muted-foreground mt-2">
-          Acompanhe o fluxo de caixa e status dos pagamentos do AbacatePay
+          Acompanhe pagamentos do AbacatePay e Kiwify em tempo real
         </p>
       </div>
-      {/* Aviso de Desenvolvimento Local */}
-      {process.env.NODE_ENV === 'development' && (
+
+      {/* Dev warning */}
+      {process.env.NODE_ENV === "development" && (
         <Card className="bg-amber-950/20 border-amber-900/50">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <Activity className="h-5 w-5 text-amber-500 mt-0.5" />
-              <div className="flex-1">
+              <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+              <div>
                 <h3 className="font-semibold text-amber-500 mb-1">Modo de Desenvolvimento</h3>
                 <p className="text-sm text-stone-400">
-                  Em ambiente local, o AbacatePay não consegue enviar webhooks. Use o botão 
-                  <span className="font-medium text-stone-300"> "Processar Manualmente" </span>
-                  para ativar assinaturas após pagamento confirmado. Em produção, isso acontece automaticamente.
+                  Em ambiente local, o Kiwify e o AbacatePay não conseguem enviar webhooks para
+                  localhost. Use o botão{" "}
+                  <span className="font-medium text-stone-300">&ldquo;Processar Manualmente&rdquo;</span>{" "}
+                  para ativar transações após confirmar um pagamento. Em produção isso ocorre
+                  automaticamente em segundos.
+                </p>
+                <p className="text-sm text-stone-500 mt-2">
+                  Webhook Kiwify:{" "}
+                  <code className="text-amber-400 text-xs bg-stone-800 px-1.5 py-0.5 rounded">
+                    {process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/kiwify?token=SEU_TOKEN
+                  </code>
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
-      {/* KPIs Grid */}
+
+      {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard
           title="Faturamento Total"
@@ -158,54 +171,55 @@ export default async function VendasPage() {
           description="Vendas confirmadas"
         />
         <KPICard
-          title="Vendas Pendentes"
+          title="Pendente"
           value={formatCurrency(vendasPendentes)}
           icon={Activity}
-          description={`${pendingTransactions.length} aguardando pagamento`}
+          description={`${pending.length} aguardando confirmação`}
         />
         <KPICard
-          title="Total de Vendas"
-          value={totalVendas.toString()}
+          title="Vendas Pagas"
+          value={paid.length.toString()}
           icon={CreditCard}
-          description="Transações concluídas"
+          description={`${kiwifyPaid.length} via Kiwify · ${paid.length - kiwifyPaid.length} via AbacatePay`}
         />
         <KPICard
           title="Ticket Médio"
           value={formatCurrency(ticketMedio)}
           icon={TrendingUp}
-          description="Por transação"
+          description="Por transação paga"
         />
       </div>
 
-      {/* Tabela de Transações */}
+      {/* Transactions table */}
       <Card className="bg-stone-900 border-stone-800">
         <CardHeader>
           <CardTitle className="text-xl text-stone-50">Histórico de Transações</CardTitle>
           <p className="text-sm text-stone-400">
-            Listagem completa de todas as tentativas de compra e pagamentos
+            Todas as vendas de ambos os gateways — ordenadas por data
           </p>
         </CardHeader>
         <CardContent>
           {transactions.length === 0 ? (
-            // Empty State
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="rounded-full bg-stone-800 p-4 mb-4">
                 <CreditCard className="h-8 w-8 text-stone-600" />
               </div>
               <h3 className="text-lg font-semibold text-stone-300 mb-2">
-                Nenhuma transação encontrada
+                Nenhuma transação ainda
               </h3>
               <p className="text-sm text-stone-500 max-w-sm">
-                As transações aparecerão aqui assim que os clientes iniciarem o processo de checkout
+                As vendas aparecerão aqui assim que o primeiro webhook chegar (Kiwify ou
+                AbacatePay).
               </p>
             </div>
           ) : (
-            <div className="rounded-md border border-stone-800 overflow-hidden">
+            <div className="rounded-md border border-stone-800 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="border-stone-800 hover:bg-stone-800/50">
                     <TableHead className="text-stone-400">Cliente</TableHead>
-                    <TableHead className="text-stone-400">Plano</TableHead>
+                    <TableHead className="text-stone-400">Produto</TableHead>
+                    <TableHead className="text-stone-400">Origem</TableHead>
                     <TableHead className="text-stone-400">Valor</TableHead>
                     <TableHead className="text-stone-400">Status</TableHead>
                     <TableHead className="text-stone-400">Data</TableHead>
@@ -213,56 +227,60 @@ export default async function VendasPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((transaction) => (
-                    <TableRow 
-                      key={transaction.id}
+                  {transactions.map((t) => (
+                    <TableRow
+                      key={t.id}
                       className="border-stone-800 hover:bg-stone-800/30"
                     >
                       {/* Cliente */}
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9 bg-stone-800 border border-stone-700">
+                          <Avatar className="h-8 w-8 bg-stone-800 border border-stone-700">
                             <AvatarFallback className="text-stone-400 text-xs">
-                              {getInitials(transaction.user.name)}
+                              {getInitials(t.user.name)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium text-stone-200">
-                              {transaction.user.name}
-                            </div>
-                            <div className="text-sm text-stone-500">
-                              {transaction.user.email}
-                            </div>
+                            <p className="text-sm font-medium text-stone-200 leading-none">
+                              {t.user.name}
+                            </p>
+                            <p className="text-xs text-stone-500 mt-0.5">{t.user.email}</p>
                           </div>
                         </div>
                       </TableCell>
 
-                      {/* Plano */}
+                      {/* Produto */}
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-stone-500" />
-                          <span className="text-stone-300">
-                            {transaction.amount >= 10000 ? 'Anual' : 'Mensal'}
+                          <ShoppingBag className="h-4 w-4 text-stone-500 flex-shrink-0" />
+                          <span className="text-sm text-stone-300">
+                            {productLabel(t.product, t.amount)}
                           </span>
                         </div>
+                      </TableCell>
+
+                      {/* Origem */}
+                      <TableCell>
+                        <SourceBadge source={t.source} />
                       </TableCell>
 
                       {/* Valor */}
                       <TableCell>
                         <span className="font-semibold text-stone-200">
-                          {formatCurrency(transaction.amount)}
+                          {formatCurrency(t.amount)}
                         </span>
                       </TableCell>
 
                       {/* Status */}
                       <TableCell>
-                        <StatusBadge status={transaction.status} />
+                        <StatusBadge status={t.status} />
                       </TableCell>
 
                       {/* Data */}
                       <TableCell>
-                        <div className="text-sm text-stone-400">
-                          {format(new Date(transaction.createdAt), "dd/MM/yyyy 'às' HH:mm", {
+                        <div className="flex items-center gap-1.5 text-sm text-stone-400">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {format(new Date(t.createdAt), "dd/MM/yy 'às' HH:mm", {
                             locale: ptBR,
                           })}
                         </div>
@@ -270,8 +288,8 @@ export default async function VendasPage() {
 
                       {/* Ações */}
                       <TableCell>
-                        {transaction.status === 'PENDING' && (
-                          <ProcessPaymentButton transactionId={transaction.id} />
+                        {t.status === "PENDING" && (
+                          <ProcessPaymentButton transactionId={t.id} />
                         )}
                       </TableCell>
                     </TableRow>
@@ -283,57 +301,56 @@ export default async function VendasPage() {
         </CardContent>
       </Card>
 
-      {/* Estatísticas Adicionais */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Stats breakdown */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-stone-900 border-stone-800">
+          <CardHeader>
+            <CardTitle className="text-sm text-stone-400">Livros Ancestrais</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-stone-50">{livros.length}</div>
+            <p className="text-xs text-stone-500 mt-1">
+              {formatCurrency(livros.reduce((s, t) => s + t.amount, 0))} em receita
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-stone-900 border-stone-800">
+          <CardHeader>
+            <CardTitle className="text-sm text-stone-400">Ebooks de Jejum</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-stone-50">{jejuns.length}</div>
+            <p className="text-xs text-stone-500 mt-1">
+              {formatCurrency(jejuns.reduce((s, t) => s + t.amount, 0))} em receita
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-stone-900 border-stone-800">
+          <CardHeader>
+            <CardTitle className="text-sm text-stone-400">Assinaturas Ativas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-stone-50">{assinaturas.length}</div>
+            <p className="text-xs text-stone-500 mt-1">
+              {formatCurrency(assinaturas.reduce((s, t) => s + t.amount, 0))} em receita
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="bg-stone-900 border-stone-800">
           <CardHeader>
             <CardTitle className="text-sm text-stone-400">Taxa de Conversão</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-stone-50">
-              {transactions.length > 0 
-                ? `${Math.round((totalVendas / transactions.length) * 100)}%`
-                : '0%'
-              }
+              {transactions.length > 0
+                ? `${Math.round((paid.length / transactions.length) * 100)}%`
+                : "0%"}
             </div>
             <p className="text-xs text-stone-500 mt-1">
-              {totalVendas} de {transactions.length} tentativas
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-stone-900 border-stone-800">
-          <CardHeader>
-            <CardTitle className="text-sm text-stone-400">Planos Anuais</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-stone-50">
-              {paidTransactions.filter(t => t.amount >= 10000).length}
-            </div>
-            <p className="text-xs text-stone-500 mt-1">
-              {formatCurrency(
-                paidTransactions
-                  .filter(t => t.amount >= 10000)
-                  .reduce((sum, t) => sum + t.amount, 0)
-              )} em receita
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-stone-900 border-stone-800">
-          <CardHeader>
-            <CardTitle className="text-sm text-stone-400">Planos Mensais</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-stone-50">
-              {paidTransactions.filter(t => t.amount < 10000).length}
-            </div>
-            <p className="text-xs text-stone-500 mt-1">
-              {formatCurrency(
-                paidTransactions
-                  .filter(t => t.amount < 10000)
-                  .reduce((sum, t) => sum + t.amount, 0)
-              )} em receita
+              {paid.length} de {transactions.length} iniciativas
             </p>
           </CardContent>
         </Card>

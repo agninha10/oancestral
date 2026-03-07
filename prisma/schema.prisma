@@ -326,11 +326,13 @@ model Transaction {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  billingId  String  @unique // ID retornado pelo AbacatePay
+  billingId  String  @unique // ID retornado pelo gateway (AbacatePay order ID, Kiwify order_id)
   amount     Int // Valor em centavos
-  frequency  String // 'monthly' ou 'yearly'
+  frequency  String // 'monthly', 'yearly', 'one_time'
   status     String // 'PENDING', 'PAID', 'FAILED', 'CANCELED'
   paymentUrl String? // Link do pagamento
+  source     String  @default("ABACATE") // 'ABACATE' | 'KIWIFY'
+  product    String? // 'livro-ancestral' | 'jejum' | 'mensal' | 'anual'
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
