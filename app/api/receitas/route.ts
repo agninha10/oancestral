@@ -11,20 +11,21 @@ export async function GET(request: NextRequest) {
         const skip = (page - 1) * limit;
 
         // Filters
-        const category = searchParams.get('category');
+        const category   = searchParams.get('category');
         const difficulty = searchParams.get('difficulty');
+        const search     = searchParams.get('search')?.trim();
 
         // Build where clause
-        const where: any = {
-            published: true,
-        };
+        const where: any = { published: true };
 
-        if (category) {
-            where.category = category;
-        }
+        if (category) where.category = category;
+        if (difficulty) where.difficulty = difficulty;
 
-        if (difficulty) {
-            where.difficulty = difficulty;
+        if (search) {
+            where.OR = [
+                { title:       { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+            ];
         }
 
         // Fetch recipes with pagination

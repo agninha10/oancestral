@@ -14,6 +14,7 @@ import { RecipePaywallWrapper } from '@/components/recipe/recipe-paywall-wrapper
 import { Clock, Users, ChefHat } from 'lucide-react';
 import { Suspense } from 'react';
 import { RelatedContent, RelatedContentSkeleton } from '@/components/shared/related-content';
+import { LivroPromoBanner } from '@/components/promo/livro-promo-banner';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -261,6 +262,9 @@ export default async function RecipePage({ params }: Props) {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Livro promo — sidebar */}
+                                    <LivroPromoBanner variant="sidebar" />
                                 </div>
                             </div>
                         </div>
