@@ -123,11 +123,17 @@ function PhotoCard({
 // ─────────────────────────────────────────────────────────────────────────────
 // Componente principal
 // ─────────────────────────────────────────────────────────────────────────────
-export function TransformationSection() {
+interface TransformationSectionProps {
+    /** Override the default vertical padding (py-24 sm:py-32) for CRO placement tweaks */
+    sectionClassName?: string
+}
+
+export function TransformationSection({ sectionClassName }: TransformationSectionProps = {}) {
+    const sectionCls = sectionClassName ?? 'py-24 sm:py-32'
     return (
         <section
             aria-labelledby="transformation-heading"
-            className="relative py-24 sm:py-32 px-4 sm:px-8 bg-stone-950 overflow-hidden"
+            className={`relative ${sectionCls} px-4 sm:px-8 bg-stone-950 overflow-hidden`}
         >
             {/* ── Radial glows de fundo ── */}
             <div className="absolute inset-0 pointer-events-none" aria-hidden="true">

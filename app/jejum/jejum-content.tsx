@@ -247,6 +247,10 @@ export default function JejumContent() {
         </motion.div>
       </section>
 
+      {/* ── PROVA SOCIAL: TRANSFORMAÇÃO PESSOAL ── */}
+      {/* pt reduzido → topo das fotos levemente visível antes do scroll (CRO peek) */}
+      <TransformationSection sectionClassName="pt-8 pb-20 sm:pt-12 sm:pb-28" />
+
       {/* ── O PROBLEMA ── */}
       <section className="py-20 px-4 bg-gradient-to-b from-stone-950 to-stone-900">
         <div className="max-w-4xl mx-auto">
@@ -411,9 +415,6 @@ export default function JejumContent() {
           </div>
         </div>
       </section>
-
-      {/* ── PROVA SOCIAL: TRANSFORMAÇÃO PESSOAL ── */}
-      <TransformationSection />
 
       {/* ── CHECKOUT / PREÇO ── */}
       <section id="checkout" className="py-20 px-4 bg-gradient-to-b from-stone-950 via-amber-950/10 to-stone-950">
