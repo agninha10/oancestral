@@ -110,17 +110,9 @@ export const metadata: Metadata = {
         locale: 'pt_BR',
         images: [
             {
-                url: `${BASE_URL}/images/jejum-og.jpg`,
-                width: 1200,
-                height: 630,
-                alt: 'Guia Definitivo do Jejum Intermitente — Autofagia, 16/8, 24h, 72h+',
-                type: 'image/jpeg',
-            },
-            {
-                url: `${BASE_URL}/images/jejum-og-square.jpg`,
-                width: 1200,
-                height: 1200,
-                alt: 'Guia Definitivo do Jejum Intermitente',
+                // Foto real de transformação — −25 kg em 90 dias
+                url: `${BASE_URL}/images/fotos-antes-e-depois/depois.jpeg`,
+                alt: 'Resultado real: −25 kg em 90 dias com jejum intermitente e dieta ancestral',
                 type: 'image/jpeg',
             },
         ],
@@ -135,8 +127,8 @@ export const metadata: Metadata = {
         description:
             'Baseado no Nobel de Medicina 2016. Protocolos práticos para ativar autofagia, queimar gordura e desinchar. Ebook com acesso imediato.',
         images: {
-            url: `${BASE_URL}/images/jejum-og.jpg`,
-            alt: 'Guia Definitivo do Jejum Intermitente',
+            url: `${BASE_URL}/images/fotos-antes-e-depois/depois.jpeg`,
+            alt: 'Resultado real: −25 kg em 90 dias com jejum intermitente',
         },
     },
 
