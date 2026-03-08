@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
-import { RecipeStructuredData } from '@/lib/seo/RecipeStructuredData';
+import { RecipeJsonLd } from '@/lib/seo/RecipeJsonLd';
 import { ReadingProgressBar } from '@/components/content/reading-progress-bar';
 import { CookingModeButton } from '@/components/recipe/cooking-mode-button';
 import { NewsletterBox } from '@/components/newsletter/newsletter-box';
@@ -178,7 +178,7 @@ export default async function RecipePage({ params }: Props) {
     return (
         <div className="flex min-h-screen flex-col">
             <Header />
-            <RecipeStructuredData recipe={recipe} baseUrl={baseUrl} />
+            <RecipeJsonLd recipe={recipe} baseUrl={baseUrl} />
             <ReadingProgressBar />
             <CookingModeButton />
 
