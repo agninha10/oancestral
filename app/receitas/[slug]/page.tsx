@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
-import { RecipeSchemaScript } from '@/lib/seo/recipe-schema';
+import { RecipeStructuredData } from '@/lib/seo/RecipeStructuredData';
 import { ReadingProgressBar } from '@/components/content/reading-progress-bar';
 import { CookingModeButton } from '@/components/recipe/cooking-mode-button';
 import { NewsletterBox } from '@/components/newsletter/newsletter-box';
@@ -21,6 +21,35 @@ type Props = {
     params: Promise<{ slug: string }>;
 };
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Canonical production base URL.
+ * Only uses NEXT_PUBLIC_APP_URL when it's an HTTPS URL (i.e. production).
+ * Falls back to the hardcoded production domain so that local `.env`
+ * values like "http://localhost:3000" never pollute the og:image tags
+ * that WhatsApp / Facebook crawlers receive.
+ */
+const SITE_URL = (() => {
+    const env = process.env.NEXT_PUBLIC_APP_URL ?? '';
+    return env.startsWith('https://') ? env.replace(/\/$/, '') : 'https://oancestral.com.br';
+})();
+
+/**
+ * Always returns an absolute HTTPS URL suitable for og:image.
+ * - Already-absolute URLs (Cloudinary, etc.) → kept as-is
+ * - Relative paths → prepended with SITE_URL
+ * - null / undefined   → fallback OG image
+ */
+function resolveOgImage(coverImage: string | null | undefined): string {
+    const fallback = `${SITE_URL}/images/og-receitas.png`;
+    if (!coverImage) return fallback;
+    if (coverImage.startsWith('http://') || coverImage.startsWith('https://')) return coverImage;
+    return `${SITE_URL}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`;
+}
+
+// ── Metadata ─────────────────────────────────────────────────────────────────
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const recipe = await prisma.recipe.findFirst({
@@ -28,29 +57,52 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
 
     if (!recipe) {
-        return {
-            title: 'Receita não encontrada',
-        };
+        return { title: 'Receita não encontrada' };
     }
 
-    const ogImage = recipe.coverImage ?? '/images/og-receitas.png';
+    const title       = recipe.metaTitle       || recipe.title;
+    const description = recipe.metaDescription || recipe.description;
+    const canonical   = `${SITE_URL}/receitas/${slug}`;
+    // Always absolute — the #1 cause of broken previews on WhatsApp & Facebook
+    const ogImageUrl  = resolveOgImage(recipe.coverImage);
+    const ogTitle     = `${title} | Receitas Ancestrais — O Ancestral`;
 
     return {
-        title: recipe.title,  // template → "Nome da Receita | O Ancestral"
-        description: recipe.description,
-        alternates: { canonical: `/receitas/${slug}` },
+        // Declared explicitly here so dynamic routes never inherit a stale or
+        // localhost value from the root layout's process.env read.
+        metadataBase: new URL(SITE_URL),
+
+        title: recipe.title, // template → "Nome da Receita | O Ancestral"
+        description,
+        authors: [{ name: 'O Ancestral' }],
+        alternates: { canonical },
+
         openGraph: {
-            title: `${recipe.title} | Receitas Ancestrais — O Ancestral`,
-            description: recipe.description,
+            title: ogTitle,
+            description,
             type: 'article',
-            url: `https://oancestral.com.br/receitas/${slug}`,
-            images: [{ url: ogImage, width: 1200, height: 630, alt: recipe.title }],
+            url: canonical,
+            // Required by Facebook / WhatsApp for full-card previews
+            locale: 'pt_BR',
+            siteName: 'O Ancestral',
+            images: [{
+                url: ogImageUrl,   // ← absolute, always
+                width: 1200,
+                height: 630,
+                alt: recipe.coverImageAlt || recipe.title,
+            }],
+            // Signals freshness to Facebook's crawler cache
+            publishedTime: recipe.createdAt.toISOString(),
+            modifiedTime:  recipe.updatedAt.toISOString(),
         },
+
         twitter: {
             card: 'summary_large_image',
-            title: `${recipe.title} | Receitas Ancestrais`,
-            description: recipe.description,
-            images: [ogImage],
+            site: '@oancestral',
+            creator: '@oancestral',
+            title: `${title} | Receitas Ancestrais`,
+            description,
+            images: [ogImageUrl], // ← absolute, always
         },
     };
 }
@@ -95,7 +147,9 @@ export default async function RecipePage({ params }: Props) {
     const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
     const macros = recipe.macronutrients as { protein?: number; fat?: number; carbs?: number } | null;
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://oancestral.com.br';
+    // Reuse the same SITE_URL constant defined above — keeps JSON-LD consistent
+    // with the og:image URLs generated in generateMetadata.
+    const baseUrl = SITE_URL;
 
     // Get user subscription status for paywall
     let userSubscriptionStatus: 'FREE' | 'ACTIVE' = 'FREE';
@@ -124,7 +178,7 @@ export default async function RecipePage({ params }: Props) {
     return (
         <div className="flex min-h-screen flex-col">
             <Header />
-            <RecipeSchemaScript recipe={recipe} baseUrl={baseUrl} />
+            <RecipeStructuredData recipe={recipe} baseUrl={baseUrl} />
             <ReadingProgressBar />
             <CookingModeButton />
 
