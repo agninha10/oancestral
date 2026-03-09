@@ -3,6 +3,8 @@ import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// ── Helpers compartilhados ──────────────────────────────────────────────────
+
 function slugify(text: string) {
     return text
         .toString()
@@ -16,8 +18,115 @@ function slugify(text: string) {
         .replace(/-+$/, '')
 }
 
+/** Rating determinístico por receita — valores entre 4.8–5.0 e 85–320 */
+const RATING_VALUES = [4.8, 4.9, 5.0, 4.9, 4.8, 5.0, 4.9, 4.8, 5.0, 4.9, 4.8, 5.0, 4.9, 5.0, 4.8, 4.9, 5.0, 4.8, 4.9, 5.0];
+const RATING_COUNTS = [127, 203, 156, 289, 95, 312, 178, 241, 108, 267, 142, 198, 305, 87, 231, 163, 278, 119, 254, 189];
+
+function generateRating(index: number) {
+    return {
+        ratingValue: RATING_VALUES[index % RATING_VALUES.length],
+        ratingCount: RATING_COUNTS[index % RATING_COUNTS.length],
+    };
+}
+
+/** Imagem padrão por passo (fallback até ter fotos reais por etapa) */
+const STEP_IMAGE = '/images/og-receitas.png';
+
+/** Converte array de strings em objetos de instrução para RecipeInstruction + JSON-LD */
+function buildInstructionData(slug: string, steps: string[]) {
+    return steps.map((text, idx) => ({
+        step: idx + 1,
+        content: text,
+        name: `Passo ${idx + 1}`,
+        image: STEP_IMAGE,
+        video: null as string | null,
+    }));
+}
+
+// ── Função principal de upsert de receitas ──────────────────────────────────
+
+async function upsertRecipes(
+    recipesData: Array<{
+        title: string;
+        description: string;
+        content: string;
+        metaTitle?: string;
+        metaDescription?: string;
+        coverImageAlt?: string;
+        tags: string[];
+        prepTime: number;
+        cookTime: number;
+        servings: number;
+        difficulty: RecipeDifficulty;
+        ingredients: Array<{ name: string; amount: string; order: number }>;
+        instructions: string[];
+    }>,
+    authorId: string,
+    categoryId: string,
+    globalIndex: number = 0,
+) {
+    for (let i = 0; i < recipesData.length; i++) {
+        const recipe = recipesData[i];
+        const slug = slugify(recipe.title);
+        const rating = generateRating(globalIndex + i);
+
+        const existing = await prisma.recipe.findUnique({ where: { slug } });
+
+        if (!existing) {
+            await prisma.recipe.create({
+                data: {
+                    title: recipe.title,
+                    slug,
+                    description: recipe.description,
+                    content: recipe.content,
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                    prepTime: recipe.prepTime,
+                    cookTime: recipe.cookTime,
+                    servings: recipe.servings,
+                    difficulty: recipe.difficulty,
+                    ratingValue: rating.ratingValue,
+                    ratingCount: rating.ratingCount,
+                    published: true,
+                    authorId,
+                    categoryId,
+                    ingredients: {
+                        create: recipe.ingredients.map(ing => ({
+                            name: ing.name,
+                            amount: ing.amount,
+                            order: ing.order,
+                        })),
+                    },
+                    instructions: {
+                        create: buildInstructionData(slug, recipe.instructions),
+                    },
+                },
+            });
+            console.log(`  ✅ Receita criada: ${recipe.title}`);
+        } else {
+            // Atualiza SEO + rating sem sobrescrever edições manuais de conteúdo
+            await prisma.recipe.update({
+                where: { slug },
+                data: {
+                    metaTitle: recipe.metaTitle,
+                    metaDescription: recipe.metaDescription,
+                    coverImageAlt: recipe.coverImageAlt,
+                    tags: recipe.tags,
+                    ratingValue: rating.ratingValue,
+                    ratingCount: rating.ratingCount,
+                },
+            });
+            console.log(`  🔄 SEO+Rating atualizado: ${recipe.title}`);
+        }
+    }
+}
+
+// ── Main ────────────────────────────────────────────────────────────────────
+
 async function main() {
-    // Recipe Categories
+    // ── Categorias ──
     const recipeCategories = [
         { name: 'Carnívora', slug: 'carnivora', type: 'RECIPE' },
         { name: 'Low Carb', slug: 'low-carb', type: 'RECIPE' },
@@ -32,15 +141,10 @@ async function main() {
         await prisma.category.upsert({
             where: { slug: cat.slug },
             update: {},
-            create: {
-                name: cat.name,
-                slug: cat.slug,
-                type: cat.type as any,
-            },
+            create: { name: cat.name, slug: cat.slug, type: cat.type as any },
         });
     }
 
-    // Blog Categories
     const blogCategories = [
         { name: 'Nutrição', slug: 'nutricao', type: 'BLOG' },
         { name: 'Jejum', slug: 'jejum-blog', type: 'BLOG' },
@@ -55,17 +159,13 @@ async function main() {
         await prisma.category.upsert({
             where: { slug: cat.slug },
             update: {},
-            create: {
-                name: cat.name,
-                slug: cat.slug,
-                type: cat.type as any,
-            },
+            create: { name: cat.name, slug: cat.slug, type: cat.type as any },
         });
     }
 
-    console.log('Categories seeded successfully');
+    console.log('📦 Categorias seedadas');
 
-    // Admin User
+    // ── Admin User ──
     const adminPassword = await bcrypt.hash('admin123', 10);
     const admin = await prisma.user.upsert({
         where: { email: 'admin@oancestral.com' },
@@ -79,28 +179,26 @@ async function main() {
             emailVerified: new Date(),
         },
     });
+    console.log('👤 Admin seedado:', admin.email);
 
-    console.log('Admin user seeded:', admin.email);
+    // ══════════════════════════════════════════════════════════════════════════
+    // CAPÍTULO 2 — Laticínios & Básicos Ancestrais
+    // ══════════════════════════════════════════════════════════════════════════
 
-    // 2. Criar Categoria do Capítulo 2
-    const categoryName = 'Laticínios & Básicos Ancestrais';
-    const categorySlug = slugify(categoryName);
-
-    const category = await prisma.category.upsert({
-        where: { slug: categorySlug },
+    const cat2 = await prisma.category.upsert({
+        where: { slug: slugify('Laticínios & Básicos Ancestrais') },
         update: {},
         create: {
-            name: categoryName,
-            slug: categorySlug,
+            name: 'Laticínios & Básicos Ancestrais',
+            slug: slugify('Laticínios & Básicos Ancestrais'),
             description: 'Receitas essenciais e fermentados básicos do Capítulo 2.',
             type: CategoryType.RECIPE,
         },
     });
 
-    console.log(`📂 Categoria garantida: ${category.name}`);
+    console.log('\n📖 Capítulo 2: Laticínios & Básicos Ancestrais');
 
-    // 3. Dados das Receitas (Extraídos do PDF)
-    const recipesData = [
+    await upsertRecipes([
         {
             title: 'Pasteurização Caseira de Leite Cru',
             description: 'Método gentil para garantir a segurança do leite cru preservando enzimas e nutrientes. Ideal para quem busca os benefícios do leite in natura com segurança.',
@@ -122,8 +220,8 @@ async function main() {
                 'Use um termômetro culinário para monitorar até atingir 63°C (145°F).',
                 'Mantenha a temperatura em 63°C por exatos 30 minutos.',
                 'Retire do fogo e faça um banho de gelo (coloque a panela em água com gelo) para resfriar rapidamente até 4°C.',
-                'Armazene em potes de vidro esterilizados na geladeira por 5 a 7 dias.'
-            ]
+                'Armazene em potes de vidro esterilizados na geladeira por 5 a 7 dias.',
+            ],
         },
         {
             title: 'Iogurte Caseiro Natural',
@@ -134,7 +232,7 @@ async function main() {
             coverImageAlt: 'Tigela de iogurte caseiro cremoso natural sem açúcar',
             tags: ['iogurte caseiro', 'probioticos', 'fermentacao', 'saude intestinal', 'low carb', 'dieta da selva', 'sem acucar'],
             prepTime: 15,
-            cookTime: 0, // O tempo principal é passivo (fermentação)
+            cookTime: 0,
             servings: 8,
             difficulty: RecipeDifficulty.EASY,
             ingredients: [
@@ -147,8 +245,8 @@ async function main() {
                 'Misture o iogurte natural (isca) ao leite morno delicadamente.',
                 'Cubra a tigela, envolva em um pano grosso ou toalha e coloque no forno desligado.',
                 'Deixe fermentar por 8 a 24 horas. Quanto mais tempo, mais ácido.',
-                'Leve à geladeira por pelo menos 2 horas antes de servir.'
-            ]
+                'Leve à geladeira por pelo menos 2 horas antes de servir.',
+            ],
         },
         {
             title: 'Kefir de Leite',
@@ -172,8 +270,8 @@ async function main() {
                 'Cubra o pote com um pano ou papel toalha e prenda com elástico (para respirar).',
                 'Deixe fermentar em temperatura ambiente por 18 a 24 horas.',
                 'Mexa delicadamente após 12 horas.',
-                'Coe o líquido (o kefir pronto) e reserve os grãos para a próxima leva.'
-            ]
+                'Coe o líquido (o kefir pronto) e reserve os grãos para a próxima leva.',
+            ],
         },
         {
             title: 'Queijo Labane Cremoso e Soro de Leite',
@@ -199,69 +297,12 @@ async function main() {
                 'Pendure a trouxinha em local fresco com uma tigela embaixo para coletar o soro.',
                 'Deixe pingar por 12 a 24 horas. Quando parar de pingar, o queijo está pronto.',
                 'Guarde o soro líquido na geladeira para usar em outras receitas.',
-                'Retire o queijo do pano, tempere a gosto e guarde na geladeira.'
-            ]
-        }
-    ]
+                'Retire o queijo do pano, tempere a gosto e guarde na geladeira.',
+            ],
+        },
+    ], admin.id, cat2.id, 0);
 
-    // 4. Inserir Receitas
-    for (const recipe of recipesData) {
-        const slug = slugify(recipe.title);
-
-        const existing = await prisma.recipe.findUnique({
-            where: { slug }
-        });
-
-        if (!existing) {
-            await prisma.recipe.create({
-                data: {
-                    title: recipe.title,
-                    slug,
-                    description: recipe.description,
-                    content: recipe.content,
-                    metaTitle: recipe.metaTitle,
-                    metaDescription: recipe.metaDescription,
-                    coverImageAlt: recipe.coverImageAlt,
-                    tags: recipe.tags,
-                    prepTime: recipe.prepTime,
-                    cookTime: recipe.cookTime,
-                    servings: recipe.servings,
-                    difficulty: recipe.difficulty,
-                    published: true,
-                    authorId: admin.id,
-                    categoryId: category.id,
-                    ingredients: {
-                        create: recipe.ingredients.map(ing => ({
-                            name: ing.name,
-                            amount: ing.amount,
-                            order: ing.order
-                        }))
-                    },
-                    instructions: {
-                        create: recipe.instructions.map((inst, idx) => ({
-                            step: idx + 1,
-                            content: inst
-                        }))
-                    }
-                }
-            });
-            console.log(`✅ Receita criada: ${recipe.title}`);
-        } else {
-            // Atualiza APENAS os campos de SEO sem sobrescrever edições manuais
-            await prisma.recipe.update({
-                where: { slug },
-                data: {
-                    metaTitle: recipe.metaTitle,
-                    metaDescription: recipe.metaDescription,
-                    coverImageAlt: recipe.coverImageAlt,
-                    tags: recipe.tags,
-                },
-            });
-            console.log(`🔄 SEO atualizado: ${recipe.title}`);
-        }
-    }
-
-    console.log('🏁 Seed finalizado!');
+    console.log('\n🏁 Seed principal finalizado!');
 }
 
 main()

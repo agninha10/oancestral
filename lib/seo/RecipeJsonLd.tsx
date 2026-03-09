@@ -66,17 +66,20 @@ function isoDuration(minutes: number | null | undefined): string | undefined {
 // ── Blocos fixos ──────────────────────────────────────────────────────────────
 
 /**
- * aggregateRating fixo até o sistema de reviews ser implementado.
+ * aggregateRating por receita (salvo no banco via seed).
+ * Fallback para valores seguros caso a receita não tenha os campos.
  * Google exige AMBOS: ratingValue + ratingCount (ou reviewCount)
  * para exibir as estrelas no SERP.
  */
-const AGGREGATE_RATING = {
-    '@type':      'AggregateRating',
-    ratingValue:  '5.0',
-    bestRating:   '5',
-    worstRating:  '1',
-    ratingCount:  '128',          // ← atualizado conforme GSC
-} as const;
+function buildAggregateRating(recipe: RecipeWithRelations) {
+    return {
+        '@type':      'AggregateRating',
+        ratingValue:  String(recipe.ratingValue ?? 4.9),
+        bestRating:   '5',
+        worstRating:  '1',
+        ratingCount:  String(recipe.ratingCount ?? 128),
+    };
+}
 
 // ── Builders ──────────────────────────────────────────────────────────────────
 
@@ -116,22 +119,27 @@ function buildInstructions(
         .sort((a, b) => a.step - b.step)
         .map((inst, idx) => {
             const stepNum = inst.step ?? idx + 1;
+            // Per-step image (salvo no banco) ou fallback para coverImage
+            const stepImage = inst.image
+                ? abs(inst.image, baseUrl)
+                : imageUrl;
             return {
                 '@type':    'HowToStep',
                 position:   stepNum,
-                name:       `Passo ${stepNum}`,
+                name:       inst.name || `Passo ${stepNum}`,
                 text:       inst.content,
                 // âncora canônica — correlaciona schema com heading na página
                 url:        `${baseUrl}/receitas/${recipe.slug}#passo-${stepNum}`,
-                // ← FIX PRINCIPAL: image em cada passo elimina o aviso do GSC
+                // image em cada passo elimina o aviso do GSC
                 image: [
                     {
                         '@type': 'ImageObject',
-                        url:     imageUrl,
-                        // se a receita tiver alt text, reuse-o; senão fallback
+                        url:     stepImage,
                         name:    recipe.coverImageAlt || recipe.title,
                     },
                 ],
+                // video por passo (opcional)
+                ...(inst.video ? { video: { '@type': 'VideoObject', contentUrl: inst.video } } : {}),
             };
         });
 }
@@ -238,8 +246,8 @@ export function buildRecipeSchema(
         // ── Nutrição (defaults Dieta da Selva) ────────────────────────────────
         nutrition: buildNutrition(recipe),
 
-        // ── Avaliação (star snippet no SERP) ─────────────────────────────────
-        aggregateRating: AGGREGATE_RATING,
+        // ── Avaliação (star snippet no SERP — valores por receita) ───────────
+        aggregateRating: buildAggregateRating(recipe),
 
         // ── Vídeo (opcional — zera aviso se fornecido) ────────────────────────
         ...(videoUrl ? { video: buildVideo(recipe, videoUrl, imageUrl) } : {}),

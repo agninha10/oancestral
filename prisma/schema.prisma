@@ -104,6 +104,10 @@ model Recipe {
   metaDescription String?
   coverImageAlt   String?
 
+  // Rich Snippets (Google Search Console)
+  ratingValue Float? // aggregateRating.ratingValue (ex: 4.9)
+  ratingCount Int?   // aggregateRating.ratingCount (ex: 203)
+
   // Metadata
   published Boolean  @default(false)
   featured  Boolean  @default(false)
@@ -149,6 +153,9 @@ model RecipeInstruction {
   recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   step     Int
   content  String @db.Text
+  name     String?  // "Passo 1" — override do auto-gerado no JSON-LD
+  image    String?  // Imagem por passo (fallback: coverImage da receita)
+  video    String?  // Video por passo (opcional)
 
   @@index([recipeId])
   @@map("recipe_instructions")

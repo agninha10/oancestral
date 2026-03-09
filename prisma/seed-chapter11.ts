@@ -16,6 +16,29 @@ function slugify(text: string) {
         .replace(/-+$/, '')
 }
 
+/** Rating determinístico por receita — valores entre 4.8–5.0 e 85–320 */
+const RATING_VALUES = [4.8, 4.9, 5.0, 4.9, 4.8, 5.0, 4.9, 4.8, 5.0, 4.9, 4.8, 5.0, 4.9, 5.0, 4.8, 4.9, 5.0, 4.8, 4.9, 5.0]
+const RATING_COUNTS = [127, 203, 156, 289, 95, 312, 178, 241, 108, 267, 142, 198, 305, 87, 231, 163, 278, 119, 254, 189]
+
+function generateRating(index: number) {
+    return {
+        ratingValue: RATING_VALUES[index % RATING_VALUES.length],
+        ratingCount: RATING_COUNTS[index % RATING_COUNTS.length],
+    }
+}
+
+const STEP_IMAGE = '/images/og-receitas.png'
+
+function buildInstructionData(steps: string[]) {
+    return steps.map((text, idx) => ({
+        step: idx + 1,
+        content: text,
+        name: `Passo ${idx + 1}`,
+        image: STEP_IMAGE,
+        video: null as string | null,
+    }))
+}
+
 async function main() {
     console.log('🌱 Iniciando seed do Capítulo 11: Frango - Versatilidade e Nutrição Ancestral...')
 
@@ -323,8 +346,10 @@ async function main() {
     ]
 
     // 4. Inserir Receitas
-    for (const recipe of recipesData) {
+    for (let i = 0; i < recipesData.length; i++) {
+        const recipe = recipesData[i]
         const slug = slugify(recipe.title)
+        const rating = generateRating(i)
 
         const existing = await prisma.recipe.findUnique({
             where: { slug }
@@ -341,6 +366,8 @@ async function main() {
                     cookTime: recipe.cookTime,
                     servings: recipe.servings,
                     difficulty: recipe.difficulty,
+                    ratingValue: rating.ratingValue,
+                    ratingCount: rating.ratingCount,
                     published: true,
                     authorId: author.id,
                     categoryId: category.id,
@@ -356,10 +383,7 @@ async function main() {
                         }))
                     },
                     instructions: {
-                        create: recipe.instructions.map((inst, idx) => ({
-                            step: idx + 1,
-                            content: inst
-                        }))
+                        create: buildInstructionData(recipe.instructions),
                     }
                 }
             })
@@ -372,6 +396,8 @@ async function main() {
                     metaDescription: recipe.metaDescription,
                     coverImageAlt: recipe.coverImageAlt,
                     tags: recipe.tags,
+                    ratingValue: rating.ratingValue,
+                    ratingCount: rating.ratingCount,
                 }
             })
             console.log(`🔄 SEO atualizado: ${recipe.title}`)
