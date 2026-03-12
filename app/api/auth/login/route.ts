@@ -3,6 +3,7 @@ import { loginSchema } from '@/lib/validations/auth'
 import { verifyPassword } from '@/lib/auth/password'
 import { signToken } from '@/lib/auth/jwt'
 import { setSessionOnResponse } from '@/lib/auth/session'
+import { generateVerificationCode, sendVerificationEmail } from '@/lib/auth/email'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -43,6 +44,33 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { error: 'E-mail ou senha incorretos' },
                 { status: 401 }
+            )
+        }
+
+        if (!user.emailVerified) {
+            const code = generateVerificationCode()
+            const expires = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    verificationToken: code,
+                    verificationTokenExpires: expires,
+                },
+            })
+
+            try {
+                await sendVerificationEmail(user.email, code, user.name ?? undefined)
+            } catch (emailError) {
+                console.error('[LOGIN] Failed to send verification email:', emailError)
+            }
+
+            return NextResponse.json(
+                {
+                    error: 'E-mail não verificado. Enviamos um novo link de verificação para o seu e-mail.',
+                    emailNotVerified: true,
+                },
+                { status: 403 }
             )
         }
 
