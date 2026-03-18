@@ -1,4 +1,4 @@
-import { Html, Head, Body, Container, Section, Heading, Text, Button, Hr } from '@react-email/components'
+import { Html, Head, Body, Container, Section, Heading, Text, Button, Hr, Preview } from '@react-email/components'
 import { Tailwind } from '@react-email/tailwind'
 
 interface PasswordResetEmailProps {
