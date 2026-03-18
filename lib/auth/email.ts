@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { Resend } from 'resend'
 import VerifyEmail from '@/emails/VerifyEmail'
 import WelcomeEmail from '@/emails/WelcomeEmail'
+import PasswordResetEmail from '@/emails/PasswordResetEmail'
 
 export function generateToken(): string {
     return crypto.randomBytes(32).toString('hex')
@@ -62,15 +63,23 @@ export async function sendWelcomeCheckoutEmail(
 
 export async function sendPasswordResetEmail(
     email: string,
-    token: string
+    token: string,
+    name?: string
 ): Promise<void> {
-    // TODO: Implement with Resend or Nodemailer
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/update-password?token=${token}`
+    const apiKey = process.env.RESEND_API_KEY
 
-    console.log('📧 Password Reset Email')
-    console.log('To:', email)
-    console.log('Link:', resetUrl)
-    console.log('---')
+    if (!apiKey) {
+        throw new Error('RESEND_API_KEY não configurada')
+    }
 
-    // For now, just log. In production, send actual email
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/update-password?token=${token}`
+
+    const resend = new Resend(apiKey)
+
+    await resend.emails.send({
+        from: 'O Ancestral <no-reply@oancestral.com.br>',
+        to: email,
+        subject: 'Redefina sua senha no O Ancestral',
+        react: PasswordResetEmail({ name, resetUrl, expiresInHours: 24 }),
+    })
 }

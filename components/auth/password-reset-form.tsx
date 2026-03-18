@@ -30,10 +30,21 @@ export function PasswordResetForm() {
         setServerError(null)
 
         try {
-            // TODO: Implement reset password API route
-            setServerError('Funcionalidade em desenvolvimento')
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+
+            if (!response.ok) {
+                const error = await response.json()
+                throw new Error(error.error || 'Erro ao enviar solicitação')
+            }
+
+            setSuccess(true)
         } catch (error) {
-            setServerError('Erro ao enviar e-mail. Tente novamente.')
+            const message = error instanceof Error ? error.message : 'Erro ao enviar e-mail. Tente novamente.'
+            setServerError(message)
         } finally {
             setIsLoading(false)
         }
