@@ -21,6 +21,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useTransition } from "react";
 import { updateUser } from "@/app/admin/usuarios/actions";
 import { useRouter } from "next/navigation";
@@ -32,6 +33,7 @@ const formSchema = z.object({
     }),
     role: z.nativeEnum(Role),
     subscriptionStatus: z.nativeEnum(SubscriptionStatus),
+    emailVerified: z.boolean(),
 });
 
 interface UserFormProps {
@@ -41,6 +43,7 @@ interface UserFormProps {
         email: string;
         role: Role;
         subscriptionStatus: SubscriptionStatus;
+        emailVerified: Date | null;
     };
 }
 
@@ -54,6 +57,7 @@ export function UserForm({ user }: UserFormProps) {
             name: user.name,
             role: user.role,
             subscriptionStatus: user.subscriptionStatus,
+            emailVerified: Boolean(user.emailVerified),
         },
     });
 
@@ -138,6 +142,28 @@ export function UserForm({ user }: UserFormProps) {
                                     <SelectItem value={SubscriptionStatus.ACTIVE}>Ativo (Premium)</SelectItem>
                                 </SelectContent>
                             </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="emailVerified"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={(checked) => field.onChange(Boolean(checked))}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>E-mail verificado</FormLabel>
+                                <FormDescription>
+                                    Permite que o usuário faça login sem confirmar e-mail.
+                                </FormDescription>
+                            </div>
                             <FormMessage />
                         </FormItem>
                     )}

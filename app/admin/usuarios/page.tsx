@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, User as UserIcon } from "lucide-react";
+import { Edit } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -41,6 +41,7 @@ export default async function UsersPage() {
                         <TableRow>
                             <TableHead>Nome / Email</TableHead>
                             <TableHead>Função</TableHead>
+                            <TableHead>E-mail</TableHead>
                             <TableHead>Status Assinatura</TableHead>
                             <TableHead>Data Cadastro</TableHead>
                             <TableHead className="text-right">Ações</TableHead>
@@ -58,6 +59,11 @@ export default async function UsersPage() {
                                 <TableCell>
                                     <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'}>
                                         {user.role}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant={user.emailVerified ? 'default' : 'outline'}>
+                                        {user.emailVerified ? 'Verificado' : 'Não verificado'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
@@ -86,7 +92,7 @@ export default async function UsersPage() {
                         ))}
                         {users.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                     Nenhum usuário encontrado.
                                 </TableCell>
                             </TableRow>

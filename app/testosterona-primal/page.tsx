@@ -122,6 +122,12 @@ const STATS = [
     { value: '7', label: 'Dias de Garantia' },
 ]
 
+const EXAM_PROOF = {
+    before: '436 ng/dL',
+    after: '960 ng/dL',
+    period: '6 meses',
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Componente auxiliar: botão CTA com glow pulsante
 // ─────────────────────────────────────────────────────────────────────────────
@@ -474,6 +480,74 @@ export default function TestosteronaPrimalPage() {
                                         </a>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* ═══════════════════════════════════════════════════════════════
+            3.5 PROVA REAL — Exame Antes e Depois
+          ═══════════════════════════════════════════════════════════════ */}
+                    <section
+                        aria-labelledby="prova-real-heading"
+                        className="py-20 sm:py-28 px-4 sm:px-8 bg-zinc-900/30 border-y border-zinc-800"
+                    >
+                        <div className="max-w-6xl mx-auto">
+                            <div className="text-center mb-12 sm:mb-14">
+                                <span className="inline-block bg-red-950/50 border border-red-800/60 text-red-400 text-xs font-semibold uppercase tracking-widest px-5 py-2 rounded-full mb-5">
+                                    Prova Real
+                                </span>
+
+                                <h2
+                                    id="prova-real-heading"
+                                    className="font-[family-name:var(--font-oswald)] text-3xl sm:text-4xl md:text-5xl font-bold uppercase text-white leading-tight"
+                                >
+                                    Meu exame saiu de{' '}
+                                    <span className="text-red-500">{EXAM_PROOF.before}</span> para{' '}
+                                    <span className="text-red-500">{EXAM_PROOF.after}</span>{' '}
+                                    em <span className="text-white">{EXAM_PROOF.period}</span>.
+                                </h2>
+
+                                <p className="text-zinc-400 text-sm sm:text-base mt-5 max-w-3xl mx-auto">
+                                    Sem fórmula mágica. Apenas protocolo aplicado com consistência.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                                <article className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
+                                    <div className="px-5 py-3 border-b border-zinc-800 bg-zinc-950/70">
+                                        <p className="font-[family-name:var(--font-oswald)] text-red-500 text-lg sm:text-xl uppercase tracking-wide">
+                                            Antes — {EXAM_PROOF.before}
+                                        </p>
+                                    </div>
+                                    <div className="relative">
+                                        <Image
+                                            src="/images/testo/exame-antes.png"
+                                            alt="Exame de testosterona antes do protocolo, com resultado de 436 ng/dL"
+                                            width={1200}
+                                            height={1600}
+                                            loading="lazy"
+                                            className="w-full h-auto"
+                                        />
+                                    </div>
+                                </article>
+
+                                <article className="bg-zinc-900 border border-red-900/60 rounded-2xl overflow-hidden shadow-xl shadow-black/40">
+                                    <div className="px-5 py-3 border-b border-red-900/50 bg-red-950/30">
+                                        <p className="font-[family-name:var(--font-oswald)] text-red-400 text-lg sm:text-xl uppercase tracking-wide">
+                                            Depois — {EXAM_PROOF.after}
+                                        </p>
+                                    </div>
+                                    <div className="relative">
+                                        <Image
+                                            src="/images/testo/exame-depois.png"
+                                            alt="Exame de testosterona depois de 6 meses de protocolo, com resultado de 960 ng/dL"
+                                            width={1200}
+                                            height={1600}
+                                            loading="lazy"
+                                            className="w-full h-auto"
+                                        />
+                                    </div>
+                                </article>
                             </div>
                         </div>
                     </section>

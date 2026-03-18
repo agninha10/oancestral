@@ -32,9 +32,15 @@ const updateUserSchema = z.object({
     name: z.string().min(1, "Nome é obrigatório"),
     role: z.nativeEnum(Role),
     subscriptionStatus: z.nativeEnum(SubscriptionStatus),
+    emailVerified: z.boolean(),
 });
 
 export async function updateUser(id: string, data: z.infer<typeof updateUserSchema>) {
+    const admin = await getAdminUser();
+    if (!admin) {
+        return { success: false, error: 'Não autorizado' };
+    }
+
     try {
         const validatedData = updateUserSchema.parse(data);
 
@@ -44,6 +50,9 @@ export async function updateUser(id: string, data: z.infer<typeof updateUserSche
                 name: validatedData.name,
                 role: validatedData.role,
                 subscriptionStatus: validatedData.subscriptionStatus,
+                emailVerified: validatedData.emailVerified ? new Date() : null,
+                verificationToken: validatedData.emailVerified ? null : undefined,
+                verificationTokenExpires: validatedData.emailVerified ? null : undefined,
             },
         });
 
