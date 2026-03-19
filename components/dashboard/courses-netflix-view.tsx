@@ -71,14 +71,7 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
 
     const handleCourseClick = (course: Course) => {
         if (course.isEnrolled) {
-            // Encontrar a primeira aula do primeiro módulo
-            const firstModule = course.modules[0];
-            if (firstModule && firstModule.lessons.length > 0) {
-                const firstLesson = firstModule.lessons[0];
-                router.push(`/cursos/${course.slug}/${firstLesson.slug}`);
-            } else {
-                router.push(`/cursos/${course.slug}`);
-            }
+            router.push(`/play/${course.slug}`);
         } else {
             router.push(`/cursos/${course.slug}`);
         }

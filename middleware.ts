@@ -14,13 +14,13 @@ export async function middleware(request: NextRequest) {
     }
 
     // Log apenas para rotas importantes
-    const shouldLog = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/auth')
+    const shouldLog = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/auth') || pathname.startsWith('/play')
 
     if (shouldLog) {
         console.log(`[MIDDLEWARE] ${pathname} - Token present: ${!!token}`)
     }
 
-    const protectedPaths = ['/dashboard', '/perfil', '/cursos/meus', '/admin']
+    const protectedPaths = ['/dashboard', '/perfil', '/cursos/meus', '/admin', '/play']
     const isProtectedPath = protectedPaths.some((path) =>
         request.nextUrl.pathname.startsWith(path)
     )
