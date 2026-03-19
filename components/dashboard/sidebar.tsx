@@ -11,6 +11,7 @@ import {
     Settings,
     LogOut,
     Download,
+    Flame,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 
@@ -41,6 +42,11 @@ const navigation = [
         name: 'Meus Ebooks',
         href: '/dashboard/ebooks',
         icon: Download,
+    },
+    {
+        name: 'Protocolo de Jejum',
+        href: '/dashboard/jejum',
+        icon: Flame,
     },
     {
         name: 'Receitas',

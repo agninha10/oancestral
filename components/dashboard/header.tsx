@@ -11,6 +11,7 @@ import {
     PlayCircle,
     BookOpen,
     User,
+    Flame,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 
@@ -36,6 +37,11 @@ const navigation = [
         name: 'Meus Cursos',
         href: '/dashboard/cursos',
         icon: PlayCircle,
+    },
+    {
+        name: 'Protocolo de Jejum',
+        href: '/dashboard/jejum',
+        icon: Flame,
     },
     {
         name: 'Receitas',
