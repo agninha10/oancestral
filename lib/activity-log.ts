@@ -12,6 +12,7 @@ export type ActivityAction =
   | 'PURCHASE'
   | 'COURSE_ENROLLMENT'
   | 'BLOG_POST_VIEW'
+  | 'LESSON_ACCESS'
 
 interface LogActivityParams {
   userId: string

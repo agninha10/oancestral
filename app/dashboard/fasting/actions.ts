@@ -31,12 +31,17 @@ export async function getCurrentFast(): Promise<OngoingFast | null> {
 
 export async function startFast(
     targetHours: number,
+    offsetHours: number = 0,
 ): Promise<{ success: true; fast: OngoingFast } | { success: false; error: string }> {
     const session = await getSession();
     if (!session) return { success: false, error: 'Não autorizado.' };
 
     if (![12, 16, 18, 24, 36, 48, 72].includes(targetHours)) {
         return { success: false, error: 'Meta de jejum inválida.' };
+    }
+
+    if (offsetHours < 0 || offsetHours >= targetHours) {
+        return { success: false, error: 'Horário retroativo inválido.' };
     }
 
     // Only one active fast at a time
@@ -46,10 +51,12 @@ export async function startFast(
     });
     if (existing) return { success: false, error: 'Você já tem um jejum ativo.' };
 
+    const startTime = new Date(Date.now() - offsetHours * 3_600_000);
+
     const fast = await prisma.fastingSession.create({
         data: {
             userId: session.userId,
-            startTime: new Date(),
+            startTime,
             targetHours,
             status: 'ONGOING',
         },

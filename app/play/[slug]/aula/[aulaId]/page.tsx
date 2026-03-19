@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { CoursePlayer } from '@/components/player/course-player';
 import { LessonComments } from '@/components/player/lesson-comments';
 import { getLessonComments } from '@/app/play/comment-actions';
+import { logActivity } from '@/lib/activity-log';
 
 export default async function AulaPage({
     params,
@@ -70,6 +71,14 @@ export default async function AulaPage({
     const allLessons = course.modules.flatMap((m) => m.lessons);
     const currentLesson = allLessons.find((l) => l.id === aulaId);
     if (!currentLesson) redirect(`/play/${slug}`);
+
+    // Log lesson access (non-blocking)
+    logActivity({
+        userId: session.userId,
+        action: 'LESSON_ACCESS',
+        resource: `lesson-${aulaId}`,
+        metadata: { lessonTitle: currentLesson.title, courseSlug: slug, courseTitle: course.title },
+    });
 
     // Progress, next lesson and comments (parallel)
     const [progressRecords, initialComments] = await Promise.all([

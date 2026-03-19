@@ -12,9 +12,13 @@ import {
     ShieldCheck,
     Crown,
     ChevronDown,
+    ChevronUp,
     Loader2,
     CheckCircle2,
     Lock,
+    History,
+    Minus,
+    Plus,
 } from 'lucide-react';
 import {
     AlertDialog,
@@ -341,6 +345,8 @@ export function FastingTracker({ initialFast }: { initialFast: OngoingFast | nul
     const [session,        setSession]        = useState<OngoingFast | null>(initialFast);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [targetHours,    setTargetHours]    = useState(16);
+    const [retroEnabled,   setRetroEnabled]   = useState(false);
+    const [retroHours,     setRetroHours]     = useState(1);
     const [isPending,      startTransition]   = useTransition();
 
     // Drift-proof ticker
@@ -366,12 +372,21 @@ export function FastingTracker({ initialFast }: { initialFast: OngoingFast | nul
     const ringColor      = session ? activeStage.colorRing : '#71717a';
 
     // Handlers
+    // Clamp retroHours whenever targetHours changes so it stays in range
+    const maxRetroHours = targetHours - 0.5;
+    const clampedRetro  = Math.min(retroHours, Math.floor(maxRetroHours));
+
     const handleStart = () => {
         startTransition(async () => {
-            const res = await startFast(targetHours);
+            const offset = retroEnabled ? clampedRetro : 0;
+            const res = await startFast(targetHours, offset);
             if (res.success) {
                 setSession(res.fast);
-                toast.success(`Protocolo ${targetHours}h iniciado. Força!`);
+                const msg = offset > 0
+                    ? `Protocolo ${targetHours}h iniciado com ${offset}h retroativas. Força!`
+                    : `Protocolo ${targetHours}h iniciado. Força!`;
+                toast.success(msg);
+                setRetroEnabled(false);
             } else {
                 toast.error(res.error);
             }
@@ -553,6 +568,69 @@ export function FastingTracker({ initialFast }: { initialFast: OngoingFast | nul
                                 </div>
                             </div>
 
+                            {/* Retroactive toggle */}
+                            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+                                <button
+                                    type="button"
+                                    onClick={() => setRetroEnabled((v) => !v)}
+                                    className="flex w-full items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-zinc-800/50"
+                                >
+                                    <span className="flex items-center gap-2 text-zinc-400">
+                                        <History className="h-4 w-4 text-amber-500/70" />
+                                        Comecei antes e esqueci de registrar
+                                    </span>
+                                    {retroEnabled
+                                        ? <ChevronUp className="h-4 w-4 text-zinc-600" />
+                                        : <ChevronDown className="h-4 w-4 text-zinc-600" />
+                                    }
+                                </button>
+
+                                {retroEnabled && (
+                                    <div className="border-t border-zinc-800 px-4 pb-4 pt-3 space-y-3">
+                                        <p className="text-xs text-zinc-600">
+                                            Quantas horas atrás você iniciou o jejum?
+                                        </p>
+
+                                        {/* Stepper */}
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setRetroHours((h) => Math.max(1, h - 1))}
+                                                disabled={clampedRetro <= 1}
+                                                className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 transition-colors hover:bg-zinc-700 disabled:opacity-30"
+                                            >
+                                                <Minus className="h-3.5 w-3.5" />
+                                            </button>
+
+                                            <div className="flex flex-1 flex-col items-center">
+                                                <span className="font-mono text-3xl font-black text-amber-400 tabular-nums leading-none">
+                                                    {clampedRetro}h
+                                                </span>
+                                                <span className="mt-1 text-[10px] text-zinc-600 tabular-nums">
+                                                    início às {(() => {
+                                                        const d = new Date(Date.now() - clampedRetro * 3_600_000);
+                                                        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                                                    })()}
+                                                </span>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setRetroHours((h) => Math.min(Math.floor(maxRetroHours), h + 1))}
+                                                disabled={clampedRetro >= Math.floor(maxRetroHours)}
+                                                className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 transition-colors hover:bg-zinc-700 disabled:opacity-30"
+                                            >
+                                                <Plus className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+
+                                        <p className="text-[10px] text-zinc-700">
+                                            Máximo: {Math.floor(maxRetroHours)}h (meta de {targetHours}h menos 30 min)
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Start button */}
                             <button
                                 onClick={handleStart}
@@ -578,7 +656,9 @@ export function FastingTracker({ initialFast }: { initialFast: OngoingFast | nul
                                     ) : (
                                         <>
                                             <Timer className="h-4 w-4" />
-                                            Iniciar Protocolo · {targetHours}h
+                                            {retroEnabled
+                                                ? `Registrar · ${clampedRetro}h já feitas`
+                                                : `Iniciar Protocolo · ${targetHours}h`}
                                         </>
                                     )}
                                 </span>
