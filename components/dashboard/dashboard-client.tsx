@@ -2,14 +2,18 @@
 
 import { useTokenRefresh } from '@/lib/hooks/useTokenRefresh'
 import { ReactNode } from 'react'
+import { NotificationProvider } from '@/components/dashboard/notification-provider'
 
 interface DashboardClientProps {
     children: ReactNode
 }
 
 export function DashboardClient({ children }: DashboardClientProps) {
-    // Renovar token periodicamente
     useTokenRefresh()
 
-    return <>{children}</>
+    return (
+        <NotificationProvider>
+            {children}
+        </NotificationProvider>
+    )
 }

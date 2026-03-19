@@ -1,72 +1,42 @@
 'use client';
 
-import { useState, useEffect, useTransition, useCallback } from 'react';
+import { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import {
-    getUserNotifications,
-    markAsRead,
-    markAllAsRead,
-    type AppNotification,
-} from '@/app/actions/notifications';
+import { useNotifications } from '@/components/dashboard/notification-provider';
 
 const TYPE_EMOJI: Record<string, string> = {
-    POST:    '✍️',
-    RECIPE:  '🍽️',
-    COURSE:  '🎓',
-    SYSTEM:  '🔔',
-    MANUAL:  '📣',
+    POST:   '✍️',
+    RECIPE: '🍽️',
+    COURSE: '🎓',
+    SYSTEM: '🔔',
+    MANUAL: '📣',
 };
 
 export function NotificationBell() {
     const router = useRouter();
-    const [open,          setOpen]          = useState(false);
-    const [notifications, setNotifications] = useState<AppNotification[]>([]);
-    const [loaded,        setLoaded]        = useState(false);
-    const [isPending,     startTransition]  = useTransition();
+    const [open, setOpen] = useState(false);
+    const { notifications, loaded, isPending, refresh, handleMarkRead, handleMarkAllRead } =
+        useNotifications();
 
     const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-    // Fetch on mount so the badge count is correct immediately
-    const fetchNotifications = useCallback(() => {
-        startTransition(async () => {
-            const data = await getUserNotifications();
-            setNotifications(data);
-            setLoaded(true);
-        });
-    }, []);
-
-    useEffect(() => {
-        fetchNotifications();
-    }, [fetchNotifications]);
-
-    // Re-fetch when popover is opened (in case new ones arrived)
     const handleOpenChange = (next: boolean) => {
         setOpen(next);
-        if (next && loaded) fetchNotifications();
+        // Refresh list when opening so it's always fresh
+        if (next) refresh();
     };
 
-    const handleClickNotification = (n: AppNotification) => {
-        // Optimistic update
-        setNotifications((prev) =>
-            prev.map((x) => x.id === n.id ? { ...x, isRead: true } : x),
-        );
-        // Background server update — fire and forget
-        markAsRead(n.id).catch(() => {});
-
+    const handleClickNotification = (n: (typeof notifications)[number]) => {
+        handleMarkRead(n.id);
         if (n.link) {
             setOpen(false);
             router.push(n.link);
         }
-    };
-
-    const handleMarkAllRead = () => {
-        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-        startTransition(() => markAllAsRead());
     };
 
     return (
@@ -130,8 +100,7 @@ export function NotificationBell() {
                                     <button
                                         onClick={() => handleClickNotification(n)}
                                         className={cn(
-                                            'w-full px-4 py-3.5 text-left transition-colors',
-                                            'hover:bg-zinc-900',
+                                            'w-full px-4 py-3.5 text-left transition-colors hover:bg-zinc-900',
                                             !n.isRead && 'bg-zinc-900/60',
                                         )}
                                     >
@@ -139,7 +108,6 @@ export function NotificationBell() {
                                             <span className="mt-0.5 shrink-0 text-base leading-none">
                                                 {TYPE_EMOJI[n.type] ?? '🔔'}
                                             </span>
-
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-1.5">
                                                     <p className={cn(
@@ -170,7 +138,6 @@ export function NotificationBell() {
                     )}
                 </div>
 
-                {/* Footer */}
                 {loaded && notifications.length > 0 && (
                     <div className="border-t border-zinc-800 px-4 py-2">
                         <p className="text-center text-[10px] text-zinc-700">
