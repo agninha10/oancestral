@@ -27,6 +27,7 @@ export default function NovoCursoPage() {
         ogImage: '',
         priceDisplay: '',   // R$ formatado, ex: "49,00"
         kiwifyUrl: '',
+        waitlistEnabled: false,
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -322,6 +323,24 @@ export default function NovoCursoPage() {
                                         </code>
                                     </p>
                                 )}
+                            </div>
+
+                            <div className="flex items-start space-x-3 rounded-lg border p-4">
+                                <Checkbox
+                                    id="waitlistEnabled"
+                                    checked={formData.waitlistEnabled}
+                                    onCheckedChange={(checked) =>
+                                        setFormData((prev) => ({ ...prev, waitlistEnabled: checked as boolean }))
+                                    }
+                                />
+                                <div className="space-y-1">
+                                    <Label htmlFor="waitlistEnabled" className="font-medium cursor-pointer">
+                                        Ativar Lista de Espera
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Exibe um formulário na página do curso para capturar leads interessados antes do lançamento. Você poderá exportar a lista depois.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 

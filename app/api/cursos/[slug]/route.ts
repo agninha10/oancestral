@@ -24,6 +24,7 @@ export async function GET(
                 isPremium: true,
                 price: true,
                 kiwifyUrl: true,
+                waitlistEnabled: true,
                 published: true,
                 featured: true,
                 createdAt: true,

@@ -225,6 +225,9 @@ model Course {
   kiwifyUrl       String? // URL de checkout Kiwify (ex: https://pay.kiwify.com.br/XXXXX)
   kiwifyProductId String? // ID do produto Kiwify (ex: XXXXX) — extraído da URL para o webhook
 
+  // Lista de Espera
+  waitlistEnabled Boolean @default(false) // exibe formulário de lista de espera na página pública
+
   // SEO
   metaTitle       String?
   metaDescription String?
@@ -240,6 +243,7 @@ model Course {
   // Relations
   modules     Module[]
   enrollments CourseEnrollment[]
+  waitlist    CourseWaitlist[]
 
   @@index([published])
   @@index([featured])
@@ -305,6 +309,19 @@ model CourseEnrollment {
   @@index([userId])
   @@index([courseId])
   @@map("course_enrollments")
+}
+
+model CourseWaitlist {
+  id        String   @id @default(cuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  createdAt DateTime @default(now())
+
+  @@unique([courseId, email])
+  @@index([courseId])
+  @@map("course_waitlist")
 }
 
 model UserProgress {

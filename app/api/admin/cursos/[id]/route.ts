@@ -87,7 +87,7 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { title, slug, description, coverImage, isPremium, published, metaTitle, metaDescription, ogImage, price, kiwifyUrl, kiwifyProductId } = body;
+        const { title, slug, description, coverImage, isPremium, published, metaTitle, metaDescription, ogImage, price, kiwifyUrl, kiwifyProductId, waitlistEnabled } = body;
 
         const course = await prisma.course.update({
             where: { id },
@@ -104,6 +104,7 @@ export async function PUT(
                 price: price || null,
                 kiwifyUrl: kiwifyUrl || null,
                 kiwifyProductId: kiwifyProductId || null,
+                waitlistEnabled: waitlistEnabled ?? false,
             },
         });
 

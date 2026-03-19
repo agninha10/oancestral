@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { title, slug, description, coverImage, isPremium, published, metaTitle, metaDescription, ogImage, price, kiwifyUrl, kiwifyProductId } = body;
+        const { title, slug, description, coverImage, isPremium, published, metaTitle, metaDescription, ogImage, price, kiwifyUrl, kiwifyProductId, waitlistEnabled } = body;
 
         const course = await prisma.course.create({
             data: {
@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
                 price: price || null,
                 kiwifyUrl: kiwifyUrl || null,
                 kiwifyProductId: kiwifyProductId || null,
+                waitlistEnabled: waitlistEnabled ?? false,
             },
         });
 

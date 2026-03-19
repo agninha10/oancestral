@@ -42,8 +42,9 @@ interface Course {
     description: string;
     coverImage: string | null;
     isPremium: boolean;
-    price: number | null;       // em centavos
-    kiwifyUrl: string | null;   // URL de checkout do Kiwify
+    price: number | null;
+    kiwifyUrl: string | null;
+    waitlistEnabled: boolean;
     isEnrolled: boolean;
     progress: number;
     totalLessons: number;
@@ -57,6 +58,8 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
     const [loading, setLoading] = useState(true);
     const [enrolling, setEnrolling] = useState(false);
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+    const [waitlistForm, setWaitlistForm] = useState({ name: '', email: '' });
+    const [waitlistState, setWaitlistState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const router = useRouter();
 
     useEffect(() => {
@@ -111,6 +114,22 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
             alert('Erro ao se inscrever no curso');
         } finally {
             setEnrolling(false);
+        }
+    };
+
+    const handleWaitlist = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!course) return;
+        setWaitlistState('loading');
+        try {
+            const res = await fetch(`/api/cursos/${course.slug}/waitlist`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(waitlistForm),
+            });
+            setWaitlistState(res.ok ? 'success' : 'error');
+        } catch {
+            setWaitlistState('error');
         }
     };
 
@@ -208,6 +227,61 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                                                     style={{ width: `${course.progress}%` }}
                                                 />
                                             </div>
+                                        </div>
+                                    )}
+
+                                    {/* Lista de Espera */}
+                                    {course.waitlistEnabled && !course.isEnrolled && (
+                                        <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 space-y-4">
+                                            <div>
+                                                <p className="font-semibold text-base">
+                                                    🔔 Este curso está em breve
+                                                </p>
+                                                <p className="text-sm text-muted-foreground mt-1">
+                                                    Entre na lista de espera e seja o primeiro a saber quando abrir as vagas.
+                                                </p>
+                                            </div>
+
+                                            {waitlistState === 'success' ? (
+                                                <div className="rounded-lg bg-green-500/10 border border-green-500/30 px-4 py-3 text-sm text-green-700 dark:text-green-400 font-medium">
+                                                    ✅ Você está na lista! Avisaremos assim que o curso for lançado.
+                                                </div>
+                                            ) : (
+                                                <form onSubmit={handleWaitlist} className="space-y-3">
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        placeholder="Seu nome"
+                                                        value={waitlistForm.name}
+                                                        onChange={(e) =>
+                                                            setWaitlistForm((prev) => ({ ...prev, name: e.target.value }))
+                                                        }
+                                                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                    />
+                                                    <input
+                                                        type="email"
+                                                        required
+                                                        placeholder="Seu melhor e-mail"
+                                                        value={waitlistForm.email}
+                                                        onChange={(e) =>
+                                                            setWaitlistForm((prev) => ({ ...prev, email: e.target.value }))
+                                                        }
+                                                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                                    />
+                                                    {waitlistState === 'error' && (
+                                                        <p className="text-xs text-destructive">
+                                                            Algo deu errado. Tente novamente.
+                                                        </p>
+                                                    )}
+                                                    <Button
+                                                        type="submit"
+                                                        className="w-full"
+                                                        disabled={waitlistState === 'loading'}
+                                                    >
+                                                        {waitlistState === 'loading' ? 'Entrando...' : 'Quero ser avisado'}
+                                                    </Button>
+                                                </form>
+                                            )}
                                         </div>
                                     )}
 

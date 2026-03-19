@@ -39,7 +39,10 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
         ogImage: '',
         priceDisplay: '',  // R$ formatado, ex: "49,00"
         kiwifyUrl: '',
+        waitlistEnabled: false,
     });
+    const [waitlist, setWaitlist] = useState<{ id: string; name: string; email: string; createdAt: string }[]>([]);
+    const [waitlistLoading, setWaitlistLoading] = useState(false);
     const [modules, setModules] = useState<Module[]>([]);
     const [showModuleForm, setShowModuleForm] = useState(false);
     const [newModuleTitle, setNewModuleTitle] = useState('');
@@ -48,6 +51,7 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
         params.then((p) => {
             setCourseId(p.id);
             fetchCourse(p.id);
+            fetchWaitlist(p.id);
         });
     }, []);
 
@@ -68,6 +72,7 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                     ogImage: data.ogImage || '',
                     priceDisplay: data.price ? (data.price / 100).toFixed(2).replace('.', ',') : '',
                     kiwifyUrl: data.kiwifyUrl || '',
+                    waitlistEnabled: data.waitlistEnabled ?? false,
                 });
                 setModules(data.modules || []);
             }
@@ -75,6 +80,21 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
             console.error('Erro ao buscar curso:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchWaitlist = async (id: string) => {
+        setWaitlistLoading(true);
+        try {
+            const response = await fetch(`/api/admin/cursos/${id}/waitlist`);
+            if (response.ok) {
+                const data = await response.json();
+                setWaitlist(data.entries);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar lista de espera:', error);
+        } finally {
+            setWaitlistLoading(false);
         }
     };
 
@@ -398,6 +418,24 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                                     </p>
                                 )}
                             </div>
+
+                            <div className="flex items-start space-x-3 rounded-lg border p-4">
+                                <Checkbox
+                                    id="waitlistEnabled"
+                                    checked={formData.waitlistEnabled}
+                                    onCheckedChange={(checked) =>
+                                        setFormData((prev) => ({ ...prev, waitlistEnabled: checked as boolean }))
+                                    }
+                                />
+                                <div className="space-y-1">
+                                    <Label htmlFor="waitlistEnabled" className="font-medium cursor-pointer">
+                                        Ativar Lista de Espera
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Exibe um formulário na página do curso para capturar leads antes do lançamento. Você pode exportar os inscritos a qualquer momento.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="flex gap-4 pt-4">
@@ -408,6 +446,53 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                     </div>
                 </Card>
             </form>
+
+            {/* Lista de Espera — inscritos */}
+            {formData.waitlistEnabled && (
+                <Card className="p-6">
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h2 className="text-2xl font-bold">Lista de Espera</h2>
+                                <p className="text-muted-foreground">
+                                    {waitlistLoading
+                                        ? 'Carregando...'
+                                        : `${waitlist.length} pessoa${waitlist.length !== 1 ? 's' : ''} inscrita${waitlist.length !== 1 ? 's' : ''}`}
+                                </p>
+                            </div>
+                            {waitlist.length > 0 && courseId && (
+                                <a href={`/api/admin/cursos/${courseId}/waitlist?format=csv`} download>
+                                    <Button variant="outline" size="sm">
+                                        Exportar CSV
+                                    </Button>
+                                </a>
+                            )}
+                        </div>
+
+                        {waitlistLoading ? (
+                            <div className="py-8 text-center text-muted-foreground">Carregando inscritos...</div>
+                        ) : waitlist.length === 0 ? (
+                            <div className="py-8 text-center text-muted-foreground">
+                                Nenhum inscrito ainda. Compartilhe o link do curso para capturar leads.
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-border rounded-lg border">
+                                {waitlist.map((entry) => (
+                                    <div key={entry.id} className="flex items-center justify-between px-4 py-3">
+                                        <div>
+                                            <p className="font-medium text-sm">{entry.name}</p>
+                                            <p className="text-xs text-muted-foreground">{entry.email}</p>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">
+                                            {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </Card>
+            )}
 
             {/* Módulos Section */}
             <Card className="p-6">
