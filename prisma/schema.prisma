@@ -74,6 +74,7 @@ model User {
   transactions    Transaction[]
   activityLogs    ActivityLog[]
   lessonComments  LessonComment[]
+  fastingSessions FastingSession[]
 
   @@map("users")
 }
@@ -450,4 +451,25 @@ model ActivityLog {
   @@index([action])
   @@index([createdAt])
   @@map("activity_logs")
+}
+
+// Fasting Tracker — jejum intermitente / prolongado
+model FastingSession {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  startTime   DateTime
+  endTime     DateTime?
+  targetHours Int       // e.g. 16 | 24 | 72
+
+  // "ONGOING" | "COMPLETED" | "BROKEN"
+  status      String    @default("ONGOING")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("fasting_sessions")
 }
