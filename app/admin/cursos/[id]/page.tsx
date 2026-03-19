@@ -255,6 +255,9 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                                 onChange={(url) =>
                                     setFormData((prev) => ({ ...prev, coverImage: url }))
                                 }
+                                onRemove={() =>
+                                    setFormData((prev) => ({ ...prev, coverImage: '' }))
+                                }
                             />
                         </div>
 

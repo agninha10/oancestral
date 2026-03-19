@@ -161,6 +161,9 @@ export default function NovoCursoPage() {
                                 onChange={(url) =>
                                     setFormData((prev) => ({ ...prev, coverImage: url }))
                                 }
+                                onRemove={() =>
+                                    setFormData((prev) => ({ ...prev, coverImage: '' }))
+                                }
                             />
                         </div>
 
