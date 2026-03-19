@@ -4,7 +4,7 @@ import { useState, useTransition, useRef } from 'react';
 import { toast } from 'sonner';
 import { MessageSquare, Send, Loader2, CornerDownRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { postComment, type CommentWithUser, type ReplyWithUser } from '@/app/play/comment-actions';
+import { postComment, type CommentWithUser, type ReplyWithUser, type CommentUser } from '@/app/play/comment-actions';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -62,6 +62,28 @@ function Timestamp({ date }: { date: Date }) {
     return (
         <span className="text-xs text-zinc-600">
             {formatDistanceToNow(new Date(date), { addSuffix: true, locale: ptBR })}
+        </span>
+    );
+}
+
+// ─── UserBadges ───────────────────────────────────────────────────────────────
+
+function UserBadges({ user }: { user: CommentUser }) {
+    const isAdmin = user.role === 'ADMIN';
+    const isAuthor = user._count.blogPosts > 0;
+    if (!isAdmin && !isAuthor) return null;
+    return (
+        <span className="flex items-center gap-1">
+            {isAdmin && (
+                <span className="inline-flex items-center rounded-full border border-rose-500/30 bg-rose-500/10 px-1.5 py-px text-[10px] font-bold uppercase tracking-wider text-rose-400">
+                    Admin
+                </span>
+            )}
+            {isAuthor && (
+                <span className="inline-flex items-center rounded-full border border-sky-500/30 bg-sky-500/10 px-1.5 py-px text-[10px] font-bold uppercase tracking-wider text-sky-400">
+                    Autor
+                </span>
+            )}
         </span>
     );
 }
@@ -158,7 +180,7 @@ function ReplyForm({ lessonId, parentId, currentUser, onSuccess, onCancel }: Rep
 interface CommentCardProps {
     comment: CommentWithUser;
     lessonId: string;
-    currentUser: { id: string; name: string };
+    currentUser: CommentUser;
     onReplyAdded: (parentId: string, reply: ReplyWithUser) => void;
 }
 
@@ -172,10 +194,11 @@ function CommentCard({ comment, lessonId, currentUser, onReplyAdded }: CommentCa
             <div className="flex gap-3 rounded-xl bg-black/50 p-4">
                 <Avatar name={comment.user.name} size="sm" />
                 <div className="flex-1 space-y-1 min-w-0">
-                    <div className="flex flex-wrap items-baseline gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-zinc-200">
                             {comment.user.name}
                         </span>
+                        <UserBadges user={comment.user} />
                         <Timestamp date={comment.createdAt} />
                     </div>
                     <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-400">
@@ -225,10 +248,11 @@ function CommentCard({ comment, lessonId, currentUser, onReplyAdded }: CommentCa
                             >
                                 <Avatar name={reply.user.name} size="xs" />
                                 <div className="flex-1 space-y-0.5 min-w-0">
-                                    <div className="flex flex-wrap items-baseline gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <span className="text-xs font-semibold text-zinc-200">
                                             {reply.user.name}
                                         </span>
+                                        <UserBadges user={reply.user} />
                                         <Timestamp date={reply.createdAt} />
                                     </div>
                                     <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-400">
@@ -249,7 +273,7 @@ function CommentCard({ comment, lessonId, currentUser, onReplyAdded }: CommentCa
 interface LessonCommentsProps {
     lessonId: string;
     initialComments: CommentWithUser[];
-    currentUser: { id: string; name: string };
+    currentUser: CommentUser;
 }
 
 export function LessonComments({ lessonId, initialComments, currentUser }: LessonCommentsProps) {

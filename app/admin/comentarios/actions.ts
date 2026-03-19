@@ -33,7 +33,7 @@ export type PlatformComment = {
     text: string;
     createdAt: Date;
     parentId: string | null;
-    user: { id: string; name: string };
+    user: { id: string; name: string; role: string; _count: { blogPosts: number } };
     lesson: {
         id: string;
         title: string;
@@ -56,7 +56,7 @@ export async function getAllPlatformComments(): Promise<PlatformComment[]> {
             text: true,
             createdAt: true,
             parentId: true,
-            user: { select: { id: true, name: true } },
+            user: { select: { id: true, name: true, role: true, _count: { select: { blogPosts: true } } } },
             lesson: {
                 select: {
                     id: true,

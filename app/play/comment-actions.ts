@@ -7,12 +7,19 @@ import { z } from 'zod';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export type CommentUser = {
+    id: string;
+    name: string;
+    role: string;                    // 'USER' | 'ADMIN'
+    _count: { blogPosts: number };   // > 0 → "Autor" badge
+};
+
 export type ReplyWithUser = {
     id: string;
     text: string;
     createdAt: Date;
     parentId: string;
-    user: { id: string; name: string };
+    user: CommentUser;
 };
 
 export type CommentWithUser = {
@@ -20,9 +27,17 @@ export type CommentWithUser = {
     text: string;
     createdAt: Date;
     parentId: string | null;
-    user: { id: string; name: string };
+    user: CommentUser;
     replies: ReplyWithUser[];
 };
+
+// Shared user select (includes badge fields)
+const userSelect = {
+    id: true,
+    name: true,
+    role: true,
+    _count: { select: { blogPosts: true } },
+} as const;
 
 // Shared select shape for a comment + its replies
 const commentSelect = {
@@ -30,7 +45,7 @@ const commentSelect = {
     text: true,
     createdAt: true,
     parentId: true,
-    user: { select: { id: true, name: true } },
+    user: { select: userSelect },
     replies: {
         orderBy: { createdAt: 'asc' as const },
         select: {
@@ -38,7 +53,7 @@ const commentSelect = {
             text: true,
             createdAt: true,
             parentId: true,
-            user: { select: { id: true, name: true } },
+            user: { select: userSelect },
         },
     },
 } as const;

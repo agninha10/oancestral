@@ -47,7 +47,12 @@ export default async function AulaPage({
         }),
         prisma.user.findUnique({
             where: { id: session.userId },
-            select: { id: true, name: true },
+            select: {
+                id: true,
+                name: true,
+                role: true,
+                _count: { select: { blogPosts: true } },
+            },
         }),
     ]);
 

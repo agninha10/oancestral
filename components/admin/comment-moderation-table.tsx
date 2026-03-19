@@ -209,6 +209,16 @@ function CommentRow({ comment, onReply, onDeleted }: CommentRowProps) {
                         <span className="text-sm font-semibold text-zinc-200">
                             {comment.user.name}
                         </span>
+                        {comment.user.role === 'ADMIN' && (
+                            <span className="inline-flex items-center rounded-full border border-rose-500/30 bg-rose-500/10 px-1.5 py-px text-[10px] font-bold uppercase tracking-wider text-rose-400">
+                                Admin
+                            </span>
+                        )}
+                        {comment.user._count.blogPosts > 0 && (
+                            <span className="inline-flex items-center rounded-full border border-sky-500/30 bg-sky-500/10 px-1.5 py-px text-[10px] font-bold uppercase tracking-wider text-sky-400">
+                                Autor
+                            </span>
+                        )}
                         {comment.parentId && (
                             <Badge
                                 variant="secondary"
