@@ -5,6 +5,7 @@ import { signToken } from '@/lib/auth/jwt'
 import { setSessionOnResponse } from '@/lib/auth/session'
 import { generateVerificationCode, sendVerificationEmail } from '@/lib/auth/email'
 import { prisma } from '@/lib/prisma'
+import { logActivity } from '@/lib/activity-log'
 
 export async function POST(request: NextRequest) {
     try {
@@ -33,6 +34,14 @@ export async function POST(request: NextRequest) {
         })
 
         if (!user || !user.password) {
+            // Log failed login attempt
+            if (user) {
+                await logActivity({
+                    userId: user.id,
+                    action: 'LOGIN_FAILED',
+                    metadata: { reason: 'Invalid password' },
+                })
+            }
             return NextResponse.json(
                 { error: 'E-mail ou senha incorretos' },
                 { status: 401 }
@@ -41,6 +50,12 @@ export async function POST(request: NextRequest) {
 
         const isValidPassword = await verifyPassword(password, user.password)
         if (!isValidPassword) {
+            // Log failed login attempt
+            await logActivity({
+                userId: user.id,
+                action: 'LOGIN_FAILED',
+                metadata: { reason: 'Invalid password' },
+            })
             return NextResponse.json(
                 { error: 'E-mail ou senha incorretos' },
                 { status: 401 }
@@ -81,6 +96,13 @@ export async function POST(request: NextRequest) {
         })
 
         console.log('[LOGIN] Generating token for:', user.email, 'role:', user.role)
+
+        // Log successful login
+        await logActivity({
+            userId: user.id,
+            action: 'LOGIN',
+            metadata: { email: user.email },
+        })
 
         // Criar a response e setar o cookie DIRETAMENTE nela
         const response = NextResponse.json({

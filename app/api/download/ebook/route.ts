@@ -11,6 +11,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 import { readFile } from "fs/promises";
 import path from "path";
 
@@ -69,6 +70,17 @@ export async function GET(req: Request) {
       }
     );
   }
+
+  // Log ebook download
+  await logActivity({
+    userId: session.userId,
+    action: 'EBOOK_DOWNLOAD',
+    resource: `ebook-${product}`,
+    metadata: {
+      downloadSize: fileBuffer.byteLength,
+      filename: EBOOK_FILES[product],
+    },
+  })
 
   // 5. Serve file with download headers
   const filename = encodeURIComponent(EBOOK_NAMES[product]);

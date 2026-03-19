@@ -72,6 +72,7 @@ model User {
   blogPosts    BlogPost[]
   enrollments  CourseEnrollment[]
   transactions Transaction[]
+  activityLogs ActivityLog[]
 
   @@map("users")
 }
@@ -377,4 +378,22 @@ model ContactMessage {
   @@index([read])
   @@index([createdAt])
   @@map("contact_messages")
+}
+
+// Activity log for tracking user actions
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  action    String   // 'LOGIN', 'LOGIN_FAILED', 'PAGE_ACCESS', 'DOWNLOAD', 'PURCHASE', etc
+  resource  String?  // 'ebook-livro-ancestral', 'dashboard', '/blog/slug', etc
+  metadata  Json?    // Extra data: {ip, userAgent, downloadSize, etc}
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("activity_logs")
 }

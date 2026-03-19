@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getSession } from '@/lib/auth/session'
 import { prisma } from '@/lib/prisma'
+import { logActivity } from '@/lib/activity-log'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BookOpen, PlayCircle, TrendingUp, Award, Download } from 'lucide-react'
@@ -12,6 +13,12 @@ export default async function DashboardPage() {
     if (!session) {
         redirect('/auth/login')
     }
+
+    // Log dashboard access
+    await logActivity({
+        userId: session.userId,
+        action: 'DASHBOARD_ACCESS',
+    })
 
     const user = await prisma.user.findUnique({
         where: { id: session.userId },
