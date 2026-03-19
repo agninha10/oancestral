@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const body = await request.json();
-        const { title, slug, description, coverImage, isPremium, published } = body;
+        const { title, slug, description, coverImage, isPremium, published, metaTitle, metaDescription, ogImage } = body;
 
         const course = await prisma.course.create({
             data: {
@@ -81,6 +81,9 @@ export async function POST(request: NextRequest) {
                 coverImage: coverImage || null,
                 isPremium: isPremium ?? true,
                 published: published ?? false,
+                metaTitle: metaTitle || null,
+                metaDescription: metaDescription || null,
+                ogImage: ogImage || null,
             },
         });
 

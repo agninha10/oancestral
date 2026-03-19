@@ -19,17 +19,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    const seoTitle = course.metaTitle || course.title;
+    const seoDescription = course.metaDescription || course.description;
+    const ogImageUrl = course.ogImage || course.coverImage;
+
     return {
-        title: `${course.title} | Cursos`,
-        description: course.description,
+        title: `${seoTitle} | O Ancestral`,
+        description: seoDescription,
         alternates: {
             canonical: `/cursos/${courseSlug}`,
         },
         openGraph: {
-            title: course.title,
-            description: course.description,
+            title: seoTitle,
+            description: seoDescription,
             type: 'website',
-            images: course.coverImage ? [{ url: course.coverImage }] : [],
+            images: ogImageUrl
+                ? [{ url: ogImageUrl, width: 1200, height: 630, alt: course.coverImageAlt || seoTitle }]
+                : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: seoTitle,
+            description: seoDescription,
+            images: ogImageUrl ? [ogImageUrl] : [],
         },
     };
 }

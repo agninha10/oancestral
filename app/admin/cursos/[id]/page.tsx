@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +34,9 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
         coverImage: '',
         isPremium: true,
         published: false,
+        metaTitle: '',
+        metaDescription: '',
+        ogImage: '',
     });
     const [modules, setModules] = useState<Module[]>([]);
     const [showModuleForm, setShowModuleForm] = useState(false);
@@ -58,6 +61,9 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                     coverImage: data.coverImage || '',
                     isPremium: data.isPremium,
                     published: data.published,
+                    metaTitle: data.metaTitle || '',
+                    metaDescription: data.metaDescription || '',
+                    ogImage: data.ogImage || '',
                 });
                 setModules(data.modules || []);
             }
@@ -246,6 +252,83 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                                 <Label htmlFor="published" className="font-normal">
                                     Publicar curso
                                 </Label>
+                            </div>
+                        </div>
+
+                        {/* SEO & Descoberta */}
+                        <div className="border-t pt-6 space-y-4">
+                            <div className="flex items-center gap-2">
+                                <Search className="h-5 w-5 text-muted-foreground" />
+                                <h2 className="text-lg font-semibold">SEO &amp; Descoberta</h2>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Otimize como este curso aparece nos mecanismos de busca e nas redes sociais.
+                            </p>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="metaTitle">Meta Título</Label>
+                                    <span className={`text-xs ${formData.metaTitle.length > 60 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                                        {formData.metaTitle.length}/60
+                                    </span>
+                                </div>
+                                <Input
+                                    id="metaTitle"
+                                    value={formData.metaTitle}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, metaTitle: e.target.value }))
+                                    }
+                                    placeholder={formData.title || 'Título para o Google (máx. 60 chars)'}
+                                    maxLength={80}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Se vazio, será usado o título do curso. Recomendado: até 60 caracteres.
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="metaDescription">Meta Descrição</Label>
+                                    <span className={`text-xs ${formData.metaDescription.length > 160 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                                        {formData.metaDescription.length}/160
+                                    </span>
+                                </div>
+                                <Textarea
+                                    id="metaDescription"
+                                    value={formData.metaDescription}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, metaDescription: e.target.value }))
+                                    }
+                                    placeholder="Resumo atraente para o snippet do Google (máx. 160 chars)"
+                                    rows={3}
+                                    maxLength={200}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Recomendado: até 160 caracteres.
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="ogImage">Imagem OG (Open Graph)</Label>
+                                <Input
+                                    id="ogImage"
+                                    value={formData.ogImage}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, ogImage: e.target.value }))
+                                    }
+                                    placeholder="https://... (URL da imagem para compartilhamento social)"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Imagem exibida ao compartilhar no WhatsApp, Facebook etc. Se vazio, usa a capa do curso. Tamanho ideal: 1200×630px.
+                                </p>
+                            </div>
+
+                            {/* Preview do slug */}
+                            <div className="rounded-md bg-muted p-3 text-sm">
+                                <span className="font-medium text-muted-foreground">URL pública: </span>
+                                <span className="text-foreground">
+                                    oancestral.com.br/cursos/<strong>{formData.slug || 'slug-do-curso'}</strong>
+                                </span>
                             </div>
                         </div>
 

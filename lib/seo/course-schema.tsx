@@ -2,7 +2,15 @@ import { Course } from '@prisma/client';
 
 type CourseData = Pick<
   Course,
-  'title' | 'slug' | 'description' | 'coverImage' | 'isPremium' | 'createdAt' | 'updatedAt'
+  | 'title'
+  | 'slug'
+  | 'description'
+  | 'coverImage'
+  | 'ogImage'
+  | 'metaDescription'
+  | 'isPremium'
+  | 'createdAt'
+  | 'updatedAt'
 >;
 
 const resolveImageUrl = (imagePath: string | null | undefined, baseUrl: string): string => {
@@ -12,19 +20,24 @@ const resolveImageUrl = (imagePath: string | null | undefined, baseUrl: string):
 };
 
 export function generateCourseSchema(course: CourseData, baseUrl: string) {
+  // Preferência: ogImage > coverImage > fallback
+  const imageUrl = resolveImageUrl(course.ogImage || course.coverImage, baseUrl);
+  // Preferência: metaDescription > description (mais concisa para rich snippet)
+  const schemaDescription = course.metaDescription || course.description;
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Course',
     name: course.title,
-    description: course.description,
-    image: resolveImageUrl(course.coverImage, baseUrl),
+    description: schemaDescription,
+    image: imageUrl,
     url: `${baseUrl}/cursos/${course.slug}`,
     datePublished: course.createdAt.toISOString(),
     dateModified: course.updatedAt.toISOString(),
     provider: {
       '@type': 'Organization',
       name: 'O Ancestral',
-      sameAs: baseUrl,
+      sameAs: 'https://oancestral.com.br',
     },
     offers: {
       '@type': 'Offer',
@@ -36,7 +49,7 @@ export function generateCourseSchema(course: CourseData, baseUrl: string) {
     inLanguage: 'pt-BR',
   };
 
-  // Strip undefined values so the JSON-LD output stays clean
+  // Strip undefined/null values so the JSON-LD output stays clean
   return JSON.parse(JSON.stringify(schema));
 }
 

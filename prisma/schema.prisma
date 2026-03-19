@@ -223,6 +223,7 @@ model Course {
   // SEO
   metaTitle       String?
   metaDescription String?
+  ogImage         String? // URL dedicada para Open Graph (redes sociais); fallback: coverImage
   coverImageAlt   String?
 
   // Metadata
