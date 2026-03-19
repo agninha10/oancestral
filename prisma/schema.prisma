@@ -302,12 +302,20 @@ model CourseEnrollment {
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
+  // How this enrollment was created:
+  //   SUBSCRIPTION  → via active membership plan (default)
+  //   PAID          → one-time purchase via Kiwify
+  //   MANUAL_FREE   → granted by an admin (cortesia / parceria)
+  accessType  String  @default("SUBSCRIPTION")
+  grantedById String? // Admin user.id who manually granted this access
+
   enrolledAt  DateTime  @default(now())
   completedAt DateTime?
 
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+  @@index([accessType])
   @@map("course_enrollments")
 }
 

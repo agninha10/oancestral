@@ -16,6 +16,7 @@ import {
     DollarSign,
     MessageSquare,
     Activity,
+    Gift,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const navigation = [
     { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
     { name: 'Receitas', href: '/admin/receitas', icon: ChefHat },
     { name: 'Cursos', href: '/admin/cursos', icon: GraduationCap },
+    { name: 'Cortesias', href: '/admin/cortesias', icon: Gift },
     { name: 'Categorias', href: '/admin/categorias', icon: FolderTree },
     { name: 'Contato', href: '/admin/contato', icon: MessageSquare },
     { name: 'Newsletter', href: '/admin/newsletter', icon: Mail },
