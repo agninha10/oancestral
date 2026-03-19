@@ -15,6 +15,7 @@ import {
     GraduationCap,
     DollarSign,
     MessageSquare,
+    Activity,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ const navigation = [
     { name: 'Contato', href: '/admin/contato', icon: MessageSquare },
     { name: 'Newsletter', href: '/admin/newsletter', icon: Mail },
     { name: 'Usuários', href: '/admin/usuarios', icon: Users },
+    { name: 'Atividades', href: '/admin/atividade', icon: Activity },
 ];
 
 export function AdminSidebar() {
