@@ -63,46 +63,47 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title       = recipe.metaTitle       || recipe.title;
     const description = recipe.metaDescription || recipe.description;
     const canonical   = `${SITE_URL}/receitas/${slug}`;
-    // Always absolute — the #1 cause of broken previews on WhatsApp & Facebook
-    const ogImageUrl  = resolveOgImage(recipe.coverImage);
-    const ogTitle     = `${title} | Receitas Ancestrais — O Ancestral`;
+
+    // Dynamic OG image with food photo + star overlay from our route handler.
+    // Always absolute — the #1 cause of broken previews on WhatsApp & Facebook.
+    const ogImageUrl = `${SITE_URL}/api/og/receitas/${slug}`;
+
+    const ogTitle = `${title} | Receitas Ancestrais — O Ancestral`;
 
     return {
         // Declared explicitly here so dynamic routes never inherit a stale or
         // localhost value from the root layout's process.env read.
         metadataBase: new URL(SITE_URL),
 
-        title: recipe.title, // template → "Nome da Receita | O Ancestral"
+        title:       recipe.title, // template → "Nome da Receita | O Ancestral"
         description,
-        authors: [{ name: 'O Ancestral' }],
-        alternates: { canonical },
+        authors:     [{ name: 'O Ancestral' }],
+        alternates:  { canonical },
 
         openGraph: {
-            title: ogTitle,
+            title:    ogTitle,
             description,
-            type: 'article',
-            url: canonical,
-            // Required by Facebook / WhatsApp for full-card previews
-            locale: 'pt_BR',
+            type:     'article',
+            url:      canonical,
+            locale:   'pt_BR',
             siteName: 'O Ancestral',
             images: [{
-                url: ogImageUrl,   // ← absolute, always
-                width: 1200,
+                url:    ogImageUrl,
+                width:  1200,
                 height: 630,
-                alt: recipe.coverImageAlt || recipe.title,
+                alt:    recipe.coverImageAlt || recipe.title,
             }],
-            // Signals freshness to Facebook's crawler cache
             publishedTime: recipe.createdAt.toISOString(),
             modifiedTime:  recipe.updatedAt.toISOString(),
         },
 
         twitter: {
-            card: 'summary_large_image',
-            site: '@oancestral',
-            creator: '@oancestral',
-            title: `${title} | Receitas Ancestrais`,
+            card:        'summary_large_image',
+            site:        '@oancestral',
+            creator:     '@oancestral',
+            title:       `${title} | Receitas Ancestrais`,
             description,
-            images: [ogImageUrl], // ← absolute, always
+            images:      [ogImageUrl],
         },
     };
 }

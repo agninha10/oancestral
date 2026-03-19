@@ -23,6 +23,12 @@ type Props = {
     params: Promise<{ slug: string }>;
 };
 
+// Canonical base URL — never exposes localhost to crawlers
+const SITE_URL = (() => {
+    const env = process.env.NEXT_PUBLIC_BASE_URL ?? '';
+    return env.startsWith('https://') ? env.replace(/\/$/, '') : 'https://oancestral.com.br';
+})();
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     const post = await prisma.blogPost.findUnique({
@@ -30,32 +36,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
 
     if (!post) {
-        return {
-            title: 'Post não encontrado',
-        };
+        return { title: 'Post não encontrado' };
     }
 
-    const ogImage = post.coverImage ?? '/images/og-blog.png';
+    // Dynamic OG image — always an absolute HTTPS URL for WhatsApp / Facebook
+    const ogImage = `${SITE_URL}/api/og/blog/${slug}`;
 
     return {
-        title: post.title,  // template → "Título do Post | O Ancestral"
+        metadataBase: new URL(SITE_URL),
+        title:       post.title,   // template applied by root layout: "Título | O Ancestral"
         description: post.excerpt,
-        alternates: { canonical: `/blog/${slug}` },
+        authors:     [{ name: 'O Ancestral' }],
+        alternates:  { canonical: `${SITE_URL}/blog/${slug}` },
         openGraph: {
-            title: post.title,
-            description: post.excerpt,
-            type: 'article',
-            url: `https://oancestral.com.br/blog/${slug}`,
-            images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+            title:         post.title,
+            description:   post.excerpt,
+            type:          'article',
+            url:           `${SITE_URL}/blog/${slug}`,
+            siteName:      'O Ancestral',
+            locale:        'pt_BR',
+            images: [{
+                url:    ogImage,
+                width:  1200,
+                height: 630,
+                alt:    post.title,
+            }],
             publishedTime: post.publishedAt?.toISOString(),
-            modifiedTime: post.updatedAt.toISOString(),
-            tags: post.tags,
+            modifiedTime:  post.updatedAt.toISOString(),
+            tags:          post.tags,
         },
         twitter: {
-            card: 'summary_large_image',
-            title: post.title,
+            card:        'summary_large_image',
+            site:        '@oancestral',
+            creator:     '@oancestral',
+            title:       post.title,
             description: post.excerpt,
-            images: [ogImage],
+            images:      [ogImage],
         },
     };
 }
