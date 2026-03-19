@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, Search, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,8 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
         metaTitle: '',
         metaDescription: '',
         ogImage: '',
+        priceDisplay: '',  // R$ formatado, ex: "49,00"
+        kiwifyUrl: '',
     });
     const [modules, setModules] = useState<Module[]>([]);
     const [showModuleForm, setShowModuleForm] = useState(false);
@@ -64,6 +66,8 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                     metaTitle: data.metaTitle || '',
                     metaDescription: data.metaDescription || '',
                     ogImage: data.ogImage || '',
+                    priceDisplay: data.price ? (data.price / 100).toFixed(2).replace('.', ',') : '',
+                    kiwifyUrl: data.kiwifyUrl || '',
                 });
                 setModules(data.modules || []);
             }
@@ -81,12 +85,25 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
         setSaving(true);
 
         try {
+            const kiwifyProductId = formData.kiwifyUrl
+                ? formData.kiwifyUrl.trim().split('/').filter(Boolean).pop() ?? null
+                : null;
+
+            const price = formData.priceDisplay
+                ? Math.round(parseFloat(formData.priceDisplay.replace(',', '.')) * 100)
+                : null;
+
             const response = await fetch(`/api/admin/cursos/${courseId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    price,
+                    kiwifyUrl: formData.kiwifyUrl || null,
+                    kiwifyProductId,
+                }),
             });
 
             if (response.ok) {
@@ -329,6 +346,57 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                                 <span className="text-foreground">
                                     oancestral.com.br/cursos/<strong>{formData.slug || 'slug-do-curso'}</strong>
                                 </span>
+                            </div>
+                        </div>
+
+                        {/* Vendas & Pagamento */}
+                        <div className="border-t pt-6 space-y-4">
+                            <div className="flex items-center gap-2">
+                                <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+                                <h2 className="text-lg font-semibold">Vendas &amp; Pagamento</h2>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Configure o preço e o link de checkout do Kiwify. Deixe em branco para cursos incluídos na assinatura.
+                            </p>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="price">Preço (R$)</Label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">R$</span>
+                                    <Input
+                                        id="price"
+                                        className="pl-9"
+                                        value={formData.priceDisplay}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9,]/g, '');
+                                            setFormData((prev) => ({ ...prev, priceDisplay: val }));
+                                        }}
+                                        placeholder="49,00"
+                                    />
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Deixe vazio se o acesso for por assinatura.
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="kiwifyUrl">URL de Checkout Kiwify</Label>
+                                <Input
+                                    id="kiwifyUrl"
+                                    value={formData.kiwifyUrl}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, kiwifyUrl: e.target.value.trim() }))
+                                    }
+                                    placeholder="https://pay.kiwify.com.br/XXXXX"
+                                />
+                                {formData.kiwifyUrl && (
+                                    <p className="text-xs text-muted-foreground">
+                                        ID do produto (webhook):{' '}
+                                        <code className="font-mono bg-muted px-1 py-0.5 rounded text-xs">
+                                            {formData.kiwifyUrl.trim().split('/').filter(Boolean).pop() ?? '—'}
+                                        </code>
+                                    </p>
+                                )}
                             </div>
                         </div>
 

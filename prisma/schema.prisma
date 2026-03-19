@@ -220,6 +220,11 @@ model Course {
   coverImage  String?
   isPremium   Boolean @default(true)
 
+  // Pricing & Payment
+  price           Int?    // em centavos (ex: 4900 = R$ 49,00). null = acesso por assinatura
+  kiwifyUrl       String? // URL de checkout Kiwify (ex: https://pay.kiwify.com.br/XXXXX)
+  kiwifyProductId String? // ID do produto Kiwify (ex: XXXXX) — extraído da URL para o webhook
+
   // SEO
   metaTitle       String?
   metaDescription String?

@@ -16,6 +16,7 @@ import {
     BookOpen,
     ChevronDown,
     ChevronUp,
+    ShoppingCart,
 } from 'lucide-react';
 
 interface Lesson {
@@ -41,6 +42,8 @@ interface Course {
     description: string;
     coverImage: string | null;
     isPremium: boolean;
+    price: number | null;       // em centavos
+    kiwifyUrl: string | null;   // URL de checkout do Kiwify
     isEnrolled: boolean;
     progress: number;
     totalLessons: number;
@@ -209,13 +212,39 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                                     )}
 
                                     {/* CTA Buttons */}
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-col gap-3">
                                         {course.isEnrolled ? (
                                             <Button size="lg" onClick={() => router.push('/dashboard')}>
                                                 <PlayCircle className="mr-2 h-5 w-5" />
                                                 Continuar Assistindo
                                             </Button>
+                                        ) : course.kiwifyUrl ? (
+                                            // Curso pago — redireciona para checkout Kiwify
+                                            <div className="space-y-2">
+                                                {course.price && (
+                                                    <p className="text-2xl font-bold">
+                                                        {(course.price / 100).toLocaleString('pt-BR', {
+                                                            style: 'currency',
+                                                            currency: 'BRL',
+                                                        })}
+                                                        <span className="text-sm font-normal text-muted-foreground ml-2">
+                                                            acesso vitalício
+                                                        </span>
+                                                    </p>
+                                                )}
+                                                <Button
+                                                    size="lg"
+                                                    className="w-full sm:w-auto"
+                                                    onClick={() => {
+                                                        window.location.href = course.kiwifyUrl!;
+                                                    }}
+                                                >
+                                                    <ShoppingCart className="mr-2 h-5 w-5" />
+                                                    Comprar Curso
+                                                </Button>
+                                            </div>
                                         ) : (
+                                            // Curso por assinatura
                                             <Button
                                                 size="lg"
                                                 onClick={handleEnroll}

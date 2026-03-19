@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Search, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,8 @@ export default function NovoCursoPage() {
         metaTitle: '',
         metaDescription: '',
         ogImage: '',
+        priceDisplay: '',   // R$ formatado, ex: "49,00"
+        kiwifyUrl: '',
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -32,12 +34,27 @@ export default function NovoCursoPage() {
         setLoading(true);
 
         try {
+            // Extrai ID do produto Kiwify a partir da URL (último segmento)
+            const kiwifyProductId = formData.kiwifyUrl
+                ? formData.kiwifyUrl.trim().split('/').filter(Boolean).pop() ?? null
+                : null;
+
+            // Converte "49,00" → 4900 centavos
+            const price = formData.priceDisplay
+                ? Math.round(parseFloat(formData.priceDisplay.replace(',', '.')) * 100)
+                : null;
+
             const response = await fetch('/api/admin/cursos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    price,
+                    kiwifyUrl: formData.kiwifyUrl || null,
+                    kiwifyProductId,
+                }),
             });
 
             if (response.ok) {
@@ -254,6 +271,57 @@ export default function NovoCursoPage() {
                                 <span className="text-foreground">
                                     oancestral.com.br/cursos/<strong>{formData.slug || 'slug-do-curso'}</strong>
                                 </span>
+                            </div>
+                        </div>
+
+                        {/* Vendas & Pagamento */}
+                        <div className="border-t pt-6 space-y-4">
+                            <div className="flex items-center gap-2">
+                                <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+                                <h2 className="text-lg font-semibold">Vendas &amp; Pagamento</h2>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Configure o preço e o link de checkout do Kiwify. Deixe em branco para cursos incluídos na assinatura.
+                            </p>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="price">Preço (R$)</Label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">R$</span>
+                                    <Input
+                                        id="price"
+                                        className="pl-9"
+                                        value={formData.priceDisplay}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9,]/g, '');
+                                            setFormData((prev) => ({ ...prev, priceDisplay: val }));
+                                        }}
+                                        placeholder="49,00"
+                                    />
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Deixe vazio se o acesso for por assinatura.
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="kiwifyUrl">URL de Checkout Kiwify</Label>
+                                <Input
+                                    id="kiwifyUrl"
+                                    value={formData.kiwifyUrl}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, kiwifyUrl: e.target.value.trim() }))
+                                    }
+                                    placeholder="https://pay.kiwify.com.br/XXXXX"
+                                />
+                                {formData.kiwifyUrl && (
+                                    <p className="text-xs text-muted-foreground">
+                                        ID do produto (webhook):{' '}
+                                        <code className="font-mono bg-muted px-1 py-0.5 rounded text-xs">
+                                            {formData.kiwifyUrl.trim().split('/').filter(Boolean).pop() ?? '—'}
+                                        </code>
+                                    </p>
+                                )}
                             </div>
                         </div>
 

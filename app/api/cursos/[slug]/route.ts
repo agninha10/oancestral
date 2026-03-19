@@ -22,6 +22,8 @@ export async function GET(
                 description: true,
                 coverImage: true,
                 isPremium: true,
+                price: true,
+                kiwifyUrl: true,
                 published: true,
                 featured: true,
                 createdAt: true,

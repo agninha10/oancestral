@@ -41,6 +41,15 @@ function resolveProduct(productId: string): ProductConfig | null {
   return map[productId] ?? null;
 }
 
+/** Resolve um curso pelo kiwifyProductId salvo no banco */
+async function resolveCourse(productId: string) {
+  if (!productId) return null;
+  return prisma.course.findFirst({
+    where: { kiwifyProductId: productId },
+    select: { id: true, title: true, price: true },
+  });
+}
+
 // ── Kiwify real payload shape (confirmed from test webhook) ───────────────────
 interface KiwifyCharge {
   order_id:         string;
@@ -155,6 +164,39 @@ async function handlePaid(orderId: string, payload: KiwifyPayload, config: Produ
   }
 }
 
+/** Processa pagamento confirmado de um curso dinâmico */
+async function handleCoursePaid(
+  orderId: string,
+  payload: KiwifyPayload,
+  course: { id: string; title: string; price: number | null }
+) {
+  const user   = await findOrCreateUser(payload);
+  const amount = extractAmount(payload, course.price ?? 0);
+
+  await prisma.transaction.upsert({
+    where:  { billingId: orderId },
+    update: { status: "PAID", amount },
+    create: {
+      userId:    user.id,
+      billingId: orderId,
+      amount,
+      frequency: "one_time",
+      status:    "PAID",
+      source:    "KIWIFY",
+      product:   `curso-${course.id}`,
+    },
+  });
+
+  // Matricula o usuário no curso (idempotente)
+  await prisma.courseEnrollment.upsert({
+    where:  { userId_courseId: { userId: user.id, courseId: course.id } },
+    update: {},
+    create: { userId: user.id, courseId: course.id },
+  });
+
+  console.log(`[KIWIFY WEBHOOK] 🎓 Course enrollment created: ${user.email} → "${course.title}"`);
+}
+
 async function markTransactionFailed(orderId: string) {
   const tx = await prisma.transaction.findUnique({ where: { billingId: orderId } });
   if (!tx) return;
@@ -223,19 +265,27 @@ export async function POST(req: Request) {
     const email     = payload.Customer?.email;
     const config    = resolveProduct(productId);
 
-    console.log(`[KIWIFY WEBHOOK] order=${order_id} status=${order_status} email=${email} Product.product_id="${productId}" → ${config?.product ?? "UNKNOWN"}`);
+    // Tenta resolver como curso dinâmico quando não é produto fixo
+    const dynamicCourse = !config && productId ? await resolveCourse(productId) : null;
 
-    if (!config && productId) {
+    const resolvedLabel = config?.product ?? (dynamicCourse ? `curso:${dynamicCourse.title}` : "UNKNOWN");
+    console.log(`[KIWIFY WEBHOOK] order=${order_id} status=${order_status} email=${email} Product.product_id="${productId}" → ${resolvedLabel}`);
+
+    if (!config && !dynamicCourse && productId) {
       console.warn(
-        `[KIWIFY WEBHOOK] ⚠️  Product UUID "${productId}" not mapped. ` +
-        `Update env var: KIWIFY_LIVRO_ANCESTRAL_PRODUCT_ID="${productId}" (if this is the livro product) — or the correct var for this product.`
+        `[KIWIFY WEBHOOK] ⚠️  Product UUID "${productId}" não mapeado. ` +
+        `Configure o kiwifyProductId no curso correspondente no admin, ou atualize a env var.`
       );
     }
 
     // 3. Handle by status
     switch (order_status) {
       case "paid":
-        await handlePaid(order_id, payload, config);
+        if (dynamicCourse) {
+          await handleCoursePaid(order_id, payload, dynamicCourse);
+        } else {
+          await handlePaid(order_id, payload, config);
+        }
         break;
 
       case "waiting_payment":
