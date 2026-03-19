@@ -260,12 +260,12 @@ function CourseRow({
                         {courses.map((course) => (
                             <div
                                 key={course.id}
-                                className="flex-none w-72 group/card cursor-pointer"
+                                className="flex-none w-44 group/card cursor-pointer"
                                 onMouseEnter={() => setHoveredCourse(course.id)}
                                 onMouseLeave={() => setHoveredCourse(null)}
                                 onClick={() => onCourseClick(course)}
                             >
-                                <div className="relative aspect-video rounded-lg overflow-hidden bg-muted transition-transform duration-300 group-hover/card:scale-105">
+                                <div className="relative aspect-2/3 rounded-lg overflow-hidden bg-muted transition-transform duration-300 group-hover/card:scale-105 shadow-lg shadow-black/40">
                                     {course.coverImage ? (
                                         <Image
                                             src={course.coverImage}

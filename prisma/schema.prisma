@@ -68,11 +68,12 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  recipes      Recipe[]
-  blogPosts    BlogPost[]
-  enrollments  CourseEnrollment[]
-  transactions Transaction[]
-  activityLogs ActivityLog[]
+  recipes         Recipe[]
+  blogPosts       BlogPost[]
+  enrollments     CourseEnrollment[]
+  transactions    Transaction[]
+  activityLogs    ActivityLog[]
+  lessonComments  LessonComment[]
 
   @@map("users")
 }
@@ -289,6 +290,7 @@ model Lesson {
 
   // Relations
   progress UserProgress[]
+  comments LessonComment[]
 
   @@unique([moduleId, slug])
   @@index([moduleId])
@@ -347,6 +349,21 @@ model UserProgress {
   @@index([userId])
   @@index([lessonId])
   @@map("user_progress")
+}
+
+model LessonComment {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([userId])
+  @@map("lesson_comments")
 }
 
 // Newsletter Subscriber model for lead capture

@@ -41,6 +41,7 @@ interface CoursePlayerProps {
     currentModuleId: string;
     completedIds: string[];
     nextLessonId: string | null;
+    commentsSlot?: React.ReactNode;
 }
 
 // ─── CoursePlayer ─────────────────────────────────────────────────────────────
@@ -52,6 +53,7 @@ export function CoursePlayer({
     currentModuleId,
     completedIds: initialCompleted,
     nextLessonId,
+    commentsSlot,
 }: CoursePlayerProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
@@ -187,6 +189,9 @@ export function CoursePlayer({
                             dangerouslySetInnerHTML={{ __html: currentLesson.content }}
                         />
                     )}
+
+                    {/* Comments slot — rendered by the server page */}
+                    {commentsSlot}
                 </div>
             </main>
 
