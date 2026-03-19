@@ -14,6 +14,7 @@ import {
     Flame,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
+import { NotificationBell } from '@/components/dashboard/notification-bell';
 
 interface User {
     id: string;
@@ -76,11 +77,14 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                     O Ancestral
                 </div>
 
-                <Link href="/dashboard/perfil">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                        {user.name.charAt(0).toUpperCase()}
-                    </div>
-                </Link>
+                <div className="flex items-center gap-1">
+                    <NotificationBell />
+                    <Link href="/dashboard/perfil">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                            {user.name.charAt(0).toUpperCase()}
+                        </div>
+                    </Link>
+                </div>
             </div>
 
             {/* Mobile menu */}

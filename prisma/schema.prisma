@@ -75,6 +75,7 @@ model User {
   activityLogs    ActivityLog[]
   lessonComments  LessonComment[]
   fastingSessions FastingSession[]
+  notifications   Notification[]
 
   @@map("users")
 }
@@ -472,4 +473,25 @@ model FastingSession {
   @@index([userId])
   @@index([status])
   @@map("fasting_sessions")
+}
+
+// ─── Notifications ─────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  type      String   // "SYSTEM" | "COURSE" | "POST" | "RECIPE" | "MANUAL"
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }

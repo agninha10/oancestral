@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jwtVerify } from 'jose';
 import { notifyGoogleIndexing } from '@/lib/google-indexing';
+import { broadcastNotification } from '@/app/actions/notifications';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
@@ -101,13 +102,19 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        // Notifica o Google Indexing API se a receita foi publicada
         if (recipe.published) {
             const recipeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/receitas/${recipe.slug}`;
-            // Executa em background sem bloquear a resposta
-            notifyGoogleIndexing(recipeUrl).catch(err => 
-                console.error('[Recipe POST] Erro ao notificar Google:', err)
+            notifyGoogleIndexing(recipeUrl).catch((err) =>
+                console.error('[Recipe POST] Erro ao notificar Google:', err),
             );
+
+            // Notify all users (non-blocking)
+            broadcastNotification(
+                `Nova receita: ${recipe.title}`,
+                recipe.description ?? 'Uma nova receita ancestral foi publicada.',
+                `/receitas/${recipe.slug}`,
+                'RECIPE',
+            ).catch(() => {});
         }
 
         return NextResponse.json(recipe);

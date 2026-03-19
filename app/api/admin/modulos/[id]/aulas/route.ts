@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
+import { notifyEnrolledUsers } from '@/app/actions/notifications';
 
 async function getAdminUser() {
     try {
@@ -55,9 +56,30 @@ export async function POST(
                 isFree: isFree ?? false,
                 moduleId,
             },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                videoUrl: true,
+                content: true,
+                order: true,
+                isFree: true,
+                moduleId: true,
+                module: { select: { courseId: true, course: { select: { slug: true, title: true } } } },
+            },
         });
 
-        return NextResponse.json(lesson);
+        // Notify enrolled students (non-blocking)
+        notifyEnrolledUsers(
+            lesson.module.courseId,
+            `Nova aula: ${lesson.title}`,
+            `Uma nova aula foi adicionada em ${lesson.module.course.title}.`,
+            `/play/${lesson.module.course.slug}/aula/${lesson.id}`,
+        ).catch(() => {});
+
+        // Return only lesson fields (strip module relation)
+        const { module: _m, ...lessonData } = lesson;
+        return NextResponse.json(lessonData);
     } catch (error) {
         console.error('Erro ao criar aula:', error);
         return NextResponse.json(

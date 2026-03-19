@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 import { notifyGoogleIndex } from '@/lib/google-indexing';
+import { broadcastNotification } from '@/app/actions/notifications';
 
 async function getAdminUser() {
     try {
@@ -122,8 +123,15 @@ export async function POST(request: NextRequest) {
 
         if (post.published) {
             const postUrl = `${process.env.NEXT_PUBLIC_APP_URL}/blog/${post.slug}`;
-            // AWAIT é crucial para debug e garantir logs antes da resposta HTTP
             await notifyGoogleIndex(postUrl);
+
+            // Notify all users (non-blocking)
+            broadcastNotification(
+                `Novo artigo: ${post.title}`,
+                post.excerpt ?? 'Um novo artigo foi publicado no blog.',
+                `/blog/${post.slug}`,
+                'POST',
+            ).catch(() => {});
         } else {
             console.log(`[Blog API] Post salvo como Rascunho. O Google não será notificado.`);
         }
