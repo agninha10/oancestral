@@ -6,7 +6,7 @@ import { logActivity } from '@/lib/activity-log'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BookOpen, PlayCircle, TrendingUp, Award, Download } from 'lucide-react'
-import { FastingTracker } from '@/components/dashboard/fasting-tracker'
+import { FastingSummaryCard } from '@/components/dashboard/fasting-summary-card'
 import { getCurrentFast } from '@/app/dashboard/fasting/actions'
 
 export default async function DashboardPage() {
@@ -140,86 +140,84 @@ export default async function DashboardPage() {
                 </Card>
             </div>
 
-            {/* Fasting Tracker */}
-            <div className="grid gap-6 lg:grid-cols-[420px_1fr] lg:items-start">
-                <FastingTracker initialFast={currentFast} />
+            {/* Quick Actions */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <Card className="border-2 border-primary/20 hover:border-primary/40 transition-colors">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <PlayCircle className="h-5 w-5 text-primary" />
+                            Meus Cursos
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Continue aprendendo de onde parou
+                        </p>
+                        <Button asChild className="w-full">
+                            <Link href="/dashboard/cursos">Acessar Cursos</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
 
-                {/* Quick Actions stacked alongside on large screens */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <Card className="border-2 border-primary/20 hover:border-primary/40 transition-colors">
+                <Card className="border-2 border-accent/20 hover:border-accent/40 transition-colors">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5 text-accent" />
+                            Receitas
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Explore receitas ancestrais deliciosas
+                        </p>
+                        <Button asChild variant="outline" className="w-full">
+                            <Link href="/receitas">Ver Receitas</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-2 border-muted hover:border-muted-foreground/40 transition-colors">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5 text-muted-foreground" />
+                            Blog
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Artigos sobre saúde e bem-estar
+                        </p>
+                        <Button asChild variant="outline" className="w-full">
+                            <Link href="/blog">Ler Blog</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                {ebookCount > 0 && (
+                    <Card className="border-2 border-amber-500/20 hover:border-amber-500/40 transition-colors bg-amber-950/10">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <PlayCircle className="h-5 w-5 text-primary" />
-                                Meus Cursos
+                                <Download className="h-5 w-5 text-amber-500" />
+                                Meus Ebooks
+                                <span className="ml-auto text-xs bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded-full font-medium">
+                                    {ebookCount}
+                                </span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-muted-foreground mb-4">
-                                Continue aprendendo de onde parou
+                                Seus ebooks adquiridos prontos para download
                             </p>
-                            <Button asChild className="w-full">
-                                <Link href="/dashboard/cursos">Acessar Cursos</Link>
+                            <Button asChild className="w-full bg-amber-600 hover:bg-amber-700 text-white">
+                                <Link href="/dashboard/ebooks">Baixar Ebooks</Link>
                             </Button>
                         </CardContent>
                     </Card>
-
-                    <Card className="border-2 border-accent/20 hover:border-accent/40 transition-colors">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <BookOpen className="h-5 w-5 text-accent" />
-                                Receitas
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                Explore receitas ancestrais deliciosas
-                            </p>
-                            <Button asChild variant="outline" className="w-full">
-                                <Link href="/receitas">Ver Receitas</Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border-2 border-muted hover:border-muted-foreground/40 transition-colors">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-muted-foreground" />
-                                Blog
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                Artigos sobre saúde e bem-estar
-                            </p>
-                            <Button asChild variant="outline" className="w-full">
-                                <Link href="/blog">Ler Blog</Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    {ebookCount > 0 && (
-                        <Card className="border-2 border-amber-500/20 hover:border-amber-500/40 transition-colors bg-amber-950/10">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Download className="h-5 w-5 text-amber-500" />
-                                    Meus Ebooks
-                                    <span className="ml-auto text-xs bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded-full font-medium">
-                                        {ebookCount}
-                                    </span>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Seus ebooks adquiridos prontos para download
-                                </p>
-                                <Button asChild className="w-full bg-amber-600 hover:bg-amber-700 text-white">
-                                    <Link href="/dashboard/ebooks">Baixar Ebooks</Link>
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
+                )}
             </div>
+
+            {/* Fasting Summary */}
+            <FastingSummaryCard currentFast={currentFast} />
 
         </div>
     )
