@@ -15,6 +15,7 @@ import {
     GraduationCap,
     DollarSign,
     MessageSquare,
+    MessageCircle,
     Activity,
     Gift,
 } from 'lucide-react';
@@ -31,6 +32,7 @@ const navigation = [
     { name: 'Cortesias', href: '/admin/cortesias', icon: Gift },
     { name: 'Categorias', href: '/admin/categorias', icon: FolderTree },
     { name: 'Contato', href: '/admin/contato', icon: MessageSquare },
+    { name: 'Comentários', href: '/admin/comentarios', icon: MessageCircle },
     { name: 'Newsletter', href: '/admin/newsletter', icon: Mail },
     { name: 'Usuários', href: '/admin/usuarios', icon: Users },
     { name: 'Atividades', href: '/admin/atividade', icon: Activity },

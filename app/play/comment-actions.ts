@@ -7,51 +7,74 @@ import { z } from 'zod';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export type ReplyWithUser = {
+    id: string;
+    text: string;
+    createdAt: Date;
+    parentId: string;
+    user: { id: string; name: string };
+};
+
 export type CommentWithUser = {
     id: string;
     text: string;
     createdAt: Date;
+    parentId: string | null;
     user: { id: string; name: string };
+    replies: ReplyWithUser[];
 };
+
+// Shared select shape for a comment + its replies
+const commentSelect = {
+    id: true,
+    text: true,
+    createdAt: true,
+    parentId: true,
+    user: { select: { id: true, name: true } },
+    replies: {
+        orderBy: { createdAt: 'asc' as const },
+        select: {
+            id: true,
+            text: true,
+            createdAt: true,
+            parentId: true,
+            user: { select: { id: true, name: true } },
+        },
+    },
+} as const;
 
 // ─── getLessonComments ────────────────────────────────────────────────────────
 
 export async function getLessonComments(lessonId: string): Promise<CommentWithUser[]> {
     return prisma.lessonComment.findMany({
-        where: { lessonId },
+        where: { lessonId, parentId: null },
         orderBy: { createdAt: 'asc' },
-        select: {
-            id: true,
-            text: true,
-            createdAt: true,
-            user: { select: { id: true, name: true } },
-        },
-    });
+        select: commentSelect,
+    }) as Promise<CommentWithUser[]>;
 }
 
 // ─── postComment ──────────────────────────────────────────────────────────────
 
-const postCommentSchema = z.object({
-    text: z
-        .string()
-        .trim()
-        .min(1, 'O comentário não pode estar vazio.')
-        .max(2000, 'Máximo de 2000 caracteres.'),
-});
+const textSchema = z
+    .string()
+    .trim()
+    .min(1, 'O comentário não pode estar vazio.')
+    .max(2000, 'Máximo de 2000 caracteres.');
 
 export async function postComment(
     lessonId: string,
     text: string,
+    parentId?: string,
 ): Promise<{ success: true; comment: CommentWithUser } | { success: false; error: string }> {
     const session = await getSession();
     if (!session) return { success: false, error: 'Não autorizado.' };
 
-    const parsed = postCommentSchema.safeParse({ text });
+    const parsed = textSchema.safeParse(text);
     if (!parsed.success) {
         return { success: false, error: parsed.error.issues[0].message };
     }
 
-    // Verify the lesson exists and the user is enrolled in its course
+    // Resolve lesson → course for enrollment check
     const lesson = await prisma.lesson.findUnique({
         where: { id: lessonId },
         select: { module: { select: { courseId: true } } },
@@ -60,32 +83,38 @@ export async function postComment(
 
     const enrollment = await prisma.courseEnrollment.findUnique({
         where: {
-            userId_courseId: {
-                userId: session.userId,
-                courseId: lesson.module.courseId,
-            },
+            userId_courseId: { userId: session.userId, courseId: lesson.module.courseId },
         },
         select: { id: true },
     });
-    if (!enrollment) {
-        return { success: false, error: 'Você não tem acesso a este curso.' };
+    if (!enrollment) return { success: false, error: 'Você não tem acesso a este curso.' };
+
+    // If this is a reply, ensure the parent belongs to the same lesson
+    if (parentId) {
+        const parent = await prisma.lessonComment.findUnique({
+            where: { id: parentId },
+            select: { lessonId: true, parentId: true },
+        });
+        if (!parent || parent.lessonId !== lessonId) {
+            return { success: false, error: 'Comentário pai inválido.' };
+        }
+        // No deeper than 1 level — prevent replying to a reply
+        if (parent.parentId !== null) {
+            return { success: false, error: 'Só é possível responder comentários principais.' };
+        }
     }
 
     const comment = await prisma.lessonComment.create({
         data: {
-            text: parsed.data.text,
+            text: parsed.data,
             userId: session.userId,
             lessonId,
+            ...(parentId ? { parentId } : {}),
         },
-        select: {
-            id: true,
-            text: true,
-            createdAt: true,
-            user: { select: { id: true, name: true } },
-        },
+        select: commentSelect,
     });
 
     revalidatePath('/play');
 
-    return { success: true, comment };
+    return { success: true, comment: comment as CommentWithUser };
 }
