@@ -157,7 +157,7 @@ export async function requestEmailChange(newEmail: string): Promise<ActionResult
             from:    'O Ancestral <no-reply@oancestral.com.br>',
             to:      email,
             subject: 'Confirme seu novo e-mail no O Ancestral',
-            react:   EmailChangeEmail({ code, name: currentUser.name, newEmail: email }),
+            react:   EmailChangeEmail({ code, name: currentUser.name ?? undefined, newEmail: email }),
         });
     }
 
@@ -236,6 +236,7 @@ export async function changePassword(data: {
         select: { password: true },
     });
     if (!user) return { success: false, error: 'Usuário não encontrado.' };
+    if (!user.password) return { success: false, error: 'Esta conta não possui senha definida.' };
 
     const valid = await verifyPassword(parsed.data.currentPassword, user.password);
     if (!valid) return { success: false, error: 'Senha atual incorreta.' };

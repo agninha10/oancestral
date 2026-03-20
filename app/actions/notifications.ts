@@ -194,7 +194,7 @@ export async function adminSendNotification(
 
 export async function searchUsersForAdmin(
     query: string,
-): Promise<{ id: string; email: string; name: string }[]> {
+): Promise<{ id: string; email: string; name: string | null }[]> {
     const admin = await getAdminSession();
     if (!admin || query.trim().length < 2) return [];
 

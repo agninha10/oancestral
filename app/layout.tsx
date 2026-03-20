@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { inter, crimsonPro } from "@/lib/fonts";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { SessionProvider } from "@/components/providers/session-provider";
 import GoogleAnalytics from "@/components/google-analytics";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -81,14 +82,16 @@ export default function RootLayout({
         className={`${inter.variable} ${crimsonPro.variable} font-sans antialiased`}
       >
         <GoogleAnalytics gaId="G-ET36Z6XQZZ" />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={false}
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </SessionProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>

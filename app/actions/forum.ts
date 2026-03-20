@@ -25,7 +25,7 @@ export type PostSummary = {
     views: number;
     pinned: boolean;
     createdAt: Date;
-    author: { id: string; name: string; username: string | null; avatarUrl: string | null };
+    author: { id: string; name: string | null; username: string | null; avatarUrl: string | null };
     category: { id: string; name: string; slug: string; icon: string };
     _count: { replies: number; likes: number };
     likedByMe: boolean;
@@ -36,13 +36,13 @@ export type ReplyItem = {
     content: string;
     createdAt: Date;
     parentId: string | null;
-    author: { id: string; name: string; username: string | null; avatarUrl: string | null };
+    author: { id: string; name: string | null; username: string | null; avatarUrl: string | null };
     replies: {
         id: string;
         content: string;
         createdAt: Date;
         parentId: string | null;
-        author: { id: string; name: string; username: string | null; avatarUrl: string | null };
+        author: { id: string; name: string | null; username: string | null; avatarUrl: string | null };
     }[];
 };
 

@@ -7,7 +7,7 @@ import { ProfileForm } from '@/components/dashboard/profile-form';
 
 export default async function ProfilePage() {
     const session = await getSession();
-    if (!session) redirect('/auth/login');
+    if (!session) redirect('/login');
 
     const [user, completedLessons] = await Promise.all([
         prisma.user.findUnique({
@@ -42,7 +42,7 @@ export default async function ProfilePage() {
         }),
     ]);
 
-    if (!user) redirect('/api/auth/logout?redirect=/auth/login');
+    if (!user) redirect('/login');
 
     const isPremium = user.subscriptionStatus === 'ACTIVE';
 

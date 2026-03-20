@@ -39,7 +39,7 @@ const formSchema = z.object({
 interface UserFormProps {
     user: {
         id: string;
-        name: string;
+        name: string | null;
         email: string;
         role: Role;
         subscriptionStatus: SubscriptionStatus;
@@ -54,7 +54,7 @@ export function UserForm({ user }: UserFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: user.name,
+            name: user.name ?? '',
             role: user.role,
             subscriptionStatus: user.subscriptionStatus,
             emailVerified: Boolean(user.emailVerified),

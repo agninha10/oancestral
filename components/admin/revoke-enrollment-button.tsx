@@ -19,7 +19,7 @@ import {
 
 interface RevokeEnrollmentButtonProps {
     enrollmentId: string;
-    userName: string;
+    userName: string | null;
     courseTitle: string;
 }
 

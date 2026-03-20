@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { User, Settings, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,39 +15,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogoutButton } from '@/components/auth/logout-button';
 
-interface UserData {
-    id: string;
-    name: string;
-    email: string;
-    role?: string;
-}
-
 interface UserNavProps {
     isMobile?: boolean;
     showDashboardButton?: boolean;
 }
 
 export function UserNav({ isMobile = false, showDashboardButton = false }: UserNavProps) {
-    const [user, setUser] = useState<UserData | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        checkAuth();
-    }, []);
-
-    const checkAuth = async () => {
-        try {
-            const response = await fetch('/api/auth/me');
-            if (response.ok) {
-                const data = await response.json();
-                setUser(data.user);
-            }
-        } catch (error) {
-            console.error('Auth check failed:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: session, status } = useSession();
+    const loading = status === 'loading';
+    const user = session?.user ?? null;
 
     if (loading) {
         return isMobile ? (
@@ -67,25 +43,26 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
         return isMobile ? (
             <div className="flex flex-col space-y-3 px-4">
                 <Button asChild variant="outline" size="lg" className="w-full justify-center">
-                    <Link href="/auth/login">Entrar</Link>
+                    <Link href="/login">Entrar</Link>
                 </Button>
                 <Button asChild size="lg" className="w-full justify-center">
-                    <Link href="/auth/register">Começar Grátis</Link>
+                    <Link href="/cadastro">Começar Grátis</Link>
                 </Button>
             </div>
         ) : (
             <>
                 <Button asChild variant="ghost">
-                    <Link href="/auth/login">Entrar</Link>
+                    <Link href="/login">Entrar</Link>
                 </Button>
                 <Button asChild>
-                    <Link href="/auth/register">Começar Grátis</Link>
+                    <Link href="/cadastro">Começar Grátis</Link>
                 </Button>
             </>
         );
     }
 
-    const initials = user.name
+    const displayName = user.name ?? user.email ?? 'U';
+    const initials = displayName
         .split(' ')
         .map((n) => n[0])
         .join('')
@@ -99,11 +76,11 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
                 {/* User Info Card */}
                 <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-muted/50">
                     <Avatar className="h-12 w-12">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} alt={user.name} />
+                        <AvatarImage src={user.image ?? undefined} alt={displayName} />
                         <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{user.name}</p>
+                        <p className="text-sm font-medium truncate">{displayName}</p>
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                 </div>
@@ -116,7 +93,7 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
                             Acessar o Clã Ancestral
                         </Link>
                     </Button>
-                    
+
                     {user.role === 'ADMIN' && (
                         <Button asChild variant="outline" size="lg" className="w-full justify-start">
                             <Link href="/admin/dashboard">
@@ -151,7 +128,7 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                         <Avatar className="h-10 w-10">
-                            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} alt={user.name} />
+                            <AvatarImage src={user.image ?? undefined} alt={displayName} />
                             <AvatarFallback>{initials}</AvatarFallback>
                         </Avatar>
                     </Button>
@@ -159,7 +136,7 @@ export function UserNav({ isMobile = false, showDashboardButton = false }: UserN
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{user.name}</p>
+                            <p className="text-sm font-medium leading-none">{displayName}</p>
                             <p className="text-xs leading-none text-muted-foreground">
                                 {user.email}
                             </p>

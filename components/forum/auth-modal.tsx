@@ -37,7 +37,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 {/* Actions */}
                 <div className="p-6 space-y-3">
                     <Link
-                        href="/auth/login"
+                        href="/login"
                         onClick={onClose}
                         className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 font-bold text-zinc-950 transition-colors hover:bg-amber-400"
                     >
@@ -45,7 +45,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                         Entrar na minha conta
                     </Link>
                     <Link
-                        href="/auth/register"
+                        href="/cadastro"
                         onClick={onClose}
                         className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
                     >

@@ -1,76 +1,64 @@
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import { verifyToken, type JWTPayload } from './jwt'
-
-const COOKIE_NAME = 'auth-token'
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
-
-export const COOKIE_OPTIONS = {
-    name: COOKIE_NAME,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    maxAge: COOKIE_MAX_AGE,
-    path: '/',
-}
-
-export async function getSession(): Promise<JWTPayload | null> {
-    try {
-        const cookieStore = await cookies()
-        const token = cookieStore.get(COOKIE_NAME)?.value
-
-        if (!token) {
-            console.log('[SESSION] No token found in cookies')
-            return null
-        }
-
-        const payload = await verifyToken(token)
-        console.log('[SESSION] Token verified for user:', payload.userId)
-        return payload
-    } catch (error) {
-        console.error('[SESSION] Session verification failed:', error instanceof Error ? error.message : 'Unknown error')
-        return null
-    }
-}
-
 /**
- * Seta o cookie de sessão diretamente em um NextResponse.
- * Use este método em API Route Handlers para garantir que o cookie
- * seja incluído na resposta HTTP corretamente.
+ * lib/auth/session.ts — NextAuth compatibility shim
+ *
+ * All 40+ server files call getSession() and expect { userId, email, role }.
+ * This shim satisfies that contract via NextAuth's auth() — no other file changes.
+ *
+ * cache(): React's per-request deduplication — the auth() call runs once per
+ * request tree, no matter how many server components call getSession().
  */
-export function setSessionOnResponse(response: NextResponse, token: string): void {
-    response.cookies.set(COOKIE_NAME, token, COOKIE_OPTIONS)
-    console.log('[SESSION] Cookie set on response:', {
-        ...COOKIE_OPTIONS,
-        tokenLength: token.length
-    })
-}
 
-/**
- * @deprecated Use setSessionOnResponse em API Route Handlers
- */
-export async function setSession(token: string): Promise<void> {
-    const cookieStore = await cookies()
-    cookieStore.set(COOKIE_NAME, token, COOKIE_OPTIONS)
-}
+import { auth } from '@/auth';
+import { cache } from 'react';
+import type { Role } from '@prisma/client';
 
-export function clearSessionOnResponse(response: NextResponse): void {
-    response.cookies.set(COOKIE_NAME, '', {
-        ...COOKIE_OPTIONS,
-        maxAge: 0,
-    })
-}
+// ─── Public type (same shape as before — backward compatible) ─────────────────
 
-export async function clearSession(): Promise<void> {
-    const cookieStore = await cookies()
-    cookieStore.set(COOKIE_NAME, '', {
-        ...COOKIE_OPTIONS,
-        maxAge: 0,
-    })
-}
+export type SessionPayload = {
+    userId: string;   // Prisma DB id
+    email:  string;
+    role:   Role;
+};
+
+// ─── getSession ───────────────────────────────────────────────────────────────
+
+export const getSession = cache(async (): Promise<SessionPayload | null> => {
+    const session = await auth();
+
+    if (!session?.user?.id || !session.user.email) return null;
+
+    return {
+        userId: session.user.id,
+        email:  session.user.email,
+        role:   (session.user.role as Role) ?? 'USER',
+    };
+});
+
+// ─── getUserId ────────────────────────────────────────────────────────────────
 
 export async function getUserId(): Promise<string | null> {
-    const session = await getSession()
-    return session?.userId || null
+    const s = await getSession();
+    return s?.userId ?? null;
 }
 
+// ─── Legacy no-ops (old cookie-based auth — kept so callers compile) ──────────
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function clearSession(): Promise<void> {
+    // no-op: use signOut() from next-auth/react
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function setSession(_token: string): Promise<void> {
+    // no-op
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function setSessionOnResponse(_response: unknown, _token: string): void {
+    // no-op: NextAuth manages sessions via its own signed JWT cookie (next-auth.session-token)
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function clearSessionOnResponse(_response: unknown): void {
+    // no-op: use signOut() from next-auth/react or the server signOut() from @/auth
+}

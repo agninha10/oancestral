@@ -1,105 +1,60 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { jwtVerify } from 'jose'
+/**
+ * middleware.ts — NextAuth v5 route protection
+ *
+ * Uses the JWT cookie (set by NextAuth) to protect private routes.
+ * No database call — token is verified locally via AUTH_SECRET.
+ *
+ * Protected:  /dashboard, /play, /mod, /admin
+ * Public:     everything else (marketing, blog, recipes, community reading)
+ */
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
+import { auth } from '@/auth';
+import { NextResponse } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-    const token = request.cookies.get('auth-token')?.value
-    const pathname = request.nextUrl.pathname
+export default auth((req) => {
+    const { nextUrl, auth: session } = req;
+    const isLoggedIn  = !!session;
+    const { pathname } = nextUrl;
 
-    // Ignorar requests RSC (React Server Components) e prefetch
-    if (request.headers.get('next-router-prefetch') || request.headers.get('rsc')) {
-        return NextResponse.next()
+    const isPrivate =
+        pathname.startsWith('/dashboard') ||
+        pathname.startsWith('/play')      ||
+        pathname.startsWith('/mod')       ||
+        pathname.startsWith('/admin');
+
+    // ── Unauthenticated on private route → redirect to login ──────────────────
+    if (isPrivate && !isLoggedIn) {
+        const loginUrl = new URL('/login', nextUrl);
+        loginUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(loginUrl);
     }
 
-    // Log apenas para rotas importantes
-    const shouldLog = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/auth') || pathname.startsWith('/play')
-
-    if (shouldLog) {
-        console.log(`[MIDDLEWARE] ${pathname} - Token present: ${!!token}`)
+    // ── Non-admin on /admin → redirect to home ────────────────────────────────
+    if (pathname.startsWith('/admin') && session?.user?.role !== 'ADMIN') {
+        return NextResponse.redirect(new URL('/', nextUrl));
     }
 
-    const protectedPaths = ['/dashboard', '/perfil', '/cursos/meus', '/admin', '/play']
-    const isProtectedPath = protectedPaths.some((path) =>
-        request.nextUrl.pathname.startsWith(path)
-    )
-
-    const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
-
-    let isAuthenticated = false
-    let userRole: string | null = null
-
-    if (token) {
-        try {
-            const { payload } = await jwtVerify(token, secret)
-            isAuthenticated = true
-            userRole = payload.role as string
-
-            if (shouldLog) {
-                console.log(`[MIDDLEWARE] ${pathname} - Token valid, userId: ${payload.userId}, role: ${userRole}`)
-            }
-        } catch (error) {
-            console.warn(`[MIDDLEWARE] ${pathname} - Token invalid: ${error instanceof Error ? error.message : 'Unknown'}`)
-
-            if (isProtectedPath) {
-                // Rota protegida com token inválido → redireciona para login e limpa cookie
-                const url = request.nextUrl.clone()
-                url.pathname = '/auth/login'
-                url.searchParams.set('redirect', pathname)
-                const response = NextResponse.redirect(url)
-                response.cookies.delete('auth-token')
-                return response
-            }
-
-            // Rota pública com token inválido → continua sem deletar cookie
-            // (evita race conditions onde requests paralelas limpam o cookie)
-            return NextResponse.next()
-        }
+    // ── Already logged in on /login, /cadastro or /auth/* → skip to dashboard ─
+    if (isLoggedIn && (pathname === '/login' || pathname === '/cadastro' || pathname.startsWith('/auth/'))) {
+        return NextResponse.redirect(new URL('/dashboard', nextUrl));
     }
 
-    // Redirect to login if accessing protected route without auth
-    if (isProtectedPath && !isAuthenticated) {
-        console.log(`[MIDDLEWARE] ${pathname} - No valid auth, redirecting to login (had token: ${!!token})`)
-        const url = request.nextUrl.clone()
-        url.pathname = '/auth/login'
-        url.searchParams.set('redirect', pathname)
-        return NextResponse.redirect(url)
+    const response = NextResponse.next();
+
+    // No-cache on private routes
+    if (isPrivate) {
+        response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+        response.headers.set('Pragma',  'no-cache');
+        response.headers.set('Expires', '0');
     }
 
-    // Redirect to home if accessing admin route without ADMIN role
-    if (isAdminPath && (!isAuthenticated || userRole !== 'ADMIN')) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/'
-        return NextResponse.redirect(url)
-    }
-
-    // Redirect to dashboard if accessing auth pages while logged in
-    const authPaths = ['/auth/login', '/auth/register']
-    const isAuthPath = authPaths.some((path) =>
-        request.nextUrl.pathname.startsWith(path)
-    )
-
-    if (isAuthPath && isAuthenticated) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
-        return NextResponse.redirect(url)
-    }
-
-    const response = NextResponse.next()
-
-    if (isProtectedPath) {
-        response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate')
-        response.headers.set('Pragma', 'no-cache')
-        response.headers.set('Expires', '0')
-    }
-
-    return response
-}
+    return response;
+});
 
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|public|favicon.ico|sitemap.xml|robots.txt|_rsc).*)',
+        // Skip Next.js internals and static assets
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+        '/(api|trpc)(.*)',
     ],
-}
-
+};

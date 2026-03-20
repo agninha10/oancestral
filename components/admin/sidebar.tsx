@@ -22,6 +22,7 @@ import {
     Swords,
 } from 'lucide-react';
 import { useState } from 'react';
+import { signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -83,10 +84,7 @@ export function AdminSidebar() {
     const pathname = usePathname();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    const handleLogout = async () => {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        window.location.href = '/';
-    };
+    const handleLogout = () => signOut({ callbackUrl: '/' });
 
     return (
         <>

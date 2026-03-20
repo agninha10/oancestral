@@ -31,8 +31,8 @@ const formatCurrency = (cents: number) =>
     cents / 100
   );
 
-const getInitials = (name: string) =>
-  name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+const getInitials = (name: string | null) =>
+  (name ?? '?').split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
 const PRODUCT_LABELS: Record<string, string> = {
   "livro-ancestral": "Livro Ancestral (Vitalício)",

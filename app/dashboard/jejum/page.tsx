@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function JejumPage() {
     const session = await getSession();
-    if (!session) redirect('/auth/login?redirect=/dashboard/jejum');
+    if (!session) redirect('/login?redirect=/dashboard/jejum');
 
     const [currentFast, gameProfile, allBadges, history] = await Promise.all([
         getCurrentFast(),

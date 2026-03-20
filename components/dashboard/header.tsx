@@ -19,7 +19,7 @@ import { NotificationBell } from '@/components/dashboard/notification-bell';
 
 interface User {
     id: string;
-    name: string;
+    name: string | null;
     email: string;
     role: string;
     subscriptionStatus: string;
@@ -89,8 +89,8 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                     <Link href="/dashboard/perfil">
                         <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
                             {user.avatarUrl
-                                ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
-                                : user.name.charAt(0).toUpperCase()
+                                ? <img src={user.avatarUrl} alt={user.name ?? ''} className="h-full w-full object-cover" />
+                                : ( user.name ?? '?').charAt(0).toUpperCase()
                             }
                         </div>
                     </Link>
@@ -145,7 +145,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-x-3">
                                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
-                                                {user.name.charAt(0).toUpperCase()}
+                                                {( user.name ?? '?').charAt(0).toUpperCase()}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-semibold truncate">

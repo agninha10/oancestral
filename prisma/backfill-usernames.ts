@@ -12,7 +12,7 @@ async function main() {
     console.log(`Backfilling usernames for ${users.length} users…`);
 
     for (const user of users) {
-        const base = slugifyUsername(user.name) || 'user';
+        const base = slugifyUsername(user.name ?? '') || 'user';
         let candidate = base;
         let suffix = 2;
 

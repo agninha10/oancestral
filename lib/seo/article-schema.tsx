@@ -2,7 +2,7 @@ import { BlogPost } from '@prisma/client';
 
 type BlogPostWithAuthor = BlogPost & {
   author: {
-    name: string;
+    name: string | null;
   };
   category?: {
     name: string;

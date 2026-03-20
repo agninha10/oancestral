@@ -59,7 +59,7 @@ export function RecipePaywallWrapper({
                                 size="sm"
                                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium shadow-md hover:shadow-lg transition-all"
                             >
-                                <Link href="/auth/register?plan=premium">
+                                <Link href="/cadastro?plan=premium">
                                     Liberar Receita Agora
                                 </Link>
                             </Button>
@@ -69,7 +69,7 @@ export function RecipePaywallWrapper({
                                 size="sm"
                                 className="w-full text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
                             >
-                                <Link href="/auth/login">
+                                <Link href="/login">
                                     Já sou membro? Entrar
                                 </Link>
                             </Button>

@@ -39,7 +39,7 @@ const EBOOK_CATALOG: Record<
 
 export default async function EbooksPage() {
   const session = await getSession();
-  if (!session) redirect("/auth/login");
+  if (!session) redirect("/login");
 
   // Busca todas as transações PAID de ebooks deste usuário
   const purchases = await prisma.transaction.findMany({

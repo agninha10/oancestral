@@ -23,7 +23,7 @@ import { Recipe, RecipeIngredient, RecipeInstruction } from '@prisma/client';
 type RecipeWithRelations = Recipe & {
     ingredients:  RecipeIngredient[];
     instructions: RecipeInstruction[];
-    author:       { name: string };
+    author:       { name: string | null };
     category?:    { name: string } | null;
 };
 

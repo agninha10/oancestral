@@ -14,7 +14,7 @@ export type AdminForumPost = {
     pinned: boolean;
     views: number;
     createdAt: Date;
-    author: { id: string; name: string; avatarUrl: string | null };
+    author: { id: string; name: string | null; avatarUrl: string | null };
     category: { id: string; name: string; icon: string };
     _count: { replies: number; likes: number };
 };
@@ -27,7 +27,7 @@ export type AdminForumReply = {
     postId: string;
     postTitle: string;
     postSlug: string | null;
-    author: { id: string; name: string; avatarUrl: string | null };
+    author: { id: string; name: string | null; avatarUrl: string | null };
 };
 
 // ─── Queries ───────────────────────────────────────────────────────────────────

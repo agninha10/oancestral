@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { cn } from '@/lib/utils';
 import { adminSendNotification, searchUsersForAdmin } from '@/app/actions/notifications';
 
-type TargetUser = { id: string; email: string; name: string };
+type TargetUser = { id: string; email: string; name: string | null };
 
 export default function NotificacoesPage() {
     const [target,        setTarget]        = useState<'all' | TargetUser>('all');

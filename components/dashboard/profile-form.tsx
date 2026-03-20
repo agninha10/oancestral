@@ -41,7 +41,7 @@ import {
 interface ProfileFormProps {
     user: {
         id: string;
-        name: string;
+        name: string | null;
         username: string | null;
         email: string;
         emailVerified: Date | null;
@@ -50,7 +50,7 @@ interface ProfileFormProps {
         weight: number | null;
         height: number | null;
         pendingEmail: string | null;
-        birthdate: Date;
+        birthdate: Date | null;
         bio: string | null;
         instagram: string | null;
         twitter: string | null;
@@ -460,7 +460,7 @@ function bmiLabel(bmi: number) {
 
 export function ProfileForm({ user }: ProfileFormProps) {
     const [avatarUrl,     setAvatarUrl]     = useState(user.avatarUrl);
-    const [name,          setName]          = useState(user.name);
+    const [name,          setName]          = useState(user.name ?? '');
     const [username,      setUsername]      = useState(user.username ?? '');
     const [whatsapp,      setWhatsapp]      = useState(user.whatsapp ?? '');
     const [weight,        setWeight]        = useState(user.weight?.toString() ?? '');
@@ -571,9 +571,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     <div className="space-y-2">
                         <Label className="text-muted-foreground">Data de nascimento</Label>
                         <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-                            {new Date(user.birthdate).toLocaleDateString('pt-BR', {
-                                day: 'numeric', month: 'long', year: 'numeric',
-                            })}
+                            {user.birthdate
+                                ? new Date(user.birthdate).toLocaleDateString('pt-BR', {
+                                    day: 'numeric', month: 'long', year: 'numeric',
+                                  })
+                                : '—'
+                            }
                         </p>
                     </div>
                 </div>

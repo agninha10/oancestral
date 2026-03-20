@@ -44,7 +44,7 @@ function UpdatePasswordContent({ token }: { token?: string }) {
                                 Solicitar novo link
                             </Link>
                             <Link
-                                href="/auth/login"
+                                href="/login"
                                 className="block text-center text-muted-foreground hover:underline"
                             >
                                 Voltar para login

@@ -19,13 +19,13 @@ function PublicHeader() {
                 </Link>
                 <div className="flex items-center gap-3">
                     <Link
-                        href="/auth/login"
+                        href="/login"
                         className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:border-zinc-600 hover:text-zinc-100 transition-colors"
                     >
                         <LogIn className="h-3.5 w-3.5" /> Entrar
                     </Link>
                     <Link
-                        href="/auth/register"
+                        href="/cadastro"
                         className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-amber-400 transition-colors"
                     >
                         Criar conta

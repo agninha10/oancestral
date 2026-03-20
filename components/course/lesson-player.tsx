@@ -57,7 +57,7 @@ export function LessonPlayer({
 
     const handleMarkComplete = async () => {
         if (!userId) {
-            router.push('/auth/login');
+            router.push('/login');
             return;
         }
 

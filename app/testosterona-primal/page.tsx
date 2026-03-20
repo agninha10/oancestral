@@ -757,16 +757,16 @@ export default function TestosteronaPrimalPage() {
                             className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-zinc-600 text-xs sm:text-sm mb-10"
                         >
                             <Link
-                                href="/termos"
+                                href="/termos-de-servico"
                                 className="hover:text-zinc-400 transition-colors underline-offset-4 hover:underline"
                             >
-                                Termos de Uso
+                                Termos de Serviço
                             </Link>
                             <span aria-hidden="true" className="text-zinc-800">
                                 ·
                             </span>
                             <Link
-                                href="/privacidade"
+                                href="/politica-de-privacidade"
                                 className="hover:text-zinc-400 transition-colors underline-offset-4 hover:underline"
                             >
                                 Política de Privacidade

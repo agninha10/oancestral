@@ -21,7 +21,7 @@ export function useTokenRefresh() {
                 if (!response.ok) {
                     console.warn('Token refresh failed')
                     // Se falhar, redirecionar para login
-                    window.location.href = '/auth/login'
+                    window.location.href = '/login'
                 }
             } catch (error) {
                 console.error('Token refresh error:', error)

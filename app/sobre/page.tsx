@@ -310,7 +310,7 @@ export default function SobrePage() {
               <p className="text-xl md:text-2xl text-muted-foreground mb-12">
                 Junte-se à Alcateia
               </p>
-              <Link href="/auth/register">
+              <Link href="/cadastro">
                 <Button
                   size="lg"
                   className="text-lg px-12 py-6 h-auto font-semibold rounded-full hover:scale-105 transition-transform"

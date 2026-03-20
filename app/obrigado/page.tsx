@@ -173,7 +173,7 @@ export default async function ObrigadoPage({
           asChild
           className="flex-1 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold py-6 text-base"
         >
-          <Link href="/auth/login">
+          <Link href="/login">
             <LogIn className="h-4 w-4 mr-2" />
             Acessar o Portal
           </Link>

@@ -13,7 +13,7 @@ export default async function DashboardPage() {
     const session = await getSession()
 
     if (!session) {
-        redirect('/auth/login')
+        redirect('/login')
     }
 
     // Log dashboard access
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
     })
 
     if (!user) {
-        redirect('/api/auth/logout?redirect=/auth/login')
+        redirect('/login')
     }
 
     // Estatísticas do usuário
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
             {/* Welcome Section */}
             <div>
                 <h1 className="text-3xl lg:text-4xl font-bold font-serif">
-                    Olá, {user.name.split(' ')[0]}!
+                    Olá, {(user.name ?? 'Guerreiro').split(' ')[0]}!
                 </h1>
                 <p className="text-muted-foreground mt-2">
                     Bem-vindo de volta ao seu painel de aprendizado

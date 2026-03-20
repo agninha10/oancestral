@@ -23,21 +23,22 @@ const AVATAR_COLORS = [
     'bg-indigo-600',
 ];
 
-function avatarColor(name: string) {
+function avatarColor(name: string | null) {
+    if (!name) return AVATAR_COLORS[0];
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-function initials(name: string) {
-    return name
+function initials(name: string | null) {
+    return (name ?? '?')
         .split(' ')
         .slice(0, 2)
         .map((w) => w[0]?.toUpperCase() ?? '')
         .join('');
 }
 
-export function Avatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'xs' }) {
+export function Avatar({ name, size = 'md' }: { name: string | null; size?: 'sm' | 'md' | 'xs' }) {
     const sz =
         size === 'xs'
             ? 'h-6 w-6 text-[10px]'
@@ -94,7 +95,7 @@ function UserBadges({ user }: { user: CommentUser }) {
 interface ReplyFormProps {
     lessonId: string;
     parentId: string;
-    currentUser: { id: string; name: string };
+    currentUser: { id: string; name: string | null };
     onSuccess: (reply: ReplyWithUser) => void;
     onCancel: () => void;
 }

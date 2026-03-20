@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             description,
             type: 'article',
             publishedTime: post.createdAt.toISOString(),
-            authors: [post.author.name],
+            authors: post.author.name ? [post.author.name] : [],
         },
         alternates: { canonical: `/comunidade/post/${post.slug}` },
     };

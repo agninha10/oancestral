@@ -10,13 +10,13 @@ interface PostCardProps {
     isAuthenticated?: boolean;
 }
 
-function Avatar({ name, avatarUrl, size = 8 }: { name: string; avatarUrl: string | null; size?: number }) {
-    const initials = name.split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
+function Avatar({ name, avatarUrl, size = 8 }: { name: string | null; avatarUrl: string | null; size?: number }) {
+    const initials = (name ?? '?').split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
     const cls = `h-${size} w-${size} shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-amber-500/20 text-amber-400 text-xs font-bold`;
     return (
         <div className={cls}>
             {avatarUrl
-                ? <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+                ? <img src={avatarUrl} alt={name ?? ''} className="h-full w-full object-cover" />
                 : initials
             }
         </div>

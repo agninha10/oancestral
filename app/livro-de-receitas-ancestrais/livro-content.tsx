@@ -390,8 +390,8 @@ export default function LivroContent() {
             O Ancestral
           </span>
           <div className="mt-4 flex flex-wrap justify-center gap-6 text-xs text-zinc-600">
-            <a href="/termos" className="transition-colors hover:text-zinc-400">Termos de Uso</a>
-            <a href="/privacidade" className="transition-colors hover:text-zinc-400">
+            <a href="/termos-de-servico" className="transition-colors hover:text-zinc-400">Termos de Serviço</a>
+            <a href="/politica-de-privacidade" className="transition-colors hover:text-zinc-400">
               Política de Privacidade
             </a>
             <a href="/contato" className="transition-colors hover:text-zinc-400">Contato</a>

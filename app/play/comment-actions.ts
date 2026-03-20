@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 export type CommentUser = {
     id: string;
-    name: string;
+    name: string | null;
     username: string | null;
     role: string;                    // 'USER' | 'ADMIN'
     _count: { blogPosts: number };   // > 0 → "Autor" badge

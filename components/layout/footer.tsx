@@ -17,9 +17,9 @@ const footerLinks = {
         { href: "/afiliados", label: "Programa de Afiliados" },
     ],
     legal: [
-        { href: "/privacidade", label: "Política de Privacidade" },
-        { href: "/termos", label: "Termos de Uso" },
-        { href: "/cookies", label: "Política de Cookies" },
+        { href: "/politica-de-privacidade", label: "Política de Privacidade" },
+        { href: "/termos-de-servico",       label: "Termos de Serviço"       },
+        { href: "/cookies",                 label: "Política de Cookies"     },
     ],
 };
 

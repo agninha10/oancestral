@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
             to: transaction.user.email,
             subject: config.emailSubject,
             react: ProductAccessEmail({
-                customerName: transaction.user.name,
+                customerName: transaction.user.name ?? '',
                 productEmoji: config.emoji,
                 title: config.emailTitle,
                 subtitle: config.emailSubtitle,

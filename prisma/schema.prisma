@@ -47,8 +47,9 @@ enum CategoryType {
 model User {
   id                  String             @id @default(cuid())
   email               String             @unique
-  password            String // bcrypt hashed
-  name                String
+  password            String?            // nullable — OAuth users have no local password
+  name                String?            // nullable — NextAuth may receive null on Apple re-logins
+  image               String?            // NextAuth standard field (synced from OAuth profile picture)
   whatsapp            String?
   role                Role               @default(USER)
   subscriptionStatus  SubscriptionStatus @default(FREE)
@@ -56,10 +57,10 @@ model User {
 
   abacateCustomerId String? @unique
 
-  birthdate DateTime
+  birthdate DateTime?
 
   username  String?  @unique
-  avatarUrl String?
+  avatarUrl String?  // our app's avatar field (synced from `image` via signIn event)
   weight    Float?   // kg
   height    Int?     // cm
 
@@ -73,12 +74,14 @@ model User {
   website       String?
   profilePublic Boolean @default(true)
 
-  emailVerified            DateTime?
+  // NextAuth fields
+  emailVerified DateTime?
+
+  // Legacy custom-auth fields (kept to avoid breaking existing data)
   verificationToken        String?   @unique
   verificationTokenExpires DateTime?
   resetToken               String?   @unique
   resetTokenExpiry         DateTime?
-
   pendingEmail              String?
   emailChangeToken          String?   @unique
   emailChangeTokenExpires   DateTime?
@@ -91,6 +94,8 @@ model User {
   level Int @default(1)
 
   // Relations
+  accounts        Account[]
+  sessions        Session[]
   recipes         Recipe[]
   blogPosts       BlogPost[]
   enrollments     CourseEnrollment[]
@@ -500,6 +505,50 @@ model FastingSession {
   @@index([userId])
   @@index([status])
   @@map("fasting_sessions")
+}
+
+// ─── NextAuth (Auth.js) ────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 // ─── Gamification ──────────────────────────────────────────────────────────────

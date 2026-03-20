@@ -38,7 +38,7 @@ export default async function ActivityLogPage({ searchParams }: ActivityLogPageP
   const session = await getSession()
 
   if (!session || session.role !== 'ADMIN') {
-    redirect('/auth/login')
+    redirect('/login')
   }
 
   const params = await searchParams

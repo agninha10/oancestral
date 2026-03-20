@@ -81,7 +81,7 @@ export function UpdatePasswordForm({ token }: UpdatePasswordFormProps) {
 
                 <div className="pt-4">
                     <Link
-                        href="/auth/login"
+                        href="/login"
                         className="text-primary hover:underline font-medium"
                     >
                         Voltar para login
@@ -202,7 +202,7 @@ export function UpdatePasswordForm({ token }: UpdatePasswordFormProps) {
                 <p className="text-center text-sm text-muted-foreground">
                     Lembrou sua senha?{' '}
                     <Link
-                        href="/auth/login"
+                        href="/login"
                         className="text-primary hover:underline font-medium"
                     >
                         Voltar para login

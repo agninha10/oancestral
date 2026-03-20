@@ -12,7 +12,7 @@ export default async function AulaPage({
     params: Promise<{ slug: string; aulaId: string }>;
 }) {
     const session = await getSession();
-    if (!session) redirect('/auth/login?redirect=/dashboard/cursos');
+    if (!session) redirect('/login?redirect=/dashboard/cursos');
 
     const { slug, aulaId } = await params;
 
@@ -59,7 +59,7 @@ export default async function AulaPage({
     ]);
 
     if (!course) notFound();
-    if (!currentUser) redirect('/auth/login');
+    if (!currentUser) redirect('/login');
 
     // Verify enrollment
     const enrollment = await prisma.courseEnrollment.findUnique({

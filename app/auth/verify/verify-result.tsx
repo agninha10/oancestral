@@ -18,7 +18,7 @@ export default function VerifyResult({ status }: VerifyResultProps) {
     useEffect(() => {
         if (status === 'success' || status === 'already') {
             const timeout = setTimeout(() => {
-                router.push('/auth/login')
+                router.push('/login')
             }, 3000)
 
             return () => clearTimeout(timeout)
@@ -94,7 +94,7 @@ export default function VerifyResult({ status }: VerifyResultProps) {
 
                     <div className="pt-4 space-y-3">
                         <Button asChild className="w-full">
-                            <Link href="/auth/login">Ir para o login</Link>
+                            <Link href="/login">Ir para o login</Link>
                         </Button>
                         <Button asChild variant="outline" className="w-full">
                             <Link href="/">Voltar para o início</Link>

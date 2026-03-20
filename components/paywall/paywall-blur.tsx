@@ -46,10 +46,10 @@ export function PaywallBlur({ children, isBlurred, className }: PaywallBlurProps
 
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600">
-                            <Link href="/auth/register">Criar Conta Grátis</Link>
+                            <Link href="/cadastro">Criar Conta Grátis</Link>
                         </Button>
                         <Button asChild size="lg" variant="outline">
-                            <Link href="/auth/login">Já sou membro</Link>
+                            <Link href="/login">Já sou membro</Link>
                         </Button>
                     </div>
 

@@ -65,7 +65,7 @@ export function ReplyCard({ reply, postId, isAuthenticated }: ReplyCardProps) {
                     <InlineReplyForm
                         postId={postId}
                         parentId={reply.id}
-                        replyingTo={reply.author.name}
+                        replyingTo={reply.author.name ?? ''}
                         onClose={() => setReplyingTo(false)}
                     />
                 )}

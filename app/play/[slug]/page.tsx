@@ -8,7 +8,7 @@ export default async function PlayCoursePage({
     params: Promise<{ slug: string }>;
 }) {
     const session = await getSession();
-    if (!session) redirect('/auth/login?redirect=/dashboard/cursos');
+    if (!session) redirect('/login?redirect=/dashboard/cursos');
 
     const { slug } = await params;
 

@@ -46,19 +46,20 @@ const AVATAR_COLORS = [
     'bg-violet-600', 'bg-rose-600', 'bg-emerald-600', 'bg-indigo-600',
 ];
 
-function avatarColor(name: string) {
+function avatarColor(name: string | null) {
+    if (!name) return AVATAR_COLORS[0];
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-function initials(name: string) {
-    return name.split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
+function initials(name: string | null) {
+    return (name ?? '?').split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
 }
 
-function Avatar({ name, url }: { name: string; url: string | null }) {
+function Avatar({ name, url }: { name: string | null; url: string | null }) {
     if (url) {
-        return <img src={url} alt={name} className="h-8 w-8 shrink-0 rounded-full object-cover" />;
+        return <img src={url} alt={name ?? ''} className="h-8 w-8 shrink-0 rounded-full object-cover" />;
     }
     return (
         <div className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white', avatarColor(name))}>

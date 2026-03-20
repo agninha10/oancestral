@@ -79,7 +79,7 @@ export default async function UserProfilePage({ params }: PageProps) {
         locale: ptBR,
     });
 
-    const initials = profileUser.name
+    const initials = (profileUser.name ?? '?')
         .split(' ')
         .slice(0, 2)
         .map((w) => w[0]?.toUpperCase() ?? '')
@@ -110,7 +110,7 @@ export default async function UserProfilePage({ params }: PageProps) {
                         {profileUser.avatarUrl ? (
                             <img
                                 src={profileUser.avatarUrl}
-                                alt={profileUser.name}
+                                alt={profileUser.name ?? ''}
                                 className="h-20 w-20 rounded-full object-cover ring-2 ring-amber-500/30"
                             />
                         ) : (

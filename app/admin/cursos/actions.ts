@@ -56,7 +56,7 @@ const grantSchema = z.object({
 
 export type GrantData = {
     enrollmentId: string;
-    userName: string;
+    userName: string | null;
     userEmail: string;
     courseTitle: string;
     alreadyHadAccess: boolean;

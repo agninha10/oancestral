@@ -18,7 +18,7 @@ export default async function DashboardLayout({
     const session = await getSession();
 
     if (!session) {
-        redirect('/auth/login');
+        redirect('/login');
     }
 
     const user = await prisma.user.findUnique({
@@ -34,7 +34,7 @@ export default async function DashboardLayout({
     });
 
     if (!user) {
-        redirect('/api/auth/logout?redirect=/auth/login');
+        redirect('/login');
     }
 
     return (

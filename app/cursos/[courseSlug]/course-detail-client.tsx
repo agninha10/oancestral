@@ -102,7 +102,7 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                 router.push('/dashboard');
             } else if (response.status === 401) {
                 // Redirecionar para login
-                router.push(`/auth/login?redirect=/cursos/${course.slug}`);
+                router.push(`/login?redirect=/cursos/${course.slug}`);
             } else if (response.status === 403) {
                 // Mostrar mensagem de assinatura necessária
                 alert('Este curso requer uma assinatura premium ativa.');

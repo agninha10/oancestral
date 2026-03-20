@@ -19,7 +19,7 @@ import { useSidebar } from '@/components/dashboard/sidebar-context';
 
 interface User {
     id: string;
-    name: string;
+    name: string | null;
     email: string;
     role: string;
     subscriptionStatus: string;
@@ -132,11 +132,11 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                             <li className="mt-auto space-y-2">
                                 {collapsed ? (
                                     <div className="flex flex-col items-center gap-2">
-                                        <Link href="/dashboard/perfil" title={`${user.name} — ${user.email}`}>
+                                        <Link href="/dashboard/perfil" title={`${user.name ?? 'Guerreiro'} — ${user.email}`}>
                                             <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground font-semibold text-sm">
                                                 {user.avatarUrl
-                                                    ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
-                                                    : user.name.charAt(0).toUpperCase()
+                                                    ? <img src={user.avatarUrl} alt={user.name ?? ''} className="h-full w-full object-cover" />
+                                                    : ( user.name ?? '?').charAt(0).toUpperCase()
                                                 }
                                             </div>
                                         </Link>
@@ -153,8 +153,8 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                                         <div className="flex items-center gap-x-3">
                                             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground font-semibold">
                                                 {user.avatarUrl
-                                                    ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
-                                                    : user.name.charAt(0).toUpperCase()
+                                                    ? <img src={user.avatarUrl} alt={user.name ?? ''} className="h-full w-full object-cover" />
+                                                    : ( user.name ?? '?').charAt(0).toUpperCase()
                                                 }
                                             </div>
                                             <div className="flex-1 min-w-0">
