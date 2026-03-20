@@ -38,7 +38,7 @@ export default async function ProfilePage() {
     const isPremium = user.subscriptionStatus === 'ACTIVE';
 
     return (
-        <div className="p-6 lg:p-8 max-w-3xl space-y-8">
+        <div className="p-6 lg:p-8 space-y-8">
             {/* Header */}
             <div>
                 <h1 className="text-3xl lg:text-4xl font-bold font-serif">Meu Perfil</h1>
