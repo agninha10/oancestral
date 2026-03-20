@@ -7,6 +7,7 @@ import type { PostSummary } from '@/app/actions/forum';
 
 interface PostCardProps {
     post: PostSummary;
+    isAuthenticated?: boolean;
 }
 
 function Avatar({ name, avatarUrl, size = 8 }: { name: string; avatarUrl: string | null; size?: number }) {
@@ -24,7 +25,7 @@ function Avatar({ name, avatarUrl, size = 8 }: { name: string; avatarUrl: string
 
 export { Avatar };
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, isAuthenticated = false }: PostCardProps) {
     const timeAgo = formatDistanceToNow(new Date(post.createdAt), {
         addSuffix: true,
         locale: ptBR,
@@ -50,7 +51,7 @@ export function PostCard({ post }: PostCardProps) {
             </div>
 
             {/* Title + preview */}
-            <Link href={`/comunidade/post/${post.id}`} className="block">
+            <Link href={`/comunidade/post/${post.slug}`} className="block">
                 <h2 className="font-serif text-lg font-bold text-zinc-100 leading-snug mb-1.5 group-hover:text-amber-400 transition-colors line-clamp-2">
                     {post.pinned && <span className="mr-1.5 text-amber-500" title="Fixado">📌</span>}
                     {post.title}
@@ -64,9 +65,10 @@ export function PostCard({ post }: PostCardProps) {
                     postId={post.id}
                     initialCount={post._count.likes}
                     initialLiked={post.likedByMe}
+                    isAuthenticated={isAuthenticated}
                 />
                 <Link
-                    href={`/comunidade/post/${post.id}#respostas`}
+                    href={`/comunidade/post/${post.slug}#respostas`}
                     className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
                 >
                     <MessageCircle className="h-4 w-4" />

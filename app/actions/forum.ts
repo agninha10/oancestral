@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth/session';
 import { revalidatePath } from 'next/cache';
+import { generateForumSlug } from '@/lib/forum-utils';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -18,6 +19,7 @@ export type CategoryWithCount = {
 
 export type PostSummary = {
     id: string;
+    slug: string;
     title: string;
     content: string;
     views: number;
@@ -29,13 +31,23 @@ export type PostSummary = {
     likedByMe: boolean;
 };
 
-export type PostDetail = PostSummary & {
+export type ReplyItem = {
+    id: string;
+    content: string;
+    createdAt: Date;
+    parentId: string | null;
+    author: { id: string; name: string; avatarUrl: string | null };
     replies: {
         id: string;
         content: string;
         createdAt: Date;
+        parentId: string | null;
         author: { id: string; name: string; avatarUrl: string | null };
     }[];
+};
+
+export type PostDetail = PostSummary & {
+    replies: ReplyItem[];
 };
 
 // ─── Queries ───────────────────────────────────────────────────────────────────
@@ -65,38 +77,47 @@ export async function getPosts(categorySlug?: string): Promise<PostSummary[]> {
 
     return posts.map((p) => ({
         ...p,
+        slug: p.slug ?? p.id,
         likedByMe: userId ? p.likes.length > 0 : false,
     }));
 }
 
-export async function getPostDetails(postId: string): Promise<PostDetail | null> {
+export async function getPostDetails(slug: string): Promise<PostDetail | null> {
     const session = await getSession();
     const userId = session?.userId;
 
-    const post = await prisma.forumPost.findUnique({
-        where: { id: postId },
+    // Support both slug and legacy id lookup
+    const post = await prisma.forumPost.findFirst({
+        where: { OR: [{ slug }, { id: slug }] },
         include: {
             author:   { select: { id: true, name: true, avatarUrl: true } },
             category: { select: { id: true, name: true, slug: true, icon: true } },
             _count:   { select: { replies: true, likes: true } },
             likes:    userId ? { where: { userId }, select: { id: true } } : false,
             replies: {
+                where:   { parentId: null },
                 orderBy: { createdAt: 'asc' },
-                include: { author: { select: { id: true, name: true, avatarUrl: true } } },
+                include: {
+                    author:  { select: { id: true, name: true, avatarUrl: true } },
+                    replies: {
+                        orderBy: { createdAt: 'asc' },
+                        include: { author: { select: { id: true, name: true, avatarUrl: true } } },
+                    },
+                },
             },
         },
     });
 
     if (!post) return null;
 
-    // Increment view count (fire-and-forget)
     prisma.forumPost.update({
-        where: { id: postId },
+        where: { id: post.id },
         data:  { views: { increment: 1 } },
     }).catch(() => {});
 
     return {
         ...post,
+        slug: post.slug ?? post.id,
         likedByMe: userId ? post.likes.length > 0 : false,
     };
 }
@@ -107,7 +128,7 @@ export async function createPost(data: {
     title: string;
     content: string;
     categoryId: string;
-}): Promise<{ success: true; postId: string } | { success: false; error: string }> {
+}): Promise<{ success: true; postSlug: string } | { success: false; error: string }> {
     const session = await getSession();
     if (!session) return { success: false, error: 'Não autorizado.' };
 
@@ -119,39 +140,36 @@ export async function createPost(data: {
     if (!categoryId)
         return { success: false, error: 'Selecione uma categoria.' };
 
+    const slug = generateForumSlug(title.trim());
+
     const post = await prisma.forumPost.create({
-        data: {
-            title:      title.trim(),
-            content:    content.trim(),
-            categoryId,
-            authorId:   session.userId,
-        },
+        data: { title: title.trim(), content: content.trim(), slug, categoryId, authorId: session.userId },
     });
 
     revalidatePath('/comunidade');
-    return { success: true, postId: post.id };
+    return { success: true, postSlug: post.slug! };
 }
 
 export async function createReply(data: {
     postId: string;
     content: string;
+    parentId?: string;
 }): Promise<{ success: true } | { success: false; error: string }> {
     const session = await getSession();
     if (!session) return { success: false, error: 'Não autorizado.' };
 
-    const { postId, content } = data;
+    const { postId, content, parentId } = data;
     if (!content.trim() || content.trim().length < 2)
         return { success: false, error: 'Resposta muito curta.' };
 
-    // Verify post exists
-    const post = await prisma.forumPost.findUnique({ where: { id: postId }, select: { id: true } });
+    const post = await prisma.forumPost.findUnique({ where: { id: postId }, select: { id: true, slug: true } });
     if (!post) return { success: false, error: 'Post não encontrado.' };
 
     await prisma.forumReply.create({
-        data: { postId, content: content.trim(), authorId: session.userId },
+        data: { postId, content: content.trim(), authorId: session.userId, parentId: parentId ?? null },
     });
 
-    revalidatePath(`/comunidade/post/${postId}`);
+    revalidatePath(`/comunidade/post/${post.slug ?? post.id}`);
     return { success: true };
 }
 
@@ -174,7 +192,6 @@ export async function togglePostLike(postId: string): Promise<{
 
     const count = await prisma.postLike.count({ where: { postId } });
     revalidatePath('/comunidade');
-    revalidatePath(`/comunidade/post/${postId}`);
 
     return { liked: !existing, count };
 }

@@ -503,6 +503,7 @@ model ForumCategory {
 
 model ForumPost {
   id         String        @id @default(cuid())
+  slug       String?       @unique
   title      String
   content    String        @db.Text
   views      Int           @default(0)
@@ -534,10 +535,15 @@ model ForumReply {
   authorId  String
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
+  parentId  String?
+  parent    ForumReply?  @relation("ReplyThread", fields: [parentId], references: [id], onDelete: SetNull)
+  replies   ForumReply[] @relation("ReplyThread")
+
   createdAt DateTime  @default(now())
 
   @@index([postId])
   @@index([authorId])
+  @@index([parentId])
   @@map("forum_replies")
 }
 

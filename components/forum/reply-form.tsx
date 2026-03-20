@@ -4,14 +4,17 @@ import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { Loader2, Send } from 'lucide-react';
 import { createReply } from '@/app/actions/forum';
+import { useAuthModal } from '@/components/forum/auth-modal';
 
 interface ReplyFormProps {
     postId: string;
+    isAuthenticated: boolean;
 }
 
-export function ReplyForm({ postId }: ReplyFormProps) {
+export function ReplyForm({ postId, isAuthenticated }: ReplyFormProps) {
     const [content,  setContent]  = useState('');
     const [isPending, startT]     = useTransition();
+    const { open, show, close, Modal } = useAuthModal();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,6 +30,21 @@ export function ReplyForm({ postId }: ReplyFormProps) {
             }
         });
     };
+
+    if (!isAuthenticated) {
+        return (
+            <>
+                <Modal />
+                <button
+                    type="button"
+                    onClick={show}
+                    className="w-full rounded-xl border border-dashed border-zinc-700 bg-zinc-800/40 px-4 py-4 text-sm text-zinc-500 hover:border-amber-500/40 hover:text-amber-400 transition-colors text-center"
+                >
+                    Faça login para responder neste tópico →
+                </button>
+            </>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-3">

@@ -25,7 +25,7 @@ export function NovoTopicoForm({ categories }: NovoTopicoFormProps) {
             const res = await createPost({ title, content, categoryId });
             if (res.success) {
                 toast.success('Tópico criado com sucesso!');
-                router.push(`/comunidade/post/${res.postId}`);
+                router.push(`/comunidade/post/${res.postSlug}`);
             } else {
                 toast.error(res.error);
             }
