@@ -33,7 +33,7 @@ const navigation = [
     { name: 'Cursos', href: '/admin/cursos', icon: GraduationCap },
     { name: 'Cortesias', href: '/admin/cortesias', icon: Gift },
     { name: 'Categorias', href: '/admin/categorias', icon: FolderTree },
-    { name: 'A Forja (Fórum)', href: '/comunidade', icon: Swords },
+    { name: 'A Forja (Fórum)', href: '/admin/forum', icon: Swords },
     { name: 'Contato', href: '/admin/contato', icon: MessageSquare },
     { name: 'Comentários', href: '/admin/comentarios', icon: MessageCircle },
     { name: 'Notificações', href: '/admin/notificacoes', icon: Bell },
@@ -88,7 +88,7 @@ export function AdminSidebar() {
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 px-4 py-6 space-y-1">
+                    <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-1">
                         {navigation.map((item) => {
                             const isActive = pathname?.startsWith(item.href);
                             return (
