@@ -1,214 +1,192 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react'
-import Link from 'next/link'
-
-import { updatePasswordSchema, type UpdatePasswordFormData } from '@/lib/validations/auth'
-import { FloatingLabelInput } from '@/components/ui/floating-label-input'
-import { Button } from '@/components/ui/button'
+import { useState, useTransition } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface UpdatePasswordFormProps {
-    token: string
+    token: string;
 }
 
 export function UpdatePasswordForm({ token }: UpdatePasswordFormProps) {
-    const [isLoading, setIsLoading] = useState(false)
-    const [serverError, setServerError] = useState<string | null>(null)
-    const [success, setSuccess] = useState(false)
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const router = useRouter();
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<UpdatePasswordFormData>({
-        resolver: zodResolver(updatePasswordSchema),
-        mode: 'onBlur',
-    })
+    const [password,        setPassword]        = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPass,        setShowPass]        = useState(false);
+    const [showConfirm,     setShowConfirm]     = useState(false);
+    const [error,           setError]           = useState('');
+    const [success,         setSuccess]         = useState(false);
+    const [isPending, startTransition] = useTransition();
 
-    const onSubmit = async (data: UpdatePasswordFormData) => {
-        setIsLoading(true)
-        setServerError(null)
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
 
-        try {
-            const response = await fetch('/api/auth/update-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token,
-                    password: data.password,
-                }),
-            })
-
-            if (!response.ok) {
-                const error = await response.json()
-                throw new Error(error.error || 'Erro ao atualizar senha')
-            }
-
-            setSuccess(true)
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Erro ao atualizar senha. Tente novamente.'
-            setServerError(message)
-        } finally {
-            setIsLoading(false)
+        if (password.length < 8) {
+            setError('A senha deve ter pelo menos 8 caracteres.');
+            return;
         }
-    }
+        if (password !== confirmPassword) {
+            setError('As senhas não coincidem.');
+            return;
+        }
+
+        startTransition(async () => {
+            try {
+                const res = await fetch('/api/auth/update-password', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ token, password }),
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    setError(data.error ?? 'Erro ao atualizar senha. Tente novamente.');
+                    return;
+                }
+
+                setSuccess(true);
+                setTimeout(() => router.push('/login'), 2500);
+            } catch {
+                setError('Erro de conexão. Tente novamente.');
+            }
+        });
+    };
 
     if (success) {
         return (
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md mx-auto text-center space-y-6"
-            >
+            <div className="space-y-6 text-center">
                 <div className="flex justify-center">
-                    <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-4">
-                        <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10">
+                        <CheckCircle2 className="h-8 w-8 text-amber-400" />
                     </div>
                 </div>
-
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold">Senha redefinida com sucesso!</h2>
-                    <p className="text-muted-foreground">
-                        Você já pode fazer login com sua nova senha.
+                <div>
+                    <p className="text-base font-semibold text-zinc-100">Senha redefinida!</p>
+                    <p className="mt-1.5 text-sm text-zinc-500">
+                        Você será redirecionado para o login em instantes.
                     </p>
                 </div>
-
-                <div className="pt-4">
-                    <Link
-                        href="/login"
-                        className="text-primary hover:underline font-medium"
-                    >
-                        Voltar para login
-                    </Link>
-                </div>
-            </motion.div>
-        )
+                <Link
+                    href="/login"
+                    className="block text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                    Ir para o login agora
+                </Link>
+            </div>
+        );
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="w-full max-w-md mx-auto"
-        >
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <AnimatePresence>
-                    {serverError && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg flex gap-3"
-                        >
-                            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                            <p className="text-sm text-red-600 dark:text-red-400">{serverError}</p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
-                <div className="space-y-2 text-center">
-                    <h2 className="text-2xl font-bold">Crie sua nova senha</h2>
-                    <p className="text-muted-foreground">
-                        Escolha uma senha forte e segura para proteger sua conta.
+            {error && (
+                <div className="rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3">
+                    <p className="text-sm font-medium text-red-400">{error}</p>
+                </div>
+            )}
+
+            {/* Nova senha */}
+            <div className="space-y-1.5">
+                <label htmlFor="new-password" className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    Nova senha
+                </label>
+                <div className="relative">
+                    <input
+                        id="new-password"
+                        type={showPass ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Mínimo 8 caracteres"
+                        className={cn(
+                            'w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 pr-11',
+                            'text-sm text-zinc-100 placeholder:text-zinc-600',
+                            'outline-none transition-colors',
+                            'focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30',
+                        )}
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPass((v) => !v)}
+                        tabIndex={-1}
+                        aria-label={showPass ? 'Ocultar senha' : 'Mostrar senha'}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
+                    >
+                        {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                </div>
+                {password.length > 0 && password.length < 8 && (
+                    <p className="text-xs text-zinc-600">
+                        {8 - password.length} caractere{8 - password.length !== 1 ? 's' : ''} restante{8 - password.length !== 1 ? 's' : ''}
                     </p>
-                </div>
+                )}
+            </div>
 
-                {/* Password */}
+            {/* Confirmar senha */}
+            <div className="space-y-1.5">
+                <label htmlFor="confirm-password" className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    Confirmar senha
+                </label>
                 <div className="relative">
-                    <FloatingLabelInput
-                        label="Senha"
-                        type={showPassword ? 'text' : 'password'}
+                    <input
+                        id="confirm-password"
+                        type={showConfirm ? 'text' : 'password'}
                         autoComplete="new-password"
-                        {...register('password')}
-                        error={errors.password?.message}
-                        disabled={isLoading}
+                        required
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Repita a senha"
+                        className={cn(
+                            'w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 pr-11',
+                            'text-sm text-zinc-100 placeholder:text-zinc-600',
+                            'outline-none transition-colors',
+                            'focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30',
+                        )}
                     />
                     <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                        disabled={isLoading}
+                        onClick={() => setShowConfirm((v) => !v)}
+                        tabIndex={-1}
+                        aria-label={showConfirm ? 'Ocultar senha' : 'Mostrar senha'}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
                     >
-                        {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                        ) : (
-                            <Eye className="h-4 w-4" />
-                        )}
+                        {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                 </div>
+            </div>
 
-                {/* Confirm Password */}
-                <div className="relative">
-                    <FloatingLabelInput
-                        label="Confirmar Senha"
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        autoComplete="new-password"
-                        {...register('confirmPassword')}
-                        error={errors.confirmPassword?.message}
-                        disabled={isLoading}
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                        disabled={isLoading}
-                    >
-                        {showConfirmPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                        ) : (
-                            <Eye className="h-4 w-4" />
-                        )}
-                    </button>
-                </div>
+            <button
+                type="submit"
+                disabled={isPending}
+                className={cn(
+                    'w-full rounded-xl px-6 py-3.5',
+                    'bg-amber-500 font-bold text-zinc-950',
+                    'transition-all duration-200',
+                    'hover:bg-amber-400 active:scale-[0.99]',
+                    'disabled:cursor-not-allowed disabled:opacity-60',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
+                )}
+            >
+                {isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Salvando...
+                    </span>
+                ) : (
+                    'Salvar nova senha'
+                )}
+            </button>
 
-                {/* Password Requirements */}
-                <div className="bg-stone-900 border border-stone-800 rounded-lg p-4 space-y-2">
-                    <p className="text-xs font-semibold text-stone-300">Sua senha deve ter:</p>
-                    <ul className="space-y-1 text-xs text-stone-400">
-                        <li>✓ Mínimo 8 caracteres</li>
-                        <li>✓ Pelo menos uma letra maiúscula</li>
-                        <li>✓ Pelo menos uma letra minúscula</li>
-                        <li>✓ Pelo menos um número</li>
-                    </ul>
-                </div>
-
-                {/* Submit Button */}
-                <Button
-                    type="submit"
-                    className="w-full"
-                    size="lg"
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Salvando...
-                        </>
-                    ) : (
-                        <>
-                            <Lock className="mr-2 h-5 w-5" />
-                            Criar nova senha
-                        </>
-                    )}
-                </Button>
-
-                <p className="text-center text-sm text-muted-foreground">
-                    Lembrou sua senha?{' '}
-                    <Link
-                        href="/login"
-                        className="text-primary hover:underline font-medium"
-                    >
-                        Voltar para login
-                    </Link>
-                </p>
-            </form>
-        </motion.div>
-    )
+            <p className="text-center text-sm text-zinc-600">
+                <Link href="/login" className="font-semibold text-amber-400 hover:text-amber-300 transition-colors">
+                    Voltar para o login
+                </Link>
+            </p>
+        </form>
+    );
 }

@@ -1,153 +1,129 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, Mail, CheckCircle2 } from 'lucide-react'
-import Link from 'next/link'
-
-import { passwordResetSchema, type PasswordResetFormData } from '@/lib/validations/auth'
-import { FloatingLabelInput } from '@/components/ui/floating-label-input'
-import { Button } from '@/components/ui/button'
+import { useState, useTransition } from 'react';
+import Link from 'next/link';
+import { Loader2, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export function PasswordResetForm() {
-    const [isLoading, setIsLoading] = useState(false)
-    const [serverError, setServerError] = useState<string | null>(null)
-    const [success, setSuccess] = useState(false)
+    const [email,     setEmail]     = useState('');
+    const [error,     setError]     = useState('');
+    const [success,   setSuccess]   = useState(false);
+    const [isPending, startTransition] = useTransition();
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<PasswordResetFormData>({
-        resolver: zodResolver(passwordResetSchema),
-        mode: 'onBlur',
-    })
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
 
-    const onSubmit = async (data: PasswordResetFormData) => {
-        setIsLoading(true)
-        setServerError(null)
-
-        try {
-            const response = await fetch('/api/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            })
-
-            if (!response.ok) {
-                const error = await response.json()
-                throw new Error(error.error || 'Erro ao enviar solicitação')
-            }
-
-            setSuccess(true)
-        } catch (error) {
-            const message = error instanceof Error ? error.message : 'Erro ao enviar e-mail. Tente novamente.'
-            setServerError(message)
-        } finally {
-            setIsLoading(false)
+        if (!email.trim()) {
+            setError('Informe seu e-mail.');
+            return;
         }
-    }
+
+        startTransition(async () => {
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ email: email.trim() }),
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    setError(data.error ?? 'Erro ao enviar e-mail. Tente novamente.');
+                    return;
+                }
+
+                setSuccess(true);
+            } catch {
+                setError('Erro de conexão. Tente novamente.');
+            }
+        });
+    };
 
     if (success) {
         return (
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md mx-auto text-center space-y-6"
-            >
+            <div className="space-y-6 text-center">
                 <div className="flex justify-center">
-                    <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-4">
-                        <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10">
+                        <CheckCircle2 className="h-8 w-8 text-amber-400" />
                     </div>
                 </div>
-
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold">E-mail enviado!</h2>
-                    <p className="text-muted-foreground">
-                        Enviamos um link para redefinir sua senha. Verifique sua caixa de entrada.
+                <div>
+                    <p className="text-base font-semibold text-zinc-100">E-mail enviado!</p>
+                    <p className="mt-1.5 text-sm text-zinc-500">
+                        Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.
+                        O link expira em 24 horas.
                     </p>
                 </div>
-
-                <div className="pt-4">
-                    <Link
-                        href="/login"
-                        className="text-primary hover:underline font-medium"
-                    >
-                        Voltar para login
-                    </Link>
-                </div>
-            </motion.div>
-        )
+                <Link
+                    href="/login"
+                    className="block text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                    Voltar para o login
+                </Link>
+            </div>
+        );
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="w-full max-w-md mx-auto"
-        >
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <AnimatePresence>
-                    {serverError && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg"
-                        >
-                            <p className="text-sm text-red-600 dark:text-red-400">{serverError}</p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
-                <div className="space-y-2 text-center">
-                    <h2 className="text-2xl font-bold">Esqueceu sua senha?</h2>
-                    <p className="text-muted-foreground">
-                        Digite seu e-mail e enviaremos um link para redefinir sua senha.
-                    </p>
+            {error && (
+                <div className="rounded-xl border border-red-900/50 bg-red-950/30 px-4 py-3">
+                    <p className="text-sm font-medium text-red-400">{error}</p>
                 </div>
+            )}
 
-                <FloatingLabelInput
-                    label="E-mail"
+            <div className="space-y-1.5">
+                <label htmlFor="reset-email" className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    E-mail
+                </label>
+                <input
+                    id="reset-email"
                     type="email"
                     autoComplete="email"
-                    {...register('email')}
-                    error={errors.email?.message}
-                    disabled={isLoading}
-                />
-
-                <Button
-                    type="submit"
-                    className="w-full"
-                    size="lg"
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Enviando...
-                        </>
-                    ) : (
-                        <>
-                            <Mail className="mr-2 h-5 w-5" />
-                            Enviar link de redefinição
-                        </>
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    className={cn(
+                        'w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3',
+                        'text-sm text-zinc-100 placeholder:text-zinc-600',
+                        'outline-none transition-colors',
+                        'focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30',
                     )}
-                </Button>
+                />
+            </div>
 
-                <p className="text-center text-sm text-muted-foreground">
-                    Lembrou sua senha?{' '}
-                    <Link
-                        href="/login"
-                        className="text-primary hover:underline font-medium"
-                    >
-                        Faça login
-                    </Link>
-                </p>
-            </form>
-        </motion.div>
-    )
+            <button
+                type="submit"
+                disabled={isPending}
+                className={cn(
+                    'w-full rounded-xl px-6 py-3.5',
+                    'bg-amber-500 font-bold text-zinc-950',
+                    'transition-all duration-200',
+                    'hover:bg-amber-400 active:scale-[0.99]',
+                    'disabled:cursor-not-allowed disabled:opacity-60',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
+                )}
+            >
+                {isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Enviando...
+                    </span>
+                ) : (
+                    'Enviar link de recuperação'
+                )}
+            </button>
+
+            <p className="text-center text-sm text-zinc-600">
+                Lembrou a senha?{' '}
+                <Link href="/login" className="font-semibold text-amber-400 hover:text-amber-300 transition-colors">
+                    Fazer login
+                </Link>
+            </p>
+        </form>
+    );
 }

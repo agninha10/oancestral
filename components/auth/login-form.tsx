@@ -107,9 +107,18 @@ export function LoginForm({ callbackUrl, initialError, hasApple }: LoginFormProp
                 </div>
 
                 <div className="space-y-1.5">
-                    <label htmlFor="login-password" className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                        Senha
-                    </label>
+                    <div className="flex items-center justify-between">
+                        <label htmlFor="login-password" className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                            Senha
+                        </label>
+                        <Link
+                            href="/auth/reset-password"
+                            className="text-xs text-zinc-500 hover:text-amber-400 transition-colors"
+                            tabIndex={-1}
+                        >
+                            Esqueceu a senha?
+                        </Link>
+                    </div>
                     <div className="relative">
                         <input
                             id="login-password"
