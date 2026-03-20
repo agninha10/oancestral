@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { inter, crimsonPro } from "@/lib/fonts";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
+import { GoogleOneTap } from "@/components/auth/google-one-tap";
 import GoogleAnalytics from "@/components/google-analytics";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -89,6 +90,7 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
+            <GoogleOneTap />
             {children}
           </ThemeProvider>
         </SessionProvider>
