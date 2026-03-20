@@ -175,8 +175,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
          */
         async jwt({ token, user }) {
             if (user) {
-                token.id   = user.id;
-                token.role = user.role ?? 'USER';
+                token.id      = user.id;
+                token.role    = user.role ?? 'USER';
+                // Persist avatar URL in the token so it survives across requests
+                if (user.image) token.picture = user.image;
             }
             return token;
         },
@@ -187,8 +189,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
          */
         async session({ session, token }) {
             if (token) {
-                session.user.id   = token.id   as string;
-                session.user.role = (token.role as string) ?? 'USER';
+                session.user.id    = token.id as string;
+                session.user.role  = (token.role as string) ?? 'USER';
+                // Map token.picture → session.user.image so components can display the avatar
+                if (token.picture) session.user.image = token.picture as string;
             }
             return session;
         },
