@@ -9,6 +9,8 @@ export async function POST(request: Request) {
         const { email, password } = body as { email?: string; password?: string }
 
         if (!email || !password) {
+            const motivo = 'Campos obrigatórios ausentes (email ou password)'
+            console.log('❌ [LOGIN MOBILE ERRO] Motivo:', motivo)
             return NextResponse.json(
                 { success: false, error: 'E-mail e senha são obrigatórios.' },
                 { status: 400 },
@@ -31,6 +33,8 @@ export async function POST(request: Request) {
         })
 
         if (!user) {
+            const motivo = `Usuário não encontrado para o e-mail: ${email.toLowerCase().trim()}`
+            console.log('❌ [LOGIN MOBILE ERRO] Motivo:', motivo)
             return NextResponse.json(
                 { success: false, error: 'E-mail ou senha incorretos.' },
                 { status: 401 },
@@ -39,11 +43,12 @@ export async function POST(request: Request) {
 
         // Social-only account — no local password set
         if (!user.password) {
+            const motivo = `Conta social sem senha local (userId: ${user.id})`
+            console.log('❌ [LOGIN MOBILE ERRO] Motivo:', motivo)
             return NextResponse.json(
                 {
                     success: false,
-                    error:
-                        'Sua conta usa Login Social. Use o botão do Google/Apple no aplicativo.',
+                    error: 'Sua conta usa Login Social. Use o botão do Google/Apple no aplicativo.',
                 },
                 { status: 400 },
             )
@@ -51,6 +56,8 @@ export async function POST(request: Request) {
 
         const passwordValid = await verifyPassword(password, user.password)
         if (!passwordValid) {
+            const motivo = `Senha incorreta para userId: ${user.id}`
+            console.log('❌ [LOGIN MOBILE ERRO] Motivo:', motivo)
             return NextResponse.json(
                 { success: false, error: 'E-mail ou senha incorretos.' },
                 { status: 401 },
@@ -63,17 +70,26 @@ export async function POST(request: Request) {
             role: user.role,
         })
 
-        const { password: _pwd, ...safeUser } = user
-
-        return NextResponse.json({
-            success: true,
-            data: {
-                token,
-                user: safeUser,
+        const responseData = {
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                avatarUrl: user.avatarUrl,
+                role: user.role,
+                xp: user.xp,
+                level: user.level,
+                subscriptionStatus: user.subscriptionStatus,
             },
-        })
+        }
+
+        console.log('🔥 [LOGIN MOBILE SUCESSO] Payload:', JSON.stringify(responseData))
+
+        return NextResponse.json({ success: true, data: responseData })
     } catch (error) {
-        console.error('[mobile/login]', error)
+        const motivo = error instanceof Error ? error.message : 'Erro desconhecido'
+        console.log('❌ [LOGIN MOBILE ERRO] Motivo:', motivo)
         return NextResponse.json(
             { success: false, error: 'Erro interno. Tente novamente.' },
             { status: 500 },
