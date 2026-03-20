@@ -2,18 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useTheme } from 'next-themes';
+import { Menu, X, Sun, Moon, LayoutDashboard, PlayCircle, BookOpen, User, Flame, Swords } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import {
-    LayoutDashboard,
-    PlayCircle,
-    BookOpen,
-    User,
-    Flame,
-    Swords,
-} from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { NotificationBell } from '@/components/dashboard/notification-bell';
 
@@ -66,6 +58,8 @@ const navigation = [
 export function DashboardHeader({ user }: DashboardHeaderProps) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const pathname = usePathname();
+    const { theme, setTheme } = useTheme();
+    const isDark = theme === 'dark';
 
     return (
         <>
@@ -85,6 +79,13 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                 </div>
 
                 <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                        title={isDark ? 'Modo claro' : 'Modo escuro'}
+                        className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    >
+                        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                    </button>
                     <NotificationBell />
                     <Link href="/dashboard/perfil">
                         <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
@@ -163,6 +164,13 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                                                 </span>
                                             </div>
                                         )}
+                                        <button
+                                            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                                            className="flex w-full items-center justify-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                        >
+                                            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                                            {isDark ? 'Modo claro' : 'Modo escuro'}
+                                        </button>
                                         <LogoutButton
                                             variant="outline"
                                             size="default"

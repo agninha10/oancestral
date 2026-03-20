@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import {
     LayoutDashboard,
@@ -13,6 +14,8 @@ import {
     ChevronLeft,
     ChevronRight,
     Swords,
+    Sun,
+    Moon,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { useSidebar } from '@/components/dashboard/sidebar-context';
@@ -71,6 +74,8 @@ const navigation = [
 export function DashboardSidebar({ user }: DashboardSidebarProps) {
     const pathname = usePathname();
     const { collapsed, toggle } = useSidebar();
+    const { theme, setTheme } = useTheme();
+    const isDark = theme === 'dark';
 
     return (
         <>
@@ -140,6 +145,13 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                                                 }
                                             </div>
                                         </Link>
+                                        <button
+                                            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                                            title={isDark ? 'Modo claro' : 'Modo escuro'}
+                                            className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                        >
+                                            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                                        </button>
                                         <LogoutButton
                                             variant="ghost"
                                             size="sm"
@@ -165,6 +177,13 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                                                     {user.email}
                                                 </p>
                                             </div>
+                                            <button
+                                                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                                                title={isDark ? 'Modo claro' : 'Modo escuro'}
+                                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                            >
+                                                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                                            </button>
                                         </div>
                                         {user.subscriptionStatus === 'ACTIVE' && (
                                             <div className="flex items-center justify-center rounded-md bg-primary/10 py-1.5 px-3">
