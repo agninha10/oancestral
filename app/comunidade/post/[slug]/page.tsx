@@ -100,7 +100,9 @@ async function PostContent({ slug }: { slug: string }) {
                     <div className="flex items-center gap-3">
                         <Avatar name={post.author.name} avatarUrl={post.author.avatarUrl} size={9} />
                         <div>
-                            <p className="text-sm font-semibold text-zinc-200">{post.author.name}</p>
+                            <Link href={`/u/${post.author.id}`} className="text-sm font-semibold text-zinc-200 hover:text-amber-400 transition-colors">
+                                {post.author.name}
+                            </Link>
                             <p className="text-xs text-zinc-500">{timeAgo}</p>
                         </div>
                         <div className="ml-auto flex items-center gap-3 text-xs text-zinc-600">

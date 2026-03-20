@@ -62,6 +62,16 @@ model User {
   weight    Float?   // kg
   height    Int?     // cm
 
+  // Profile — social & privacy
+  bio           String?
+  instagram     String?
+  twitter       String?
+  youtube       String?
+  tiktok        String?
+  linkedin      String?
+  website       String?
+  profilePublic Boolean @default(true)
+
   emailVerified            DateTime?
   verificationToken        String?   @unique
   verificationTokenExpires DateTime?

@@ -15,11 +15,19 @@ type ActionResult = { success: true } | { success: false; error: string };
 // ─── updateProfile ────────────────────────────────────────────────────────────
 
 const profileSchema = z.object({
-    name:      z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres.'),
-    whatsapp:  z.string().trim().optional(),
-    weight:    z.number().positive().max(500).nullable(),
-    height:    z.number().int().positive().max(300).nullable(),
-    avatarUrl: z.string().url().nullable(),
+    name:          z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres.'),
+    whatsapp:      z.string().trim().optional(),
+    weight:        z.number().positive().max(500).nullable(),
+    height:        z.number().int().positive().max(300).nullable(),
+    avatarUrl:     z.string().url().nullable(),
+    bio:           z.string().trim().max(300, 'Bio deve ter no máximo 300 caracteres.').optional(),
+    instagram:     z.string().trim().max(100).optional(),
+    twitter:       z.string().trim().max(100).optional(),
+    youtube:       z.string().trim().max(200).optional(),
+    tiktok:        z.string().trim().max(100).optional(),
+    linkedin:      z.string().trim().max(200).optional(),
+    website:       z.string().trim().max(200).optional(),
+    profilePublic: z.boolean().optional(),
 });
 
 export async function updateProfile(data: {
@@ -28,6 +36,14 @@ export async function updateProfile(data: {
     weight: number | null;
     height: number | null;
     avatarUrl: string | null;
+    bio?: string;
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+    tiktok?: string;
+    linkedin?: string;
+    website?: string;
+    profilePublic?: boolean;
 }): Promise<ActionResult> {
     const session = await getSession();
     if (!session) return { success: false, error: 'Não autorizado.' };
@@ -37,16 +53,24 @@ export async function updateProfile(data: {
         return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const { name, whatsapp, weight, height, avatarUrl } = parsed.data;
+    const { name, whatsapp, weight, height, avatarUrl, bio, instagram, twitter, youtube, tiktok, linkedin, website, profilePublic } = parsed.data;
 
     await prisma.user.update({
         where: { id: session.userId },
         data: {
             name,
-            whatsapp:  whatsapp  || null,
-            weight:    weight    ?? null,
-            height:    height    ?? null,
-            avatarUrl: avatarUrl ?? null,
+            whatsapp:      whatsapp  || null,
+            weight:        weight    ?? null,
+            height:        height    ?? null,
+            avatarUrl:     avatarUrl ?? null,
+            bio:           bio           !== undefined ? (bio || null)       : undefined,
+            instagram:     instagram     !== undefined ? (instagram || null) : undefined,
+            twitter:       twitter       !== undefined ? (twitter || null)   : undefined,
+            youtube:       youtube       !== undefined ? (youtube || null)   : undefined,
+            tiktok:        tiktok        !== undefined ? (tiktok || null)    : undefined,
+            linkedin:      linkedin      !== undefined ? (linkedin || null)  : undefined,
+            website:       website       !== undefined ? (website || null)   : undefined,
+            profilePublic: profilePublic !== undefined ? profilePublic       : undefined,
         },
     });
 

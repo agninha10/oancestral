@@ -19,7 +19,10 @@ import {
     Lock,
     Eye,
     EyeOff,
+    Globe,
+    Share2,
 } from 'lucide-react';
+import { FaInstagram, FaXTwitter, FaYoutube, FaTiktok, FaLinkedin } from 'react-icons/fa6';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,6 +50,14 @@ interface ProfileFormProps {
         height: number | null;
         pendingEmail: string | null;
         birthdate: Date;
+        bio: string | null;
+        instagram: string | null;
+        twitter: string | null;
+        youtube: string | null;
+        tiktok: string | null;
+        linkedin: string | null;
+        website: string | null;
+        profilePublic: boolean;
     };
 }
 
@@ -447,12 +458,20 @@ function bmiLabel(bmi: number) {
 // ─── ProfileForm ──────────────────────────────────────────────────────────────
 
 export function ProfileForm({ user }: ProfileFormProps) {
-    const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl);
-    const [name,      setName]      = useState(user.name);
-    const [whatsapp,  setWhatsapp]  = useState(user.whatsapp ?? '');
-    const [weight,    setWeight]    = useState(user.weight?.toString() ?? '');
-    const [height,    setHeight]    = useState(user.height?.toString() ?? '');
-    const [isPending, startT]       = useTransition();
+    const [avatarUrl,     setAvatarUrl]     = useState(user.avatarUrl);
+    const [name,          setName]          = useState(user.name);
+    const [whatsapp,      setWhatsapp]      = useState(user.whatsapp ?? '');
+    const [weight,        setWeight]        = useState(user.weight?.toString() ?? '');
+    const [height,        setHeight]        = useState(user.height?.toString() ?? '');
+    const [bio,           setBio]           = useState(user.bio ?? '');
+    const [instagram,     setInstagram]     = useState(user.instagram ?? '');
+    const [twitter,       setTwitter]       = useState(user.twitter ?? '');
+    const [youtube,       setYoutube]       = useState(user.youtube ?? '');
+    const [tiktok,        setTiktok]        = useState(user.tiktok ?? '');
+    const [linkedin,      setLinkedin]      = useState(user.linkedin ?? '');
+    const [website,       setWebsite]       = useState(user.website ?? '');
+    const [profilePublic, setProfilePublic] = useState(user.profilePublic);
+    const [isPending,     startT]           = useTransition();
 
     const weightNum = parseFloat(weight) || null;
     const heightNum = parseInt(height)   || null;
@@ -468,6 +487,14 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 weight:    weightNum,
                 height:    heightNum,
                 avatarUrl: avatarUrl,
+                bio,
+                instagram,
+                twitter,
+                youtube,
+                tiktok,
+                linkedin,
+                website,
+                profilePublic,
             });
             if (res.success) {
                 toast.success('Perfil atualizado!');
@@ -605,6 +632,81 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     Senha
                 </h3>
                 <PasswordChangeSection />
+            </div>
+
+            {/* ── Redes Sociais ──────────────────────────────────────────── */}
+            <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+                <h3 className="flex items-center gap-2 text-sm font-semibold">
+                    <Share2 className="h-4 w-4 text-primary" />
+                    Redes Sociais
+                </h3>
+
+                {/* Bio */}
+                <div className="space-y-2">
+                    <Label htmlFor="bio">Bio <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+                    <textarea
+                        id="bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        maxLength={300}
+                        rows={3}
+                        placeholder="Conte um pouco sobre você…"
+                        className="w-full resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                    />
+                    <p className="text-right text-xs text-muted-foreground">{bio.length}/300</p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                    {([
+                        { id: 'instagram', label: 'Instagram',   icon: FaInstagram, value: instagram, set: setInstagram, placeholder: '@usuario' },
+                        { id: 'twitter',   label: 'X (Twitter)', icon: FaXTwitter,  value: twitter,   set: setTwitter,   placeholder: '@usuario' },
+                        { id: 'youtube',   label: 'YouTube',     icon: FaYoutube,   value: youtube,   set: setYoutube,   placeholder: 'youtube.com/c/canal' },
+                        { id: 'tiktok',    label: 'TikTok',      icon: FaTiktok,    value: tiktok,    set: setTiktok,    placeholder: '@usuario' },
+                        { id: 'linkedin',  label: 'LinkedIn',    icon: FaLinkedin,  value: linkedin,  set: setLinkedin,  placeholder: 'linkedin.com/in/perfil' },
+                        { id: 'website',   label: 'Site',        icon: Globe,       value: website,   set: setWebsite,   placeholder: 'https://meusite.com.br' },
+                    ] as const).map(({ id, label, icon: Icon, value, set, placeholder }) => (
+                        <div key={id} className="space-y-2">
+                            <Label htmlFor={id} className="flex items-center gap-1.5">
+                                <Icon className="h-3.5 w-3.5" /> {label}
+                            </Label>
+                            <Input
+                                id={id}
+                                value={value}
+                                onChange={(e) => (set as (v: string) => void)(e.target.value)}
+                                placeholder={placeholder}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Privacy toggle */}
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3">
+                    <div>
+                        <p className="text-sm font-medium">Perfil público</p>
+                        <p className="text-xs text-muted-foreground">
+                            {profilePublic
+                                ? 'Outros usuários podem ver seu perfil e redes sociais.'
+                                : 'Seu perfil está privado — redes sociais e bio ficam ocultos.'}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setProfilePublic((v) => !v)}
+                        className={cn(
+                            'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200',
+                            profilePublic ? 'bg-primary' : 'bg-input',
+                        )}
+                        role="switch"
+                        aria-checked={profilePublic}
+                    >
+                        <span
+                            className={cn(
+                                'pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg transition-transform duration-200',
+                                profilePublic ? 'translate-x-5' : 'translate-x-0',
+                            )}
+                        />
+                    </button>
+                </div>
             </div>
 
             {/* ── Save button ────────────────────────────────────────────── */}

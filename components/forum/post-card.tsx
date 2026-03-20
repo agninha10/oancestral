@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MessageCircle, Eye } from 'lucide-react';
+import { MessageCircle, Eye, UserCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { LikeButton } from '@/components/forum/like-button';
@@ -41,7 +41,9 @@ export function PostCard({ post, isAuthenticated = false }: PostCardProps) {
             <div className="flex items-center gap-3 mb-3">
                 <Avatar name={post.author.name} avatarUrl={post.author.avatarUrl} />
                 <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium text-zinc-200">{post.author.name}</span>
+                    <Link href={`/u/${post.author.id}`} className="text-sm font-medium text-zinc-200 hover:text-amber-400 transition-colors">
+                        {post.author.name}
+                    </Link>
                     <span className="mx-1.5 text-zinc-600">·</span>
                     <span className="text-xs text-zinc-500">{timeAgo}</span>
                 </div>
