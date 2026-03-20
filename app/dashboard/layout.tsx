@@ -28,6 +28,7 @@ export default async function DashboardLayout({
             email: true,
             role: true,
             subscriptionStatus: true,
+            avatarUrl: true,
         },
     });
 

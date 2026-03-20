@@ -22,6 +22,7 @@ interface User {
     email: string;
     role: string;
     subscriptionStatus: string;
+    avatarUrl?: string | null;
 }
 
 interface DashboardHeaderProps {
@@ -80,8 +81,11 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                 <div className="flex items-center gap-1">
                     <NotificationBell />
                     <Link href="/dashboard/perfil">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                            {user.name.charAt(0).toUpperCase()}
+                        <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                            {user.avatarUrl
+                                ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+                                : user.name.charAt(0).toUpperCase()
+                            }
                         </div>
                     </Link>
                 </div>

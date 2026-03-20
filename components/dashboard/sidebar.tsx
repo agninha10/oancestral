@@ -21,6 +21,7 @@ interface User {
     email: string;
     role: string;
     subscriptionStatus: string;
+    avatarUrl?: string | null;
 }
 
 interface DashboardSidebarProps {
@@ -109,8 +110,11 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                             <li className="mt-auto">
                                 <div className="rounded-lg border border-border bg-background/50 p-4 space-y-3">
                                     <div className="flex items-center gap-x-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
-                                            {user.name.charAt(0).toUpperCase()}
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground font-semibold">
+                                            {user.avatarUrl
+                                                ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+                                                : user.name.charAt(0).toUpperCase()
+                                            }
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-semibold truncate">
