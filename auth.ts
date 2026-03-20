@@ -44,9 +44,9 @@ const providers = [
     Google({
         clientId:     process.env.GOOGLE_CLIENT_ID!,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        allowDangerousEmailAccountLinking: true,
         authorization: {
             params: {
-                // Request offline access to get a refresh_token
                 access_type: 'offline',
                 prompt:      'consent',
             },
@@ -59,6 +59,7 @@ const providers = [
               Apple({
                   clientId:     process.env.APPLE_ID!,
                   clientSecret: process.env.APPLE_SECRET!,
+                  allowDangerousEmailAccountLinking: true,
               }),
           ]
         : []),
