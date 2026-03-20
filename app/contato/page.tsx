@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/layout/header"
 
-const INSTAGRAM_URL = "https://www.instagram.com/oancestral.com.br/"
+const INSTAGRAM_URL = "https://www.instagram.com/souancestral/"
 
 const subjects = [
   "Dúvida sobre jejum intermitente",

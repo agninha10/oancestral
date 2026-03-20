@@ -20,7 +20,7 @@ import {
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { UserNav } from "@/components/layout/user-nav"
 
-const INSTAGRAM_URL = "https://www.instagram.com/oancestral.com.br/"
+const INSTAGRAM_URL = "https://www.instagram.com/souancestral/"
 
 const navItems = [
   { href: "/", label: "Início", icon: Home },
