@@ -19,6 +19,7 @@ import {
     History,
     Minus,
     Plus,
+    Info,
 } from 'lucide-react';
 import {
     AlertDialog,
@@ -48,12 +49,29 @@ const TARGET_OPTIONS = [
 
 // ─── Biological stages ────────────────────────────────────────────────────────
 
-const STAGES = [
+type Stage = {
+    minHours: number;
+    maxHours: number;
+    label: string;
+    desc: string;
+    detail: string;
+    range: string;
+    Icon: React.ElementType;
+    colorText: string;
+    colorBg: string;
+    colorBorder: string;
+    colorGlow: string;
+    colorDot: string;
+    colorRing: string;
+};
+
+const STAGES: Stage[] = [
     {
         minHours: 0,
         maxHours: 12,
         label: 'Queda de Insulina',
-        desc: 'Glicogênio se esgota. Insulina em queda livre. O corpo começa a mudar de combustível.',
+        desc: 'Glicogênio se esgota. Insulina em queda livre.',
+        detail: 'O corpo esgota as reservas de glicogênio (açúcar) do fígado. O hormônio de armazenamento desaba. O seu metabolismo entende que a comida acabou e começa a se preparar para caçar energia nas suas próprias reservas.',
         range: '0 – 12h',
         Icon: TrendingDown,
         colorText: 'text-sky-400',
@@ -67,7 +85,8 @@ const STAGES = [
         minHours: 12,
         maxHours: 16,
         label: 'Queima de Gordura',
-        desc: 'Beta-oxidação ativada. O corpo usa gordura como combustível primário.',
+        desc: 'A fornalha liga. Gordura visceral vira combustível.',
+        detail: 'A fornalha liga. Sem açúcar no sangue, o corpo é forçado a atacar os estoques de gordura visceral para sobreviver. Você deixa de ser um dependente de carboidratos e passa a queimar a própria gordura como combustível primário.',
         range: '12 – 16h',
         Icon: Flame,
         colorText: 'text-orange-400',
@@ -81,7 +100,8 @@ const STAGES = [
         minHours: 16,
         maxHours: 24,
         label: 'Cetose Leve & Foco',
-        desc: 'Corpos cetônicos alimentam o cérebro. Clareza mental e foco máximo.',
+        desc: 'Corpos cetônicos no cérebro. Foco predatório ativado.',
+        detail: 'O fígado começa a produzir corpos cetônicos. O seu cérebro passa a rodar com combustível premium. A névoa mental (brain fog) desaparece, a fome diminui drasticamente e você entra em um estado de foco predatório e clareza absoluta.',
         range: '16 – 24h',
         Icon: Zap,
         colorText: 'text-yellow-400',
@@ -95,7 +115,8 @@ const STAGES = [
         minHours: 24,
         maxHours: 48,
         label: 'Autofagia Celular',
-        desc: 'Reciclagem profunda ativada. Células danificadas são eliminadas e renovadas.',
+        desc: 'Faxina profunda ativada. Células velhas são devoradas.',
+        detail: 'Reciclagem profunda ativada. O corpo, buscando energia, começa a devorar células velhas, danificadas e proteínas defeituosas. É a verdadeira faxina celular e o segredo ancestral para a longevidade e prevenção de doenças.',
         range: '24 – 48h',
         Icon: ShieldCheck,
         colorText: 'text-red-400',
@@ -109,7 +130,8 @@ const STAGES = [
         minHours: 48,
         maxHours: Infinity,
         label: 'Pico de GH & Reset Imune',
-        desc: 'Hormônio do crescimento elevado. Reset imunológico. Soberania metabólica total.',
+        desc: 'GH explode. Sistema imune renovado. Soberania total.',
+        detail: 'O hormônio do crescimento (GH) explode para proteger sua massa muscular. Células-tronco são ativadas para renovar o sistema imunológico. Você atinge o ápice do protocolo, forjando um corpo altamente resiliente e uma mente inquebrável.',
         range: '48 – 72h+',
         Icon: Crown,
         colorText: 'text-amber-400',
@@ -119,7 +141,7 @@ const STAGES = [
         colorDot: 'bg-amber-400',
         colorRing: '#fbbf24',
     },
-] as const;
+];
 
 // ─── Ring constants (viewBox basis) ──────────────────────────────────────────
 
@@ -273,86 +295,127 @@ function StageCard({
     stage,
     status,
     index,
+    defaultOpen,
 }: {
-    stage: (typeof STAGES)[number];
+    stage: Stage;
     status: StageStatus;
     index: number;
+    defaultOpen?: boolean;
 }) {
-    const { Icon, label, desc, range, colorText, colorBg, colorBorder, colorGlow, colorDot } = stage;
-    const isActive  = status === 'active';
-    const isDone    = status === 'done';
-    const isLocked  = !isActive && !isDone;
+    const [open, setOpen] = useState(defaultOpen ?? false);
+    const { Icon, label, desc, detail, range, colorText, colorBg, colorBorder, colorGlow, colorDot } = stage;
+    const isActive = status === 'active';
+    const isDone   = status === 'done';
+    const isLocked = !isActive && !isDone;
 
     return (
         <div
             className={cn(
-                'relative flex items-start gap-4 rounded-2xl border px-5 py-4 transition-all duration-500',
-                isActive  && ['border', colorBorder, colorBg, 'shadow-lg', colorGlow],
-                isDone    && 'border-zinc-800/60 bg-zinc-900/20 opacity-55',
-                isLocked  && 'border-zinc-800/30 bg-transparent opacity-35',
+                'rounded-2xl border transition-all duration-500',
+                isActive && [colorBorder, colorBg, 'shadow-lg', colorGlow],
+                isDone   && 'border-zinc-800/60 bg-zinc-900/20 opacity-60',
+                isLocked && 'border-zinc-800/30 bg-transparent opacity-35',
             )}
         >
-            {/* Stage number watermark */}
-            <span
-                className={cn(
-                    'select-none font-mono text-4xl font-black leading-none tracking-tighter',
-                    isActive ? colorText : 'text-zinc-800',
-                )}
-                aria-hidden
+            {/* ── Header row (always visible, clickable) ── */}
+            <button
+                type="button"
+                onClick={() => setOpen((v) => !v)}
+                disabled={isLocked}
+                className="flex w-full items-start gap-4 px-5 py-4 text-left"
+                aria-expanded={open}
             >
-                {String(index + 1).padStart(2, '0')}
-            </span>
+                {/* Number watermark */}
+                <span
+                    className={cn(
+                        'select-none font-mono text-4xl font-black leading-none tracking-tighter',
+                        isActive ? colorText : 'text-zinc-800',
+                    )}
+                    aria-hidden
+                >
+                    {String(index + 1).padStart(2, '0')}
+                </span>
 
-            {/* Icon */}
-            <div
-                className={cn(
-                    'mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
-                    isActive ? colorBg : 'bg-zinc-800/40',
-                )}
-            >
-                {isDone ? (
-                    <CheckCircle2 className="h-5 w-5 text-zinc-600" />
-                ) : isLocked ? (
-                    <Lock className="h-4 w-4 text-zinc-700" />
-                ) : (
-                    <Icon className={cn('h-5 w-5', colorText, 'animate-pulse')} />
-                )}
-            </div>
-
-            {/* Content */}
-            <div className="min-w-0 flex-1 pt-0.5">
-                <div className="flex items-center gap-2">
-                    <p
-                        className={cn(
-                            'font-semibold leading-snug',
-                            isActive ? colorText : isDone ? 'text-zinc-500' : 'text-zinc-700',
-                        )}
-                    >
-                        {label}
-                    </p>
-                    {isActive && (
-                        <span
-                            className={cn(
-                                'flex h-1.5 w-1.5 rounded-full animate-pulse',
-                                colorDot,
-                            )}
-                        />
+                {/* Stage icon */}
+                <div
+                    className={cn(
+                        'mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
+                        isActive ? colorBg : 'bg-zinc-800/40',
+                    )}
+                >
+                    {isDone ? (
+                        <CheckCircle2 className="h-5 w-5 text-zinc-600" />
+                    ) : isLocked ? (
+                        <Lock className="h-4 w-4 text-zinc-700" />
+                    ) : (
+                        <Icon className={cn('h-5 w-5', colorText, isActive && 'animate-pulse')} />
                     )}
                 </div>
-                {isActive && (
-                    <p className="mt-1 text-xs leading-relaxed text-zinc-500">{desc}</p>
-                )}
-            </div>
 
-            {/* Hours badge */}
-            <span
-                className={cn(
-                    'shrink-0 self-start rounded-lg px-2.5 py-1 font-mono text-xs font-medium',
-                    isActive ? [colorText, colorBg] : 'bg-zinc-800/40 text-zinc-700',
-                )}
-            >
-                {range}
-            </span>
+                {/* Label + teaser */}
+                <div className="min-w-0 flex-1 pt-0.5">
+                    <div className="flex items-center gap-2">
+                        <p className={cn(
+                            'font-semibold leading-snug',
+                            isActive ? colorText : isDone ? 'text-zinc-500' : 'text-zinc-700',
+                        )}>
+                            {label}
+                        </p>
+                        {isActive && (
+                            <span className={cn('h-1.5 w-1.5 rounded-full animate-pulse', colorDot)} />
+                        )}
+                    </div>
+                    <p className={cn(
+                        'mt-0.5 text-xs leading-relaxed',
+                        isActive ? 'text-zinc-500' : 'text-zinc-700',
+                    )}>
+                        {desc}
+                    </p>
+                </div>
+
+                {/* Right: badge + chevron */}
+                <div className="flex shrink-0 flex-col items-end gap-2 self-start pt-0.5">
+                    <span className={cn(
+                        'rounded-lg px-2.5 py-1 font-mono text-xs font-medium',
+                        isActive ? [colorText, colorBg] : 'bg-zinc-800/40 text-zinc-700',
+                    )}>
+                        {range}
+                    </span>
+                    {!isLocked && (
+                        <span className={cn(
+                            'flex items-center gap-0.5 text-[10px] font-medium transition-colors',
+                            open
+                                ? isActive ? colorText : 'text-zinc-400'
+                                : 'text-zinc-600 group-hover:text-zinc-400',
+                        )}>
+                            <Info className="h-3 w-3" />
+                            <ChevronDown className={cn(
+                                'h-3 w-3 transition-transform duration-300',
+                                open && 'rotate-180',
+                            )} />
+                        </span>
+                    )}
+                </div>
+            </button>
+
+            {/* ── Expandable detail panel — CSS grid trick for smooth height ── */}
+            <div className={cn(
+                'grid transition-all duration-300 ease-in-out',
+                open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+            )}>
+                <div className="overflow-hidden">
+                    <div className={cn(
+                        'mx-5 mb-4 rounded-xl border px-4 py-3',
+                        isActive
+                            ? [colorBorder, 'bg-black/20']
+                            : 'border-zinc-800/50 bg-zinc-900/30',
+                    )}>
+                        <p className="text-sm leading-relaxed text-zinc-400">
+                            {detail}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
