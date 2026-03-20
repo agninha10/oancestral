@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { DashboardSidebar } from '@/components/dashboard/sidebar';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
+import { DashboardMain } from '@/components/dashboard/dashboard-main';
 
 // Força renderização dinâmica para sempre verificar autenticação
 export const dynamic = 'force-dynamic';
@@ -43,12 +44,12 @@ export default async function DashboardLayout({
                 <DashboardSidebar user={user} />
 
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col lg:pl-64">
+                <DashboardMain>
                     <DashboardHeader user={user} />
                     <main className="flex-1 bg-background">
                         {children}
                     </main>
-                </div>
+                </DashboardMain>
             </div>
         </DashboardClient>
     );
