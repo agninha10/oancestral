@@ -14,7 +14,7 @@ function getSecret(): Uint8Array {
 }
 
 export async function signMobileToken(payload: MobileJWTPayload): Promise<string> {
-    return new SignJWT(payload as Record<string, unknown>)
+    return new SignJWT(payload as unknown as Record<string, unknown>)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('30d')
