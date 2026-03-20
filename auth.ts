@@ -200,15 +200,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
          * Sync the NextAuth `image` field to our custom `avatarUrl` column
          * so existing code that reads `avatarUrl` keeps working.
          */
-        async signIn({ user }) {
-            if (user.id && user.image) {
-                await prisma.user.update({
-                    where: { id: user.id },
-                    data:  { avatarUrl: user.image },
-                }).catch(() => {
-                    // Non-critical — don't fail the sign-in if this errors
-                });
-            }
+        async signIn({ user, account }) {
+            if (!user.id) return;
+
+            const isOAuth = account?.type === 'oauth';
+
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    // Sync Google/Apple avatar to our avatarUrl column
+                    ...(user.image ? { avatarUrl: user.image } : {}),
+                    // OAuth providers already verify e-mail ownership — mark it verified
+                    ...(isOAuth ? { emailVerified: new Date() } : {}),
+                },
+            }).catch(() => {
+                // Non-critical — don't fail the sign-in if this errors
+            });
         },
     },
 });
