@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { logActivity } from '@/lib/activity-log';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
+import { slugifyUsername } from '@/lib/username-utils';
 
 type ActionResult = { success: true } | { success: false; error: string };
 
@@ -16,6 +17,7 @@ type ActionResult = { success: true } | { success: false; error: string };
 
 const profileSchema = z.object({
     name:          z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres.'),
+    username:      z.string().trim().min(3, 'Username deve ter pelo menos 3 caracteres.').max(30).regex(/^[a-z0-9_]+$/, 'Apenas letras minúsculas, números e _.').optional(),
     whatsapp:      z.string().trim().optional(),
     weight:        z.number().positive().max(500).nullable(),
     height:        z.number().int().positive().max(300).nullable(),
@@ -32,6 +34,7 @@ const profileSchema = z.object({
 
 export async function updateProfile(data: {
     name: string;
+    username?: string;
     whatsapp: string;
     weight: number | null;
     height: number | null;
@@ -53,12 +56,22 @@ export async function updateProfile(data: {
         return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const { name, whatsapp, weight, height, avatarUrl, bio, instagram, twitter, youtube, tiktok, linkedin, website, profilePublic } = parsed.data;
+    const { name, username, whatsapp, weight, height, avatarUrl, bio, instagram, twitter, youtube, tiktok, linkedin, website, profilePublic } = parsed.data;
+
+    // Check username uniqueness
+    if (username) {
+        const taken = await prisma.user.findFirst({
+            where: { username, NOT: { id: session.userId } },
+            select: { id: true },
+        });
+        if (taken) return { success: false, error: 'Este username já está em uso. Tente outro.' };
+    }
 
     await prisma.user.update({
         where: { id: session.userId },
         data: {
             name,
+            username:      username      !== undefined ? (username || null)   : undefined,
             whatsapp:      whatsapp  || null,
             weight:        weight    ?? null,
             height:        height    ?? null,

@@ -41,7 +41,7 @@ export function PostCard({ post, isAuthenticated = false }: PostCardProps) {
             <div className="flex items-center gap-3 mb-3">
                 <Avatar name={post.author.name} avatarUrl={post.author.avatarUrl} />
                 <div className="flex-1 min-w-0">
-                    <Link href={`/u/${post.author.id}`} className="text-sm font-medium text-zinc-200 hover:text-amber-400 transition-colors">
+                    <Link href={`/u/${post.author.username ?? post.author.id}`} className="text-sm font-medium text-zinc-200 hover:text-amber-400 transition-colors">
                         {post.author.name}
                     </Link>
                     <span className="mx-1.5 text-zinc-600">·</span>

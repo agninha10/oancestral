@@ -17,6 +17,7 @@ export default async function ProfilePage() {
                 name: true,
                 email: true,
                 emailVerified: true,
+                username: true,
                 avatarUrl: true,
                 whatsapp: true,
                 weight: true,
@@ -88,6 +89,7 @@ export default async function ProfilePage() {
                 user={{
                     id:            user.id,
                     name:          user.name,
+                    username:      user.username,
                     email:         user.email,
                     emailVerified: user.emailVerified,
                     avatarUrl:     user.avatarUrl,

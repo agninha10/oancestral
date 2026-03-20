@@ -38,7 +38,7 @@ export function ReplyCard({ reply, postId, isAuthenticated }: ReplyCardProps) {
             <div className="flex items-center gap-3">
                 <Avatar name={reply.author.name} avatarUrl={reply.author.avatarUrl} />
                 <div className="flex-1">
-                    <Link href={`/u/${reply.author.id}`} className="text-sm font-semibold text-zinc-200 hover:text-amber-400 transition-colors">
+                    <Link href={`/u/${reply.author.username ?? reply.author.id}`} className="text-sm font-semibold text-zinc-200 hover:text-amber-400 transition-colors">
                         {reply.author.name}
                     </Link>
                     <p className="text-xs text-zinc-500">{timeAgo}</p>
@@ -87,7 +87,7 @@ export function ReplyCard({ reply, postId, isAuthenticated }: ReplyCardProps) {
                                 <div className="flex-1 space-y-2">
                                     <div className="flex items-center gap-2">
                                         <Avatar name={sub.author.name} avatarUrl={sub.author.avatarUrl} size={6} />
-                                        <Link href={`/u/${sub.author.id}`} className="text-xs font-semibold text-zinc-300 hover:text-amber-400 transition-colors">
+                                        <Link href={`/u/${sub.author.username ?? sub.author.id}`} className="text-xs font-semibold text-zinc-300 hover:text-amber-400 transition-colors">
                                             {sub.author.name}
                                         </Link>
                                         <span className="text-xs text-zinc-600">{subTime}</span>

@@ -58,6 +58,7 @@ model User {
 
   birthdate DateTime
 
+  username  String?  @unique
   avatarUrl String?
   weight    Float?   // kg
   height    Int?     // cm

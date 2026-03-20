@@ -51,6 +51,7 @@ export default async function AulaPage({
             select: {
                 id: true,
                 name: true,
+                username: true,
                 role: true,
                 _count: { select: { blogPosts: true } },
             },

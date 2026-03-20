@@ -25,7 +25,7 @@ export type PostSummary = {
     views: number;
     pinned: boolean;
     createdAt: Date;
-    author: { id: string; name: string; avatarUrl: string | null };
+    author: { id: string; name: string; username: string | null; avatarUrl: string | null };
     category: { id: string; name: string; slug: string; icon: string };
     _count: { replies: number; likes: number };
     likedByMe: boolean;
@@ -36,13 +36,13 @@ export type ReplyItem = {
     content: string;
     createdAt: Date;
     parentId: string | null;
-    author: { id: string; name: string; avatarUrl: string | null };
+    author: { id: string; name: string; username: string | null; avatarUrl: string | null };
     replies: {
         id: string;
         content: string;
         createdAt: Date;
         parentId: string | null;
-        author: { id: string; name: string; avatarUrl: string | null };
+        author: { id: string; name: string; username: string | null; avatarUrl: string | null };
     }[];
 };
 
@@ -68,7 +68,7 @@ export async function getPosts(categorySlug?: string): Promise<PostSummary[]> {
         orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
         take: 50,
         include: {
-            author:   { select: { id: true, name: true, avatarUrl: true } },
+            author:   { select: { id: true, name: true, username: true, avatarUrl: true } },
             category: { select: { id: true, name: true, slug: true, icon: true } },
             _count:   { select: { replies: true, likes: true } },
             likes:    userId ? { where: { userId }, select: { id: true } } : false,
@@ -90,7 +90,7 @@ export async function getPostDetails(slug: string): Promise<PostDetail | null> {
     const post = await prisma.forumPost.findFirst({
         where: { OR: [{ slug }, { id: slug }] },
         include: {
-            author:   { select: { id: true, name: true, avatarUrl: true } },
+            author:   { select: { id: true, name: true, username: true, avatarUrl: true } },
             category: { select: { id: true, name: true, slug: true, icon: true } },
             _count:   { select: { replies: true, likes: true } },
             likes:    userId ? { where: { userId }, select: { id: true } } : false,
@@ -98,10 +98,10 @@ export async function getPostDetails(slug: string): Promise<PostDetail | null> {
                 where:   { parentId: null },
                 orderBy: { createdAt: 'asc' },
                 include: {
-                    author:  { select: { id: true, name: true, avatarUrl: true } },
+                    author:  { select: { id: true, name: true, username: true, avatarUrl: true } },
                     replies: {
                         orderBy: { createdAt: 'asc' },
-                        include: { author: { select: { id: true, name: true, avatarUrl: true } } },
+                        include: { author: { select: { id: true, name: true, username: true, avatarUrl: true } } },
                     },
                 },
             },

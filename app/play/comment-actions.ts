@@ -10,6 +10,7 @@ import { z } from 'zod';
 export type CommentUser = {
     id: string;
     name: string;
+    username: string | null;
     role: string;                    // 'USER' | 'ADMIN'
     _count: { blogPosts: number };   // > 0 → "Autor" badge
 };
@@ -35,6 +36,7 @@ export type CommentWithUser = {
 const userSelect = {
     id: true,
     name: true,
+    username: true,
     role: true,
     _count: { select: { blogPosts: true } },
 } as const;

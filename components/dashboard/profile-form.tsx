@@ -42,6 +42,7 @@ interface ProfileFormProps {
     user: {
         id: string;
         name: string;
+        username: string | null;
         email: string;
         emailVerified: Date | null;
         avatarUrl: string | null;
@@ -286,7 +287,7 @@ function EmailChangeSection({
                             onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                             placeholder="000000"
                             disabled={isPending}
-                            className="max-w-[140px] text-center font-mono text-lg tracking-[0.3em]"
+                            className="max-w-35 text-center font-mono text-lg tracking-[0.3em]"
                             onKeyDown={(e) => { if (e.key === 'Enter') handleConfirm(); }}
                         />
                         <Button
@@ -460,6 +461,7 @@ function bmiLabel(bmi: number) {
 export function ProfileForm({ user }: ProfileFormProps) {
     const [avatarUrl,     setAvatarUrl]     = useState(user.avatarUrl);
     const [name,          setName]          = useState(user.name);
+    const [username,      setUsername]      = useState(user.username ?? '');
     const [whatsapp,      setWhatsapp]      = useState(user.whatsapp ?? '');
     const [weight,        setWeight]        = useState(user.weight?.toString() ?? '');
     const [height,        setHeight]        = useState(user.height?.toString() ?? '');
@@ -483,6 +485,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         startT(async () => {
             const res = await updateProfile({
                 name,
+                username: username.trim() || undefined,
                 whatsapp,
                 weight:    weightNum,
                 height:    heightNum,
@@ -529,6 +532,27 @@ export function ProfileForm({ user }: ProfileFormProps) {
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Seu nome"
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="username">Username</Label>
+                        <div className="flex items-center rounded-xl border border-input bg-background focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30 overflow-hidden">
+                            <span className="pl-3 pr-1 text-sm text-muted-foreground select-none">@</span>
+                            <input
+                                id="username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                                placeholder="seu_username"
+                                maxLength={30}
+                                className="flex-1 bg-transparent py-2 pr-3 text-sm focus:outline-none placeholder:text-muted-foreground"
+                            />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Seu perfil ficará em{' '}
+                            <span className="font-mono text-primary/80">
+                                oancestral.com.br/u/{username || 'username'}
+                            </span>
+                        </p>
                     </div>
 
                     <div className="space-y-2">
@@ -715,7 +739,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     onClick={handleSave}
                     disabled={isPending || !name.trim()}
                     size="lg"
-                    className="min-w-[160px]"
+                    className="min-w-40"
                 >
                     {isPending ? (
                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Salvando…</>

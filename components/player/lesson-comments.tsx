@@ -196,7 +196,7 @@ function CommentCard({ comment, lessonId, currentUser, onReplyAdded }: CommentCa
                 <Avatar name={comment.user.name} size="sm" />
                 <div className="flex-1 space-y-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Link href={`/u/${comment.user.id}`} className="text-sm font-semibold text-zinc-200 hover:text-amber-400 transition-colors">
+                        <Link href={`/u/${comment.user.username ?? comment.user.id}`} className="text-sm font-semibold text-zinc-200 hover:text-amber-400 transition-colors">
                             {comment.user.name}
                         </Link>
                         <UserBadges user={comment.user} />
@@ -250,7 +250,7 @@ function CommentCard({ comment, lessonId, currentUser, onReplyAdded }: CommentCa
                                 <Avatar name={reply.user.name} size="xs" />
                                 <div className="flex-1 space-y-0.5 min-w-0">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <Link href={`/u/${reply.user.id}`} className="text-xs font-semibold text-zinc-200 hover:text-amber-400 transition-colors">
+                                        <Link href={`/u/${reply.user.username ?? reply.user.id}`} className="text-xs font-semibold text-zinc-200 hover:text-amber-400 transition-colors">
                                             {reply.user.name}
                                         </Link>
                                         <UserBadges user={reply.user} />
