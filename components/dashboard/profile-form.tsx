@@ -16,6 +16,9 @@ import {
     Ruler,
     Phone,
     User,
+    Lock,
+    Eye,
+    EyeOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +30,7 @@ import {
     requestEmailChange,
     confirmEmailChange,
     cancelEmailChange,
+    changePassword,
 } from '@/app/dashboard/perfil/actions';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -301,6 +305,136 @@ function EmailChangeSection({
     );
 }
 
+// ─── PasswordChangeSection ────────────────────────────────────────────────────
+
+function PasswordInput({
+    id, label, value, onChange, disabled,
+}: {
+    id: string; label: string; value: string;
+    onChange: (v: string) => void; disabled: boolean;
+}) {
+    const [show, setShow] = useState(false);
+    return (
+        <div className="space-y-2">
+            <Label htmlFor={id}>{label}</Label>
+            <div className="relative">
+                <Input
+                    id={id}
+                    type={show ? 'text' : 'password'}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    disabled={disabled}
+                    className="pr-10"
+                    autoComplete={id === 'current-password' ? 'current-password' : 'new-password'}
+                />
+                <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShow((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                    {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function PasswordChangeSection() {
+    const [open,        setOpen]        = useState(false);
+    const [current,     setCurrent]     = useState('');
+    const [next,        setNext]        = useState('');
+    const [confirm,     setConfirm]     = useState('');
+    const [isPending,   startT]         = useTransition();
+
+    const mismatch = next && confirm && next !== confirm;
+    const weak     = next && next.length < 8;
+    const canSave  = current && next.length >= 8 && next === confirm && !isPending;
+
+    const handleSave = () => {
+        startT(async () => {
+            const res = await changePassword({ currentPassword: current, newPassword: next });
+            if (res.success) {
+                toast.success('Senha alterada com sucesso!');
+                setOpen(false);
+                setCurrent(''); setNext(''); setConfirm('');
+            } else {
+                toast.error(res.error);
+            }
+        });
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
+        setCurrent(''); setNext(''); setConfirm('');
+    };
+
+    return (
+        <div className="space-y-3">
+            {!open ? (
+                <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    className="text-xs text-primary underline-offset-2 hover:underline"
+                >
+                    Alterar senha
+                </button>
+            ) : (
+                <div className="space-y-4">
+                    <PasswordInput
+                        id="current-password"
+                        label="Senha atual"
+                        value={current}
+                        onChange={setCurrent}
+                        disabled={isPending}
+                    />
+                    <PasswordInput
+                        id="new-password"
+                        label="Nova senha"
+                        value={next}
+                        onChange={setNext}
+                        disabled={isPending}
+                    />
+                    {weak && (
+                        <p className="text-xs text-amber-500">Mínimo de 8 caracteres.</p>
+                    )}
+                    <PasswordInput
+                        id="confirm-password"
+                        label="Confirmar nova senha"
+                        value={confirm}
+                        onChange={setConfirm}
+                        disabled={isPending}
+                    />
+                    {mismatch && (
+                        <p className="text-xs text-destructive">As senhas não coincidem.</p>
+                    )}
+                    <div className="flex gap-2 pt-1">
+                        <Button
+                            type="button"
+                            onClick={handleSave}
+                            disabled={!canSave}
+                            size="sm"
+                        >
+                            {isPending
+                                ? <Loader2 className="h-4 w-4 animate-spin" />
+                                : <><CheckCircle2 className="mr-1.5 h-4 w-4" />Salvar senha</>
+                            }
+                        </Button>
+                        <button
+                            type="button"
+                            onClick={handleCancel}
+                            disabled={isPending}
+                            className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ─── BMI helper ───────────────────────────────────────────────────────────────
 
 function bmiLabel(bmi: number) {
@@ -462,6 +596,15 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     emailVerified={user.emailVerified}
                     initialPendingEmail={user.pendingEmail}
                 />
+            </div>
+
+            {/* ── Senha ──────────────────────────────────────────────────── */}
+            <div className="rounded-xl border border-border bg-card p-6 space-y-3">
+                <h3 className="flex items-center gap-2 text-sm font-semibold">
+                    <Lock className="h-4 w-4 text-primary" />
+                    Senha
+                </h3>
+                <PasswordChangeSection />
             </div>
 
             {/* ── Save button ────────────────────────────────────────────── */}

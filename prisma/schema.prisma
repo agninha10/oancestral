@@ -84,6 +84,9 @@ model User {
   lessonComments  LessonComment[]
   fastingSessions FastingSession[]
   notifications   Notification[]
+  forumPosts      ForumPost[]
+  forumReplies    ForumReply[]
+  postLikes       PostLike[]
 
   @@map("users")
 }
@@ -481,6 +484,76 @@ model FastingSession {
   @@index([userId])
   @@index([status])
   @@map("fasting_sessions")
+}
+
+// ─── Forum ─────────────────────────────────────────────────────────────────────
+
+model ForumCategory {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String
+  icon        String      @default("💬")
+  order       Int         @default(0)
+  posts       ForumPost[]
+  createdAt   DateTime    @default(now())
+
+  @@map("forum_categories")
+}
+
+model ForumPost {
+  id         String        @id @default(cuid())
+  title      String
+  content    String        @db.Text
+  views      Int           @default(0)
+  pinned     Boolean       @default(false)
+
+  authorId   String
+  author     User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   ForumCategory @relation(fields: [categoryId], references: [id])
+
+  replies    ForumReply[]
+  likes      PostLike[]
+
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("forum_posts")
+}
+
+model ForumReply {
+  id        String    @id @default(cuid())
+  content   String    @db.Text
+
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+
+  @@index([postId])
+  @@index([authorId])
+  @@map("forum_replies")
+}
+
+model PostLike {
+  id        String    @id @default(cuid())
+
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@map("post_likes")
 }
 
 // ─── Notifications ─────────────────────────────────────────────────────────────

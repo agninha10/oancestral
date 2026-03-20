@@ -8,6 +8,7 @@ import EmailChangeEmail from '@/emails/EmailChangeEmail';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { logActivity } from '@/lib/activity-log';
+import { hashPassword, verifyPassword } from '@/lib/auth/password';
 
 type ActionResult = { success: true } | { success: false; error: string };
 
@@ -172,6 +173,49 @@ export async function confirmEmailChange(code: string): Promise<ActionResult> {
     });
 
     revalidatePath('/dashboard/perfil');
+    return { success: true };
+}
+
+// ─── changePassword ───────────────────────────────────────────────────────────
+
+export async function changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+}): Promise<ActionResult> {
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Não autorizado.' };
+
+    const schema = z.object({
+        currentPassword: z.string().min(1, 'Informe a senha atual.'),
+        newPassword: z.string().min(8, 'A nova senha deve ter pelo menos 8 caracteres.'),
+    });
+    const parsed = schema.safeParse(data);
+    if (!parsed.success) {
+        return { success: false, error: parsed.error.issues[0].message };
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { password: true },
+    });
+    if (!user) return { success: false, error: 'Usuário não encontrado.' };
+
+    const valid = await verifyPassword(parsed.data.currentPassword, user.password);
+    if (!valid) return { success: false, error: 'Senha atual incorreta.' };
+
+    const newHash = await hashPassword(parsed.data.newPassword);
+    await prisma.user.update({
+        where: { id: session.userId },
+        data: { password: newHash },
+    });
+
+    logActivity({
+        userId: session.userId,
+        action: 'PROFILE_UPDATE',
+        resource: 'password',
+        metadata: { updatedFields: ['password'] },
+    }).catch(() => {});
+
     return { success: true };
 }
 

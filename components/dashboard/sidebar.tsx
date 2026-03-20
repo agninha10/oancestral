@@ -12,6 +12,7 @@ import {
     Flame,
     ChevronLeft,
     ChevronRight,
+    Swords,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { useSidebar } from '@/components/dashboard/sidebar-context';
@@ -54,6 +55,11 @@ const navigation = [
         name: 'Receitas',
         href: '/receitas',
         icon: BookOpen,
+    },
+    {
+        name: 'A Forja',
+        href: '/comunidade',
+        icon: Swords,
     },
     {
         name: 'Perfil',

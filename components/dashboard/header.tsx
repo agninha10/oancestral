@@ -12,6 +12,7 @@ import {
     BookOpen,
     User,
     Flame,
+    Swords,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { NotificationBell } from '@/components/dashboard/notification-bell';
@@ -49,6 +50,11 @@ const navigation = [
         name: 'Receitas',
         href: '/receitas',
         icon: BookOpen,
+    },
+    {
+        name: 'A Forja',
+        href: '/comunidade',
+        icon: Swords,
     },
     {
         name: 'Perfil',

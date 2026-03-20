@@ -19,6 +19,7 @@ import {
     Bell,
     Activity,
     Gift,
+    Swords,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ const navigation = [
     { name: 'Cursos', href: '/admin/cursos', icon: GraduationCap },
     { name: 'Cortesias', href: '/admin/cortesias', icon: Gift },
     { name: 'Categorias', href: '/admin/categorias', icon: FolderTree },
+    { name: 'A Forja (Fórum)', href: '/comunidade', icon: Swords },
     { name: 'Contato', href: '/admin/contato', icon: MessageSquare },
     { name: 'Comentários', href: '/admin/comentarios', icon: MessageCircle },
     { name: 'Notificações', href: '/admin/notificacoes', icon: Bell },
