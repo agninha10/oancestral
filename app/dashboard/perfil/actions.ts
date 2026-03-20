@@ -7,6 +7,7 @@ import { Resend } from 'resend';
 import EmailChangeEmail from '@/emails/EmailChangeEmail';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { logActivity } from '@/lib/activity-log';
 
 type ActionResult = { success: true } | { success: false; error: string };
 
@@ -47,6 +48,21 @@ export async function updateProfile(data: {
             avatarUrl: avatarUrl ?? null,
         },
     });
+
+    logActivity({
+        userId: session.userId,
+        action: 'PROFILE_UPDATE',
+        resource: 'profile',
+        metadata: {
+            updatedFields: [
+                name !== undefined && 'name',
+                whatsapp !== undefined && 'whatsapp',
+                weight  !== undefined && 'weight',
+                height  !== undefined && 'height',
+                avatarUrl !== undefined && 'avatarUrl',
+            ].filter(Boolean),
+        },
+    }).catch(() => {});
 
     revalidatePath('/dashboard/perfil');
     revalidatePath('/dashboard');

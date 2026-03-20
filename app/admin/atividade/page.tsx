@@ -30,6 +30,8 @@ const ACTION_COLORS: Record<string, string> = {
   COURSE_ENROLLMENT: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
   BLOG_POST_VIEW: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
   LESSON_ACCESS: 'bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200',
+  PROFILE_UPDATE: 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200',
+  FASTING_ACCESS: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
 }
 
 export default async function ActivityLogPage({ searchParams }: ActivityLogPageProps) {

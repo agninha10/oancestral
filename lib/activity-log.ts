@@ -13,6 +13,8 @@ export type ActivityAction =
   | 'COURSE_ENROLLMENT'
   | 'BLOG_POST_VIEW'
   | 'LESSON_ACCESS'
+  | 'PROFILE_UPDATE'
+  | 'FASTING_ACCESS'
 
 interface LogActivityParams {
   userId: string
