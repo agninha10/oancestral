@@ -20,6 +20,7 @@ import Google from 'next-auth/providers/google';
 import Apple from 'next-auth/providers/apple';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 import type { DefaultSession } from 'next-auth';
 
@@ -36,6 +37,26 @@ declare module 'next-auth' {
     interface User {
         role?: string | null;
     }
+}
+
+// ─── Google One Tap JWT verification ──────────────────────────────────────────
+
+const GOOGLE_JWKS = createRemoteJWKSet(
+    new URL('https://www.googleapis.com/oauth2/v3/certs')
+);
+
+async function verifyGoogleJwt(credential: string) {
+    const { payload } = await jwtVerify(credential, GOOGLE_JWKS, {
+        audience: process.env.GOOGLE_CLIENT_ID,
+        issuer:   ['https://accounts.google.com', 'accounts.google.com'],
+    });
+    return payload as {
+        sub:            string;
+        email:          string;
+        email_verified: boolean;
+        name?:          string;
+        picture?:       string;
+    };
 }
 
 // ─── Providers ────────────────────────────────────────────────────────────────
@@ -63,6 +84,39 @@ const providers = [
               }),
           ]
         : []),
+
+    // ─── Credentials (Google One Tap) ─────────────────────────────────────────
+    Credentials({
+        id:          'google-one-tap',
+        name:        'Google One Tap',
+        credentials: { credential: {} },
+        async authorize(credentials) {
+            const token = credentials?.credential as string | undefined;
+            if (!token) return null;
+
+            const payload = await verifyGoogleJwt(token).catch(() => null);
+            if (!payload?.email || !payload.email_verified) return null;
+
+            let user = await prisma.user.findUnique({
+                where:  { email: payload.email },
+                select: { id: true, name: true, email: true, role: true },
+            });
+
+            if (!user) {
+                user = await prisma.user.create({
+                    data: {
+                        email:         payload.email,
+                        name:          payload.name  ?? null,
+                        avatarUrl:     payload.picture ?? null,
+                        emailVerified: new Date(),
+                    },
+                    select: { id: true, name: true, email: true, role: true },
+                });
+            }
+
+            return { id: user.id, name: user.name, email: user.email, role: user.role };
+        },
+    }),
 
     // ─── Credentials (E-mail + Senha) ──────────────────────────────────────────
     Credentials({

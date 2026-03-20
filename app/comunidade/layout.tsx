@@ -8,6 +8,7 @@ import { DashboardHeader } from '@/components/dashboard/header';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
 import { DashboardMain } from '@/components/dashboard/dashboard-main';
 import { CommunitySidebar } from '@/components/forum/community-sidebar';
+import { GoogleOneTap } from '@/components/auth/google-one-tap';
 import { Swords, LogIn } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -106,6 +107,7 @@ export default async function ComunidadeLayout({
         <div className="min-h-screen bg-zinc-950 text-zinc-100">
             <PublicHeader />
             <ForumInner categories={categories}>{children}</ForumInner>
+            <GoogleOneTap />
         </div>
     );
 }
