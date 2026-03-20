@@ -137,6 +137,28 @@ function formatTime(s: number) {
     return `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
 }
 
+function formatStartLabel(startTime: Date): string {
+    const now   = new Date();
+    const start = new Date(startTime);
+
+    const todayMidnight     = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterdayMidnight = new Date(todayMidnight.getTime() - 86_400_000);
+    const startMidnight     = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+
+    const timeStr = start.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    if (startMidnight.getTime() === todayMidnight.getTime()) {
+        return `Iniciado hoje às ${timeStr}`;
+    }
+    if (startMidnight.getTime() === yesterdayMidnight.getTime()) {
+        return `Iniciado ontem às ${timeStr}`;
+    }
+
+    const dayName  = start.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+    const dateStr  = start.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    return `Iniciado ${dayName}., ${dateStr} às ${timeStr}`;
+}
+
 type StageStatus = 'done' | 'active' | 'upcoming';
 
 function getStatus(h: number, min: number, max: number): StageStatus {
@@ -490,25 +512,31 @@ export function FastingTracker({ initialFast }: { initialFast: OngoingFast | nul
 
                     {/* Active stage pill */}
                     {session && (
-                        <div
-                            className={cn(
-                                'mt-6 flex items-center gap-2.5 rounded-2xl border px-5 py-2.5',
-                                activeStage.colorBg,
-                                activeStage.colorBorder,
-                                'border',
-                            )}
-                        >
-                            <activeStage.Icon
-                                className={cn('h-4 w-4', activeStage.colorText)}
-                            />
-                            <span
+                        <div className="mt-6 flex flex-col items-center gap-2">
+                            <div
                                 className={cn(
-                                    'text-sm font-bold uppercase tracking-[0.12em]',
-                                    activeStage.colorText,
+                                    'flex items-center gap-2.5 rounded-2xl border px-5 py-2.5',
+                                    activeStage.colorBg,
+                                    activeStage.colorBorder,
+                                    'border',
                                 )}
                             >
-                                {activeStage.label}
-                            </span>
+                                <activeStage.Icon
+                                    className={cn('h-4 w-4', activeStage.colorText)}
+                                />
+                                <span
+                                    className={cn(
+                                        'text-sm font-bold uppercase tracking-[0.12em]',
+                                        activeStage.colorText,
+                                    )}
+                                >
+                                    {activeStage.label}
+                                </span>
+                            </div>
+
+                            <p className="text-xs text-zinc-600 tabular-nums">
+                                {formatStartLabel(new Date(session.startTime))}
+                            </p>
                         </div>
                     )}
 
@@ -607,10 +635,7 @@ export function FastingTracker({ initialFast }: { initialFast: OngoingFast | nul
                                                     {clampedRetro}h
                                                 </span>
                                                 <span className="mt-1 text-[10px] text-zinc-600 tabular-nums">
-                                                    início às {(() => {
-                                                        const d = new Date(Date.now() - clampedRetro * 3_600_000);
-                                                        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                                                    })()}
+                                                    {formatStartLabel(new Date(Date.now() - clampedRetro * 3_600_000))}
                                                 </span>
                                             </div>
 
