@@ -27,30 +27,39 @@ type PostCard = {
     authorName: string | null
 }
 
+// Fisher-Yates shuffle — returns a new shuffled array
+function shuffle<T>(arr: T[]): T[] {
+    const a = [...arr]
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+}
+
 // ─── Route handler ─────────────────────────────────────────────────────────────
 
 export async function GET() {
     try {
-        // All four queries run in parallel — total latency = slowest single query
-        const [courses, recipes, posts] = await Promise.all([
-            // 1. Courses — featured first, then newest
+        // Fetch pools in parallel.
+        // Courses and recipes: fetch up to 50 then shuffle → pick 5.
+        // Posts: 5 most recently published (deterministic, no shuffle).
+        const [coursePool, recipePool, posts] = await Promise.all([
+            // 1. Courses — fetch pool, will be shuffled below
             prisma.course.findMany({
                 where: { published: true },
-                orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-                take: 8,
                 select: {
                     id: true,
                     title: true,
                     coverImage: true,
                     isPremium: true,
                 },
+                take: 50,
             }),
 
-            // 2. Recipes — featured first, then newest
+            // 2. Recipes — fetch pool, will be shuffled below
             prisma.recipe.findMany({
                 where: { published: true },
-                orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-                take: 10,
                 select: {
                     id: true,
                     title: true,
@@ -60,13 +69,14 @@ export async function GET() {
                         select: { name: true },
                     },
                 },
+                take: 50,
             }),
 
-            // 3. Blog posts — featured first, then most recently published
+            // 3. Posts — 5 most recently published (no randomness)
             prisma.blogPost.findMany({
                 where: { published: true },
-                orderBy: [{ featured: 'desc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
-                take: 10,
+                orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+                take: 5,
                 select: {
                     id: true,
                     title: true,
@@ -79,6 +89,11 @@ export async function GET() {
                 },
             }),
         ])
+
+        // ── Shuffle pools and pick up to 5 ─────────────────────────────────────
+
+        const courses = shuffle(coursePool).slice(0, 5)
+        const recipes = shuffle(recipePool).slice(0, 5)
 
         // ── Map to clean card payloads ──────────────────────────────────────────
 
@@ -111,7 +126,6 @@ export async function GET() {
             data: {
                 coursesRow,
                 // NOTE: No Ebook model exists in the schema yet.
-                // This row is intentionally empty, ready for future expansion.
                 ebooksRow: [],
                 recipesRow,
                 postsRow,
