@@ -71,7 +71,7 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
 
     const handleCourseClick = (course: Course) => {
         if (course.isEnrolled) {
-            router.push(`/play/${course.slug}`);
+            router.push(`/dashboard/cursos/${course.slug}`);
         } else {
             router.push(`/cursos/${course.slug}`);
         }

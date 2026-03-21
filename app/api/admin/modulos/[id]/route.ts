@@ -43,11 +43,14 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { thumbnailUrl } = body;
+        const { title, thumbnailUrl } = body;
 
         const module = await prisma.module.update({
             where: { id },
-            data: { thumbnailUrl: thumbnailUrl ?? null },
+            data: {
+                ...(title !== undefined && { title }),
+                ...(thumbnailUrl !== undefined && { thumbnailUrl: thumbnailUrl ?? null }),
+            },
         });
 
         return NextResponse.json(module);

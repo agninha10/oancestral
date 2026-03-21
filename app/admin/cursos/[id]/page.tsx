@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, Search, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, Search, ShoppingCart, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +46,8 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
     const [modules, setModules] = useState<Module[]>([]);
     const [showModuleForm, setShowModuleForm] = useState(false);
     const [newModuleTitle, setNewModuleTitle] = useState('');
+    const [editingModuleId, setEditingModuleId] = useState<string | null>(null);
+    const [editingModuleTitle, setEditingModuleTitle] = useState('');
 
     useEffect(() => {
         params.then((p) => {
@@ -163,6 +165,40 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
         } catch (error) {
             console.error('Erro ao criar módulo:', error);
         }
+    };
+
+    const handleStartRenameModule = (module: Module) => {
+        setEditingModuleId(module.id);
+        setEditingModuleTitle(module.title);
+    };
+
+    const handleRenameModule = async (moduleId: string) => {
+        const title = editingModuleTitle.trim();
+        if (!title) return;
+
+        try {
+            const response = await fetch(`/api/admin/modulos/${moduleId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title }),
+            });
+
+            if (response.ok) {
+                setModules((prev) =>
+                    prev.map((m) => (m.id === moduleId ? { ...m, title } : m))
+                );
+            }
+        } catch (error) {
+            console.error('Erro ao renomear módulo:', error);
+        } finally {
+            setEditingModuleId(null);
+            setEditingModuleTitle('');
+        }
+    };
+
+    const handleCancelRename = () => {
+        setEditingModuleId(null);
+        setEditingModuleTitle('');
     };
 
     const handleDeleteModule = async (moduleId: string) => {
@@ -550,31 +586,75 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                             {modules.map((module, index) => (
                                 <Card key={module.id} className="p-4">
                                     <div className="flex items-center gap-4">
-                                        <GripVertical className="h-5 w-5 text-muted-foreground" />
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="font-semibold">
-                                                    {index + 1}. {module.title}
-                                                </h3>
-                                                <Badge variant="secondary">
-                                                    {module._count.lessons} aula(s)
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Link href={`/admin/cursos/${courseId}/modulos/${module.id}`}>
-                                                <Button variant="outline" size="sm">
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                            </Link>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handleDeleteModule(module.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
+                                        <GripVertical className="h-5 w-5 text-muted-foreground shrink-0" />
+
+                                        {editingModuleId === module.id ? (
+                                            // ── Rename mode ──────────────────────────────────
+                                            <>
+                                                <Input
+                                                    className="h-8 text-sm font-semibold"
+                                                    value={editingModuleTitle}
+                                                    onChange={(e) => setEditingModuleTitle(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') handleRenameModule(module.id);
+                                                        if (e.key === 'Escape') handleCancelRename();
+                                                    }}
+                                                    autoFocus
+                                                />
+                                                <div className="flex gap-1 shrink-0">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="default"
+                                                        onClick={() => handleRenameModule(module.id)}
+                                                    >
+                                                        <Check className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={handleCancelRename}
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            // ── Display mode ─────────────────────────────────
+                                            <>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className="font-semibold truncate">
+                                                            {index + 1}. {module.title}
+                                                        </h3>
+                                                        <Badge variant="secondary" className="shrink-0">
+                                                            {module._count.lessons} aula(s)
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 shrink-0">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleStartRenameModule(module)}
+                                                        title="Renomear módulo"
+                                                    >
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                    <Link href={`/admin/cursos/${courseId}/modulos/${module.id}`}>
+                                                        <Button variant="outline" size="sm" title="Gerenciar aulas">
+                                                            Aulas
+                                                        </Button>
+                                                    </Link>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteModule(module.id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 </Card>
                             ))}
