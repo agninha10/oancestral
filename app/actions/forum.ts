@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth/session';
 import { revalidatePath } from 'next/cache';
 import { generateForumSlug } from '@/lib/forum-utils';
+import { awardUserXP, XP_EVENTS } from '@/lib/gamification';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -146,6 +147,9 @@ export async function createPost(data: {
         data: { title: title.trim(), content: content.trim(), slug, categoryId, authorId: session.userId },
     });
 
+    // Fire-and-forget: não bloqueia a resposta se o XP falhar
+    awardUserXP(session.userId, XP_EVENTS.FORUM_POST_CREATED).catch(() => {});
+
     revalidatePath('/comunidade');
     return { success: true, postSlug: post.slug! };
 }
@@ -168,6 +172,9 @@ export async function createReply(data: {
     await prisma.forumReply.create({
         data: { postId, content: content.trim(), authorId: session.userId, parentId: parentId ?? null },
     });
+
+    // Fire-and-forget: não bloqueia a resposta se o XP falhar
+    awardUserXP(session.userId, XP_EVENTS.FORUM_COMMENT_ADDED).catch(() => {});
 
     revalidatePath(`/comunidade/post/${post.slug ?? post.id}`);
     return { success: true };

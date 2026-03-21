@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/prisma';
+import { awardUserXP, XP_EVENTS } from '@/lib/gamification';
 
 export async function POST(request: NextRequest) {
     try {
@@ -23,13 +24,17 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Upsert progress
+        // Verifica estado anterior para garantir XP apenas na PRIMEIRA conclusão
+        const existing = await prisma.userProgress.findUnique({
+            where:  { userId_lessonId: { userId: session.userId, lessonId } },
+            select: { isCompleted: true },
+        });
+
+        const isFirstCompletion = isCompleted && (!existing || !existing.isCompleted);
+
         const progress = await prisma.userProgress.upsert({
             where: {
-                userId_lessonId: {
-                    userId: session.userId,
-                    lessonId,
-                },
+                userId_lessonId: { userId: session.userId, lessonId },
             },
             create: {
                 userId: session.userId,
@@ -42,6 +47,11 @@ export async function POST(request: NextRequest) {
                 completedAt: isCompleted ? new Date() : null,
             },
         });
+
+        // Concede XP somente na primeira conclusão (idempotente)
+        if (isFirstCompletion) {
+            await awardUserXP(session.userId, XP_EVENTS.LESSON_COMPLETED);
+        }
 
         return NextResponse.json({ success: true, progress });
     } catch (error) {

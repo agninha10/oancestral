@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireMobileAuth } from '@/lib/auth/mobile-jwt'
-
-const XP_PER_HOUR  = 50
-const XP_PER_LEVEL = 2000
-
-function levelFromXp(xp: number): number {
-    return Math.floor(xp / XP_PER_LEVEL) + 1
-}
+import {
+    ABANDON_THRESHOLD_HOURS,
+    levelFromXp,
+    computeFastingXpReward,
+    awardUserXP,
+} from '@/lib/gamification'
 
 export async function POST(request: Request) {
     const auth = await requireMobileAuth(request)
@@ -38,7 +37,10 @@ export async function POST(request: Request) {
         const durationMs      = endTime.getTime() - fast.startTime.getTime()
         const elapsedHours    = durationMs / 3_600_000
         const durationSeconds = Math.floor(durationMs / 1000)
-        const status          = elapsedHours >= fast.targetHours ? 'COMPLETED' : 'BROKEN'
+
+        // Anti-cheat: abandono detectado → encerra como BROKEN sem XP
+        const isAbandoned = elapsedHours > ABANDON_THRESHOLD_HOURS
+        const status       = !isAbandoned && elapsedHours >= fast.targetHours ? 'COMPLETED' : 'BROKEN'
 
         await prisma.fastingSession.update({
             where: { id: fast.id },
@@ -48,6 +50,9 @@ export async function POST(request: Request) {
         // ── 3. Jejum quebrado — retorna sem gamificação ───────────────────────
 
         if (status === 'BROKEN') {
+            if (isAbandoned) {
+                console.log(`⚠️ [ANTI-CHEAT] Abandono detectado — userId: ${userId} | ${elapsedHours.toFixed(1)}h > ${ABANDON_THRESHOLD_HOURS}h`)
+            }
             console.log('🔥 [FASTING/END SUCESSO] userId:', userId, '| status: BROKEN |', durationSeconds, 's')
             return NextResponse.json({
                 success: true,
@@ -61,16 +66,13 @@ export async function POST(request: Request) {
 
         // ── 4. Gamificação (apenas para COMPLETED) ────────────────────────────
 
-        const completedHours = Math.floor(elapsedHours)
-        const xpGained       = completedHours * XP_PER_HOUR
+        // Hard cap + anti-cheat via motor global
+        const { effectiveHours, xpGained } = computeFastingXpReward(elapsedHours)
 
+        // Lê estado atual para determinar oldLevel e elegibilidade de badges
         const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                xp: true,
-                level: true,
-                userBadges: { select: { badgeId: true } },
-            },
+            where:  { id: userId },
+            select: { xp: true, userBadges: { select: { badgeId: true } } },
         })
 
         if (!user) {
@@ -80,42 +82,31 @@ export async function POST(request: Request) {
             )
         }
 
-        const oldXp    = user.xp
-        const totalXp  = oldXp + xpGained
-        const oldLevel = levelFromXp(oldXp)
-        const newLevel = levelFromXp(totalXp)
-        const levelUp  = newLevel > oldLevel
-
         // Badge mais alta que o usuário ainda não possui
         const ownedBadgeIds  = new Set(user.userBadges.map((ub) => ub.badgeId))
         const eligibleBadges = await prisma.badge.findMany({
-            where: { requiredHours: { lte: completedHours } },
+            where:   { requiredHours: { lte: effectiveHours } },
             orderBy: { requiredHours: 'desc' },
         })
         const newBadge = eligibleBadges.find((b) => !ownedBadgeIds.has(b.id)) ?? null
 
-        // Transação atômica: XP + level + badge
-        await prisma.$transaction(async (tx) => {
-            await tx.user.update({
-                where: { id: userId },
-                data: { xp: totalXp, level: newLevel },
-            })
-
-            if (newBadge) {
-                await tx.userBadge.create({
-                    data: { userId, badgeId: newBadge.id },
-                })
-            }
-        })
+        // Delega XP + level + badge para o motor global (transação atômica)
+        const award = await awardUserXP(userId, xpGained, { badgeId: newBadge?.id })
+        if (!award.success) {
+            return NextResponse.json(
+                { success: false, error: award.error },
+                { status: 500 },
+            )
+        }
 
         const responseData = {
             status: 'COMPLETED',
             durationSeconds,
             gamification: {
-                xpGained,
-                totalXp,
-                levelUp,
-                newLevel,
+                xpGained:     award.xpGained,
+                totalXp:      award.totalXp,
+                levelUp:      award.levelUp,
+                newLevel:     award.newLevel,
                 badgeUnlocked: newBadge
                     ? { id: newBadge.id, name: newBadge.name, iconUrl: newBadge.icon }
                     : null,
