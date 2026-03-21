@@ -208,8 +208,16 @@ export async function endFast(sessionId: string): Promise<
     const newBadge = eligibleBadges.find((b) => !ownedBadgeIds.has(b.id)) ?? null;
 
     // ── Concede XP via motor global (transação atômica) ───────────────────────
+    // Lifetime stats: horas reais capadas em 120h (sem o teto de 72h do XP)
+    const statsHours = reward.hitTarget
+        ? Math.min(elapsedHours, ABANDON_THRESHOLD_HOURS)
+        : undefined;
+
     const award = reward.xpGained > 0
-        ? await awardUserXP(session.userId, reward.xpGained, { badgeId: newBadge?.id })
+        ? await awardUserXP(session.userId, reward.xpGained, {
+              badgeId:      newBadge?.id,
+              fastingStats: statsHours !== undefined ? { statsHours } : undefined,
+          })
         : { success: true as const, xpGained: 0, totalXp: user.xp, levelUp: false, newLevel: oldLevel };
 
     if (!award.success) return { success: false, error: award.error };

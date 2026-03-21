@@ -90,8 +90,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Gamification
-  xp    Int @default(0)
-  level Int @default(1)
+  xp                Int   @default(0)
+  level             Int   @default(1)
+  fastingCount      Int   @default(0)
+  totalFastingHours Float @default(0)
 
   // Relations
   accounts        Account[]

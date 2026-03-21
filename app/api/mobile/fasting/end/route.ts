@@ -78,9 +78,17 @@ export async function POST(request: Request) {
 
         // ── 5. Concede XP via motor global (transação atômica) ────────────────
 
+        // Lifetime stats: horas reais capadas em 120h (sem o teto de 72h do XP)
+        const statsHours = reward.hitTarget
+            ? Math.min(elapsedHours, ABANDON_THRESHOLD_HOURS)
+            : undefined
+
         const currentLevel = levelFromXp(user.xp)
         const award = reward.xpGained > 0
-            ? await awardUserXP(userId, reward.xpGained, { badgeId: newBadge?.id })
+            ? await awardUserXP(userId, reward.xpGained, {
+                  badgeId:      newBadge?.id,
+                  fastingStats: statsHours !== undefined ? { statsHours } : undefined,
+              })
             : { success: true as const, xpGained: 0, totalXp: user.xp, levelUp: false, newLevel: currentLevel }
 
         if (!award.success) {

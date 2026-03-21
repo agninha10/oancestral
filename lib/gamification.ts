@@ -99,7 +99,11 @@ export type XpAwardResult =
 export async function awardUserXP(
     userId: string,
     xpToAdd: number,
-    options?: { badgeId?: string },
+    options?: {
+        badgeId?: string
+        /** Incrementa lifetime stats do jejum na mesma transação. Só passar para jejuns COMPLETED. */
+        fastingStats?: { statsHours: number }
+    },
 ): Promise<XpAwardResult> {
     if (xpToAdd <= 0) {
         return { success: false, error: 'XP a conceder deve ser positivo.' }
@@ -119,7 +123,14 @@ export async function awardUserXP(
 
             await tx.user.update({
                 where: { id: userId },
-                data:  { xp: totalXp, level: newLevel },
+                data:  {
+                    xp:    totalXp,
+                    level: newLevel,
+                    ...(options?.fastingStats && {
+                        fastingCount:      { increment: 1 },
+                        totalFastingHours: { increment: options.fastingStats.statsHours },
+                    }),
+                },
             })
 
             if (options?.badgeId) {
