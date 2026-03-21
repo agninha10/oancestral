@@ -254,13 +254,13 @@ function CourseRow({
                     style={{ scrollBehavior: 'smooth' }}
                 >
                     <div
-                        className="flex gap-4"
+                        className="flex gap-5"
                         style={{ transform: `translateX(-${scrollPosition}px)` }}
                     >
                         {courses.map((course) => (
                             <div
                                 key={course.id}
-                                className="flex-none w-44 group/card cursor-pointer"
+                                className="flex-none w-64 group/card cursor-pointer"
                                 onMouseEnter={() => setHoveredCourse(course.id)}
                                 onMouseLeave={() => setHoveredCourse(null)}
                                 onClick={() => onCourseClick(course)}
