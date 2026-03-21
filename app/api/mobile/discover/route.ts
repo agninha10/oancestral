@@ -12,6 +12,7 @@ type CourseCard = {
 
 type RecipeCard = {
     id: string
+    slug: string
     title: string
     thumbnailUrl: string | null
     difficulty: string
@@ -20,6 +21,7 @@ type RecipeCard = {
 
 type PostCard = {
     id: string
+    slug: string
     title: string
     thumbnailUrl: string | null
     excerpt: string
@@ -62,6 +64,7 @@ export async function GET() {
                 where: { published: true },
                 select: {
                     id: true,
+                    slug: true,
                     title: true,
                     coverImage: true,
                     difficulty: true,
@@ -79,6 +82,7 @@ export async function GET() {
                 take: 5,
                 select: {
                     id: true,
+                    slug: true,
                     title: true,
                     coverImage: true,
                     excerpt: true,
@@ -106,6 +110,7 @@ export async function GET() {
 
         const recipesRow: RecipeCard[] = recipes.map((r) => ({
             id: r.id,
+            slug: r.slug,
             title: r.title,
             thumbnailUrl: r.coverImage ?? null,
             difficulty: r.difficulty,
@@ -114,6 +119,7 @@ export async function GET() {
 
         const postsRow: PostCard[] = posts.map((p) => ({
             id: p.id,
+            slug: p.slug,
             title: p.title,
             thumbnailUrl: p.coverImage ?? null,
             excerpt: p.excerpt,
