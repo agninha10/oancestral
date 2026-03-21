@@ -125,19 +125,19 @@ export async function awardUserXP(
             const oldLevel = levelFromXp(user.xp)
             const newLevel = levelFromXp(totalXp)
 
-            await tx.user.update({
-                where: { id: userId },
-                data:  {
-                    xp:    totalXp,
-                    level: newLevel,
-                    ...(options?.fastingStats && {
-                        totalFastingHours: { increment: options.fastingStats.statsHours },
-                        ...(options.fastingStats.incrementCount && {
-                            fastingCount: { increment: 1 },
-                        }),
-                    }),
-                },
-            })
+            // Constrói o payload de update explicitamente para evitar
+            // ambiguidade de tipo com spreads condicionais aninhados no Prisma
+            type UserUpdateData = Parameters<typeof tx.user.update>[0]['data']
+            const updateData: UserUpdateData = { xp: totalXp, level: newLevel }
+
+            if (options?.fastingStats) {
+                updateData.totalFastingHours = { increment: options.fastingStats.statsHours }
+                if (options.fastingStats.incrementCount) {
+                    updateData.fastingCount = { increment: 1 }
+                }
+            }
+
+            await tx.user.update({ where: { id: userId }, data: updateData })
 
             if (options?.badgeId) {
                 await tx.userBadge.create({
@@ -148,6 +148,12 @@ export async function awardUserXP(
             return { xpGained: xpToAdd, totalXp, levelUp: newLevel > oldLevel, newLevel }
         })
 
+        console.log(
+            `✅ [GAMIFICATION] userId: ${userId} | +${xpToAdd} XP | totalXp: ${result.totalXp}` +
+            (options?.fastingStats
+                ? ` | statsHours: ${options.fastingStats.statsHours.toFixed(2)} | incrementCount: ${options.fastingStats.incrementCount}`
+                : ''),
+        )
         return { success: true, ...result }
     } catch (error) {
         const msg = error instanceof Error ? error.message : 'Erro ao conceder XP.'
