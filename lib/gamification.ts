@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma'
 
 // ─── Constantes de Level ──────────────────────────────────────────────────────
 
-export const XP_PER_LEVEL = 2000
+export const XP_PER_LEVEL = 500
 
 // ─── Dicionário de Eventos Fixos ──────────────────────────────────────────────
 
