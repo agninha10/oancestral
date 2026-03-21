@@ -78,8 +78,9 @@ export async function POST(request: Request) {
 
         // ── 5. Concede XP via motor global (transação atômica) ────────────────
 
-        // Lifetime stats: horas reais capadas em 120h (sem o teto de 72h do XP)
-        const statsHours = reward.hitTarget
+        // Lifetime stats: atualiza para qualquer jejum com XP (BROKEN ou COMPLETED)
+        // exceto abandono. fastingCount só sobe em COMPLETED.
+        const statsHours = !reward.isAbandoned
             ? Math.min(elapsedHours, ABANDON_THRESHOLD_HOURS)
             : undefined
 
@@ -87,7 +88,9 @@ export async function POST(request: Request) {
         const award = reward.xpGained > 0
             ? await awardUserXP(userId, reward.xpGained, {
                   badgeId:      newBadge?.id,
-                  fastingStats: statsHours !== undefined ? { statsHours } : undefined,
+                  fastingStats: statsHours !== undefined
+                      ? { statsHours, incrementCount: reward.hitTarget }
+                      : undefined,
               })
             : { success: true as const, xpGained: 0, totalXp: user.xp, levelUp: false, newLevel: currentLevel }
 

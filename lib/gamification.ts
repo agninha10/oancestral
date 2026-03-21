@@ -101,8 +101,12 @@ export async function awardUserXP(
     xpToAdd: number,
     options?: {
         badgeId?: string
-        /** Incrementa lifetime stats do jejum na mesma transação. Só passar para jejuns COMPLETED. */
-        fastingStats?: { statsHours: number }
+        fastingStats?: {
+            /** Horas reais do jejum (cap 120h). Sempre incrementado quando XP > 0. */
+            statsHours: number
+            /** true = jejum COMPLETED → incrementa fastingCount. false = BROKEN → só incrementa horas. */
+            incrementCount: boolean
+        }
     },
 ): Promise<XpAwardResult> {
     if (xpToAdd <= 0) {
@@ -127,8 +131,10 @@ export async function awardUserXP(
                     xp:    totalXp,
                     level: newLevel,
                     ...(options?.fastingStats && {
-                        fastingCount:      { increment: 1 },
                         totalFastingHours: { increment: options.fastingStats.statsHours },
+                        ...(options.fastingStats.incrementCount && {
+                            fastingCount: { increment: 1 },
+                        }),
                     }),
                 },
             })
