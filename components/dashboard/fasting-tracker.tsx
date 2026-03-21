@@ -409,43 +409,35 @@ export function FastingTracker({ initialFast, gameProfile, allBadges, history }:
 
             setSession(null);
 
-            if (res.status === 'COMPLETED' && res.gamification) {
-                const g = res.gamification;
+            const g = res.gamification;
 
-                // Update local profile optimistically
-                setLocalProfile((prev) => {
-                    if (!prev) return prev;
-                    const newBadgeEntries = g.badgeUnlocked
-                        ? [...prev.userBadges, { badge: g.badgeUnlocked, unlockedAt: new Date() }]
-                        : prev.userBadges;
-                    return { xp: g.totalXp, level: g.newLevel, userBadges: newBadgeEntries };
-                });
+            // Atualiza barra de XP para QUALQUER encerramento (COMPLETED ou BROKEN)
+            setLocalProfile((prev) => {
+                if (!prev) return prev;
+                const newBadgeEntries = g.badgeUnlocked
+                    ? [...prev.userBadges, { badge: g.badgeUnlocked, unlockedAt: new Date() }]
+                    : prev.userBadges;
+                return { xp: g.totalXp, level: g.newLevel, userBadges: newBadgeEntries };
+            });
 
-                // Prepend to history
-                setLocalHistory((prev) => [{
-                    id: `tmp-${Date.now()}`,
-                    startTime: new Date(session.startTime),
-                    endTime: new Date(),
-                    targetHours: session.targetHours,
-                    status: 'COMPLETED',
-                    durationSeconds: durationSnapshot,
-                }, ...prev]);
+            // Adiciona ao histórico
+            setLocalHistory((prev) => [{
+                id: `tmp-${Date.now()}`,
+                startTime: new Date(session.startTime),
+                endTime: new Date(),
+                targetHours: session.targetHours,
+                status: res.status,
+                durationSeconds: durationSnapshot,
+            }, ...prev]);
 
+            if (res.status === 'COMPLETED') {
+                // Modal de vitória só abre quando a meta foi atingida
                 setVictoryData(g);
                 setVictoryDuration(formatTime(durationSnapshot));
                 setVictoryOpen(true);
             } else {
-                toast.message(`Jejum interrompido em ${formatTime(durationSnapshot)}.`);
-
-                // Prepend broken entry to history
-                setLocalHistory((prev) => [{
-                    id: `tmp-${Date.now()}`,
-                    startTime: new Date(session.startTime),
-                    endTime: new Date(),
-                    targetHours: session.targetHours,
-                    status: 'BROKEN',
-                    durationSeconds: durationSnapshot,
-                }, ...prev]);
+                const xpMsg = g.xpEarned > 0 ? ` +${g.xpEarned} XP` : '';
+                toast.message(`Jejum interrompido em ${formatTime(durationSnapshot)}.${xpMsg}`);
             }
         });
     };

@@ -21,6 +21,10 @@ export async function GET() {
             birthdate:     true,
             emailVerified: true,
             role:          true,
+            xp:            true,
+            level:         true,
+            avatarUrl:     true,
+            subscriptionStatus: true,
             createdAt:     true,
         },
     });
