@@ -31,45 +31,28 @@ export async function POST(request: Request) {
             )
         }
 
-        // ── 2. Calcula duração e status ───────────────────────────────────────
+        // ── 2. Calcula duração, recompensa e status ───────────────────────────
 
         const endTime         = new Date()
         const durationMs      = endTime.getTime() - fast.startTime.getTime()
         const elapsedHours    = durationMs / 3_600_000
         const durationSeconds = Math.floor(durationMs / 1000)
 
-        // Anti-cheat: abandono detectado → encerra como BROKEN sem XP
-        const isAbandoned = elapsedHours > ABANDON_THRESHOLD_HOURS
-        const status       = !isAbandoned && elapsedHours >= fast.targetHours ? 'COMPLETED' : 'BROKEN'
+        // Recompensa sempre calculada — nunca null
+        const reward = computeFastingXpReward(elapsedHours, fast.targetHours)
+        const status = reward.hitTarget ? 'COMPLETED' : 'BROKEN'
+
+        if (reward.isAbandoned) {
+            console.log(`⚠️ [ANTI-CHEAT] Abandono detectado — userId: ${userId} | ${elapsedHours.toFixed(1)}h > ${ABANDON_THRESHOLD_HOURS}h`)
+        }
 
         await prisma.fastingSession.update({
             where: { id: fast.id },
-            data: { endTime, status },
+            data:  { endTime, status },
         })
 
-        // ── 3. Jejum quebrado — retorna sem gamificação ───────────────────────
+        // ── 3. Lê estado do usuário (oldLevel + badges) ───────────────────────
 
-        if (status === 'BROKEN') {
-            if (isAbandoned) {
-                console.log(`⚠️ [ANTI-CHEAT] Abandono detectado — userId: ${userId} | ${elapsedHours.toFixed(1)}h > ${ABANDON_THRESHOLD_HOURS}h`)
-            }
-            console.log('🔥 [FASTING/END SUCESSO] userId:', userId, '| status: BROKEN |', durationSeconds, 's')
-            return NextResponse.json({
-                success: true,
-                data: {
-                    status: 'BROKEN',
-                    durationSeconds,
-                    gamification: null,
-                },
-            })
-        }
-
-        // ── 4. Gamificação (apenas para COMPLETED) ────────────────────────────
-
-        // Hard cap + anti-cheat via motor global
-        const { effectiveHours, xpGained } = computeFastingXpReward(elapsedHours)
-
-        // Lê estado atual para determinar oldLevel e elegibilidade de badges
         const user = await prisma.user.findUnique({
             where:  { id: userId },
             select: { xp: true, userBadges: { select: { badgeId: true } } },
@@ -82,16 +65,24 @@ export async function POST(request: Request) {
             )
         }
 
-        // Badge mais alta que o usuário ainda não possui
+        // ── 4. Elegibilidade de badges ────────────────────────────────────────
+
         const ownedBadgeIds  = new Set(user.userBadges.map((ub) => ub.badgeId))
-        const eligibleBadges = await prisma.badge.findMany({
-            where:   { requiredHours: { lte: effectiveHours } },
-            orderBy: { requiredHours: 'desc' },
-        })
+        const eligibleBadges = reward.effectiveHours > 0
+            ? await prisma.badge.findMany({
+                  where:   { requiredHours: { lte: reward.effectiveHours } },
+                  orderBy: { requiredHours: 'desc' },
+              })
+            : []
         const newBadge = eligibleBadges.find((b) => !ownedBadgeIds.has(b.id)) ?? null
 
-        // Delega XP + level + badge para o motor global (transação atômica)
-        const award = await awardUserXP(userId, xpGained, { badgeId: newBadge?.id })
+        // ── 5. Concede XP via motor global (transação atômica) ────────────────
+
+        const currentLevel = levelFromXp(user.xp)
+        const award = reward.xpGained > 0
+            ? await awardUserXP(userId, reward.xpGained, { badgeId: newBadge?.id })
+            : { success: true as const, xpGained: 0, totalXp: user.xp, levelUp: false, newLevel: currentLevel }
+
         if (!award.success) {
             return NextResponse.json(
                 { success: false, error: award.error },
@@ -100,13 +91,14 @@ export async function POST(request: Request) {
         }
 
         const responseData = {
-            status: 'COMPLETED',
+            status,
             durationSeconds,
             gamification: {
-                xpGained:     award.xpGained,
-                totalXp:      award.totalXp,
+                xpEarned:     award.xpGained,
+                newTotalXp:   award.totalXp,
                 levelUp:      award.levelUp,
                 newLevel:     award.newLevel,
+                hitTarget:    reward.hitTarget,
                 badgeUnlocked: newBadge
                     ? { id: newBadge.id, name: newBadge.name, iconUrl: newBadge.icon }
                     : null,

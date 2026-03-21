@@ -33,6 +33,7 @@ export type GamificationResult = {
     oldLevel: number;
     newLevel: number;
     leveledUp: boolean;
+    hitTarget: boolean;
     badgeUnlocked: BadgeUnlocked | null;
 };
 
@@ -156,8 +157,7 @@ export async function startFast(
 // ─── endFast ──────────────────────────────────────────────────────────────────
 
 export async function endFast(sessionId: string): Promise<
-    | { success: true;  status: 'COMPLETED'; gamification: GamificationResult }
-    | { success: true;  status: 'BROKEN';    gamification: null }
+    | { success: true;  status: EndedFastStatus; gamification: GamificationResult }
     | { success: false; error: string }
 > {
     const session = await getSession();
@@ -172,34 +172,23 @@ export async function endFast(sessionId: string): Promise<
     if (fast.userId !== session.userId) return { success: false, error: 'Não autorizado.' };
     if (fast.status !== 'ONGOING') return { success: false, error: 'Este jejum não está ativo.' };
 
-    const endTime      = new Date();
-    const elapsedHours = (endTime.getTime() - fast.startTime.getTime()) / 3_600_000;
+    const endTime         = new Date();
+    const elapsedHours    = (endTime.getTime() - fast.startTime.getTime()) / 3_600_000;
 
-    // Anti-cheat: abandono detectado → encerra como BROKEN sem XP
-    const { isAbandoned } = { isAbandoned: elapsedHours > ABANDON_THRESHOLD_HOURS };
-    const newStatus: EndedFastStatus =
-        !isAbandoned && elapsedHours >= fast.targetHours ? 'COMPLETED' : 'BROKEN';
+    // ── Recompensa (sempre calculada — nunca null) ────────────────────────────
+    const reward    = computeFastingXpReward(elapsedHours, fast.targetHours);
+    const newStatus = reward.hitTarget ? 'COMPLETED' : 'BROKEN';
+
+    if (reward.isAbandoned) {
+        console.log(`⚠️ [ANTI-CHEAT] Abandono detectado — userId: ${session.userId} | ${elapsedHours.toFixed(1)}h > ${ABANDON_THRESHOLD_HOURS}h`);
+    }
 
     await prisma.fastingSession.update({
         where: { id: sessionId },
-        data: { endTime, status: newStatus },
+        data:  { endTime, status: newStatus },
     });
 
-    if (newStatus === 'BROKEN') {
-        if (isAbandoned) {
-            console.log(`⚠️ [ANTI-CHEAT] Abandono detectado — userId: ${session.userId} | ${elapsedHours.toFixed(1)}h > ${ABANDON_THRESHOLD_HOURS}h`);
-        }
-        revalidatePath('/dashboard/jejum');
-        revalidatePath('/dashboard');
-        return { success: true, status: 'BROKEN', gamification: null };
-    }
-
-    // ── Gamificação (COMPLETED) ───────────────────────────────────────────────
-
-    // Hard cap + anti-cheat via motor global
-    const { effectiveHours, xpGained } = computeFastingXpReward(elapsedHours);
-
-    // Lê estado atual para determinar oldLevel e elegibilidade de badges
+    // ── Lê estado do usuário (oldLevel + badges) ──────────────────────────────
     const user = await prisma.user.findUnique({
         where:  { id: session.userId },
         select: { xp: true, userBadges: { select: { badgeId: true } } },
@@ -208,16 +197,21 @@ export async function endFast(sessionId: string): Promise<
 
     const oldLevel = levelFromXp(user.xp);
 
-    // Badge mais alta que o usuário ainda não possui
+    // ── Elegibilidade de badges (baseada nas horas efetivas capadas) ──────────
     const ownedBadgeIds  = new Set(user.userBadges.map((ub) => ub.badgeId));
-    const eligibleBadges = await prisma.badge.findMany({
-        where:   { requiredHours: { lte: effectiveHours } },
-        orderBy: { requiredHours: 'desc' },
-    });
+    const eligibleBadges = reward.effectiveHours > 0
+        ? await prisma.badge.findMany({
+              where:   { requiredHours: { lte: reward.effectiveHours } },
+              orderBy: { requiredHours: 'desc' },
+          })
+        : [];
     const newBadge = eligibleBadges.find((b) => !ownedBadgeIds.has(b.id)) ?? null;
 
-    // Delega XP + level + badge para o motor global (transação atômica)
-    const award = await awardUserXP(session.userId, xpGained, { badgeId: newBadge?.id });
+    // ── Concede XP via motor global (transação atômica) ───────────────────────
+    const award = reward.xpGained > 0
+        ? await awardUserXP(session.userId, reward.xpGained, { badgeId: newBadge?.id })
+        : { success: true as const, xpGained: 0, totalXp: user.xp, levelUp: false, newLevel: oldLevel };
+
     if (!award.success) return { success: false, error: award.error };
 
     revalidatePath('/dashboard/jejum');
@@ -225,13 +219,14 @@ export async function endFast(sessionId: string): Promise<
 
     return {
         success: true,
-        status: 'COMPLETED',
+        status:  newStatus,
         gamification: {
             xpEarned:     award.xpGained,
             totalXp:      award.totalXp,
             oldLevel,
             newLevel:     award.newLevel,
             leveledUp:    award.levelUp,
+            hitTarget:    reward.hitTarget,
             badgeUnlocked: newBadge
                 ? { id: newBadge.id, name: newBadge.name, description: newBadge.description, icon: newBadge.icon }
                 : null,

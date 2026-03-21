@@ -19,15 +19,19 @@ export const XP_EVENTS = {
 
 // ─── Constantes Anti-Cheat (Jejum) ────────────────────────────────────────────
 
-/** XP concedido por hora efetiva de jejum. */
-const FASTING_XP_PER_HOUR = 50
+/** XP por hora efetiva de jejum (base progressiva). */
+const FASTING_XP_PER_HOUR = 10
 
-/** Teto máximo de horas recompensadas no jejum. */
+/** Bônus fixo concedido ao atingir a meta. */
+const FASTING_BONUS_XP = 50
+
+/** Teto máximo de horas recompensadas no jejum (anti-cheat). */
 export const HARD_CAP_HOURS = 72
 
 /**
  * Limiar de abandono do cronômetro.
- * Jejuns além desse ponto são encerrados como BROKEN sem XP.
+ * Cronômetros esquecidos abertos além deste ponto são encerrados como BROKEN
+ * e concede apenas o XP base capado em 72h (sem bônus de meta).
  */
 export const ABANDON_THRESHOLD_HOURS = 120
 
@@ -40,27 +44,41 @@ export function levelFromXp(xp: number): number {
 // ─── Calculadora de XP do Jejum (Dinâmica) ───────────────────────────────────
 
 export type FastingXpReward = {
-    /** Horas usadas no cálculo após aplicar todos os limites. */
+    /** Horas capadas usadas no cálculo (para elegibilidade de badges). */
     effectiveHours: number
-    /** XP bruto ganho nesta sessão. */
+    /** Horas inteiras efetivas (Math.floor de effectiveHours). */
+    hoursFasted: number
+    /** XP base = hoursFasted × 10. */
+    baseXp: number
+    /** Bônus de meta = 50 se hitTarget, 0 caso contrário. */
+    bonusXp: number
+    /** XP total a conceder = baseXp + bonusXp. */
     xpGained: number
-    /**
-     * true = cronômetro passou do limiar de abandono.
-     * O chamador deve salvar o jejum como BROKEN e não conceder XP.
-     */
+    /** true se o usuário atingiu ou superou a meta. */
+    hitTarget: boolean
+    /** true se o cronômetro passou do limiar de abandono (>120h). */
     isAbandoned: boolean
 }
 
 /**
- * Calcula a recompensa de XP para um jejum concluído.
- * Aplica hard cap (72h) e detecção de abandono (>120h).
+ * Calcula a recompensa de XP para qualquer encerramento de jejum.
+ *
+ * Regras:
+ * - XP base é sempre concedido (mesmo para BROKEN), proporcional às horas feitas.
+ * - Bônus de +50 XP apenas se a meta foi atingida.
+ * - Hard cap em 72h: cronômetros esquecidos não acumulam XP infinito.
+ * - Limiar de abandono (>120h): isAbandoned = true, bônus zerado.
+ *   O XP base capado ainda é concedido (penalidade leve vs fraude total).
  */
-export function computeFastingXpReward(rawElapsedHours: number): FastingXpReward {
-    if (rawElapsedHours > ABANDON_THRESHOLD_HOURS) {
-        return { effectiveHours: 0, xpGained: 0, isAbandoned: true }
-    }
-    const effectiveHours = Math.min(Math.floor(rawElapsedHours), HARD_CAP_HOURS)
-    return { effectiveHours, xpGained: effectiveHours * FASTING_XP_PER_HOUR, isAbandoned: false }
+export function computeFastingXpReward(rawElapsedHours: number, targetHours: number): FastingXpReward {
+    const isAbandoned  = rawElapsedHours > ABANDON_THRESHOLD_HOURS
+    const effectiveHours = Math.min(rawElapsedHours, HARD_CAP_HOURS)
+    const hoursFasted  = Math.floor(effectiveHours)
+    const hitTarget    = !isAbandoned && rawElapsedHours >= targetHours
+    const baseXp       = hoursFasted * FASTING_XP_PER_HOUR
+    const bonusXp      = hitTarget ? FASTING_BONUS_XP : 0
+
+    return { effectiveHours, hoursFasted, baseXp, bonusXp, xpGained: baseXp + bonusXp, hitTarget, isAbandoned }
 }
 
 // ─── Motor Central: awardUserXP ───────────────────────────────────────────────
