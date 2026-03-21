@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,12 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { ImageUpload } from '@/components/admin/image-upload';
 
 interface Lesson {
     id: string;
     title: string;
     slug: string;
     videoUrl: string | null;
+    thumbnailUrl: string | null;
     content: string | null;
     order: number;
     isFree: boolean;
@@ -25,6 +27,7 @@ interface Lesson {
 interface Module {
     id: string;
     title: string;
+    thumbnailUrl: string | null;
     courseId: string;
     course: {
         title: string;
@@ -32,12 +35,20 @@ interface Module {
     };
 }
 
+const emptyLessonForm = {
+    title: '',
+    slug: '',
+    videoUrl: '',
+    thumbnailUrl: '',
+    content: '',
+    isFree: false,
+};
+
 export default function ModuloPage({
     params,
 }: {
     params: Promise<{ id: string; moduleId: string }>;
 }) {
-    const router = useRouter();
     const [courseId, setCourseId] = useState<string | null>(null);
     const [moduleId, setModuleId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -45,13 +56,8 @@ export default function ModuloPage({
     const [lessons, setLessons] = useState<Lesson[]>([]);
     const [showLessonForm, setShowLessonForm] = useState(false);
     const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
-    const [lessonForm, setLessonForm] = useState({
-        title: '',
-        slug: '',
-        videoUrl: '',
-        content: '',
-        isFree: false,
-    });
+    const [lessonForm, setLessonForm] = useState(emptyLessonForm);
+    const [savingModuleThumbnail, setSavingModuleThumbnail] = useState(false);
 
     useEffect(() => {
         params.then((p) => {
@@ -95,6 +101,48 @@ export default function ModuloPage({
         }));
     };
 
+    // ── Module thumbnail ────────────────────────────────────────────────────────
+
+    const handleModuleThumbnail = async (url: string) => {
+        if (!moduleId || !module) return;
+        setSavingModuleThumbnail(true);
+        try {
+            const res = await fetch(`/api/admin/modulos/${moduleId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ thumbnailUrl: url }),
+            });
+            if (res.ok) {
+                setModule((prev) => prev ? { ...prev, thumbnailUrl: url } : prev);
+            }
+        } catch (error) {
+            console.error('Erro ao salvar thumbnail do módulo:', error);
+        } finally {
+            setSavingModuleThumbnail(false);
+        }
+    };
+
+    const handleRemoveModuleThumbnail = async () => {
+        if (!moduleId || !module) return;
+        setSavingModuleThumbnail(true);
+        try {
+            const res = await fetch(`/api/admin/modulos/${moduleId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ thumbnailUrl: null }),
+            });
+            if (res.ok) {
+                setModule((prev) => prev ? { ...prev, thumbnailUrl: null } : prev);
+            }
+        } catch (error) {
+            console.error('Erro ao remover thumbnail do módulo:', error);
+        } finally {
+            setSavingModuleThumbnail(false);
+        }
+    };
+
+    // ── Lesson form ─────────────────────────────────────────────────────────────
+
     const handleSubmitLesson = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!moduleId) return;
@@ -108,9 +156,7 @@ export default function ModuloPage({
 
             const response = await fetch(url, {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...lessonForm,
                     order: editingLesson ? editingLesson.order : lessons.length,
@@ -121,13 +167,7 @@ export default function ModuloPage({
                 fetchModule(moduleId);
                 setShowLessonForm(false);
                 setEditingLesson(null);
-                setLessonForm({
-                    title: '',
-                    slug: '',
-                    videoUrl: '',
-                    content: '',
-                    isFree: false,
-                });
+                setLessonForm(emptyLessonForm);
             }
         } catch (error) {
             console.error('Erro ao salvar aula:', error);
@@ -140,6 +180,7 @@ export default function ModuloPage({
             title: lesson.title,
             slug: lesson.slug,
             videoUrl: lesson.videoUrl || '',
+            thumbnailUrl: lesson.thumbnailUrl || '',
             content: lesson.content || '',
             isFree: lesson.isFree,
         });
@@ -147,9 +188,7 @@ export default function ModuloPage({
     };
 
     const handleDeleteLesson = async (lessonId: string) => {
-        if (!confirm('Tem certeza que deseja excluir esta aula?')) {
-            return;
-        }
+        if (!confirm('Tem certeza que deseja excluir esta aula?')) return;
 
         try {
             const response = await fetch(`/api/admin/aulas/${lessonId}`, {
@@ -167,13 +206,7 @@ export default function ModuloPage({
     const handleCancelForm = () => {
         setShowLessonForm(false);
         setEditingLesson(null);
-        setLessonForm({
-            title: '',
-            slug: '',
-            videoUrl: '',
-            content: '',
-            isFree: false,
-        });
+        setLessonForm(emptyLessonForm);
     };
 
     if (loading) {
@@ -190,6 +223,7 @@ export default function ModuloPage({
 
     return (
         <div className="space-y-6">
+            {/* Header */}
             <div className="flex items-center gap-4">
                 <Link href={`/admin/cursos/${courseId}`}>
                     <Button variant="ghost" size="icon">
@@ -202,6 +236,30 @@ export default function ModuloPage({
                 </div>
             </div>
 
+            {/* Module thumbnail */}
+            <Card className="p-6">
+                <div className="space-y-3">
+                    <div>
+                        <h2 className="text-lg font-semibold">Thumbnail do Módulo</h2>
+                        <p className="text-sm text-muted-foreground">
+                            Imagem de capa exibida na listagem de módulos do app mobile.
+                        </p>
+                    </div>
+
+                    {savingModuleThumbnail && (
+                        <p className="text-sm text-muted-foreground">Salvando...</p>
+                    )}
+
+                    <ImageUpload
+                        value={module.thumbnailUrl ?? undefined}
+                        onChange={handleModuleThumbnail}
+                        onRemove={handleRemoveModuleThumbnail}
+                        className="max-w-sm"
+                    />
+                </div>
+            </Card>
+
+            {/* Lessons */}
             <Card className="p-6">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -219,6 +277,7 @@ export default function ModuloPage({
                         )}
                     </div>
 
+                    {/* Lesson form */}
                     {showLessonForm && (
                         <Card className="p-6 bg-muted/30">
                             <form onSubmit={handleSubmitLesson} className="space-y-4">
@@ -242,10 +301,7 @@ export default function ModuloPage({
                                         id="slug"
                                         value={lessonForm.slug}
                                         onChange={(e) =>
-                                            setLessonForm((prev) => ({
-                                                ...prev,
-                                                slug: e.target.value,
-                                            }))
+                                            setLessonForm((prev) => ({ ...prev, slug: e.target.value }))
                                         }
                                         required
                                     />
@@ -260,10 +316,7 @@ export default function ModuloPage({
                                         id="videoUrl"
                                         value={lessonForm.videoUrl}
                                         onChange={(e) =>
-                                            setLessonForm((prev) => ({
-                                                ...prev,
-                                                videoUrl: e.target.value,
-                                            }))
+                                            setLessonForm((prev) => ({ ...prev, videoUrl: e.target.value }))
                                         }
                                         placeholder="https://www.youtube.com/embed/VIDEO_ID"
                                     />
@@ -272,16 +325,31 @@ export default function ModuloPage({
                                     </p>
                                 </div>
 
+                                {/* Lesson thumbnail */}
+                                <div className="space-y-2">
+                                    <Label>Thumbnail da Aula</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Imagem de capa exibida no card da aula no app mobile.
+                                    </p>
+                                    <ImageUpload
+                                        value={lessonForm.thumbnailUrl || undefined}
+                                        onChange={(url) =>
+                                            setLessonForm((prev) => ({ ...prev, thumbnailUrl: url }))
+                                        }
+                                        onRemove={() =>
+                                            setLessonForm((prev) => ({ ...prev, thumbnailUrl: '' }))
+                                        }
+                                        className="max-w-sm"
+                                    />
+                                </div>
+
                                 <div className="space-y-2">
                                     <Label htmlFor="content">Conteúdo (Rich Text/HTML)</Label>
                                     <Textarea
                                         id="content"
                                         value={lessonForm.content}
                                         onChange={(e) =>
-                                            setLessonForm((prev) => ({
-                                                ...prev,
-                                                content: e.target.value,
-                                            }))
+                                            setLessonForm((prev) => ({ ...prev, content: e.target.value }))
                                         }
                                         rows={6}
                                         placeholder="Resumo ou material complementar da aula..."
@@ -316,6 +384,7 @@ export default function ModuloPage({
                         </Card>
                     )}
 
+                    {/* Lesson list */}
                     {lessons.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
                             Nenhuma aula criada ainda
@@ -325,22 +394,38 @@ export default function ModuloPage({
                             {lessons.map((lesson, index) => (
                                 <Card key={lesson.id} className="p-4">
                                     <div className="flex items-center gap-4">
-                                        <GripVertical className="h-5 w-5 text-muted-foreground" />
-                                        <div className="flex-1">
+                                        <GripVertical className="h-5 w-5 text-muted-foreground shrink-0" />
+
+                                        {/* Thumbnail preview */}
+                                        {lesson.thumbnailUrl ? (
+                                            <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded border border-border">
+                                                <Image
+                                                    src={lesson.thumbnailUrl}
+                                                    alt={lesson.title}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="h-12 w-20 shrink-0 rounded border border-dashed border-border bg-muted" />
+                                        )}
+
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
-                                                <h3 className="font-semibold">
+                                                <h3 className="font-semibold truncate">
                                                     {index + 1}. {lesson.title}
                                                 </h3>
                                                 {lesson.isFree && (
                                                     <Badge variant="secondary">Gratuita</Badge>
                                                 )}
                                             </div>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-sm text-muted-foreground truncate">
                                                 {lesson.videoUrl ? 'Com vídeo' : 'Sem vídeo'} •{' '}
                                                 {lesson.slug}
                                             </p>
                                         </div>
-                                        <div className="flex gap-2">
+
+                                        <div className="flex gap-2 shrink-0">
                                             <Button
                                                 variant="outline"
                                                 size="sm"

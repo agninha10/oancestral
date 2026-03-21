@@ -30,6 +30,36 @@ async function getAdminUser() {
     }
 }
 
+export async function PUT(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const user = await getAdminUser();
+
+    if (!user) {
+        return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    }
+
+    try {
+        const { id } = await params;
+        const body = await request.json();
+        const { thumbnailUrl } = body;
+
+        const module = await prisma.module.update({
+            where: { id },
+            data: { thumbnailUrl: thumbnailUrl ?? null },
+        });
+
+        return NextResponse.json(module);
+    } catch (error) {
+        console.error('Erro ao atualizar módulo:', error);
+        return NextResponse.json(
+            { error: 'Erro ao atualizar módulo' },
+            { status: 500 }
+        );
+    }
+}
+
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }

@@ -44,13 +44,14 @@ export async function POST(
     try {
         const { id: moduleId } = await params;
         const body = await request.json();
-        const { title, slug, videoUrl, content, order, isFree } = body;
+        const { title, slug, videoUrl, thumbnailUrl, content, order, isFree } = body;
 
         const lesson = await prisma.lesson.create({
             data: {
                 title,
                 slug,
                 videoUrl: videoUrl || null,
+                thumbnailUrl: thumbnailUrl || null,
                 content: content || null,
                 order,
                 isFree: isFree ?? false,

@@ -287,11 +287,12 @@ model Course {
 }
 
 model Module {
-  id       String @id @default(cuid())
-  title    String
-  order    Int
-  courseId String
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id          String  @id @default(cuid())
+  title       String
+  order       Int
+  thumbnailUrl String? // Cover image for this module
+  courseId    String
+  course      Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -304,13 +305,14 @@ model Module {
 }
 
 model Lesson {
-  id       String  @id @default(cuid())
-  title    String
-  slug     String
-  videoUrl String? // YouTube/Vimeo/Panda embed URL
-  content  String? @db.Text // Rich text for summaries
-  order    Int
-  isFree   Boolean @default(false) // Free preview lessons
+  id           String  @id @default(cuid())
+  title        String
+  slug         String
+  videoUrl     String? // YouTube/Vimeo/Panda embed URL
+  thumbnailUrl String? // Cover image for this lesson
+  content      String? @db.Text // Rich text for summaries
+  order        Int
+  isFree       Boolean @default(false) // Free preview lessons
 
   // SEO
   metaTitle       String?

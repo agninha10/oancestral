@@ -43,7 +43,7 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { title, slug, videoUrl, content, order, isFree } = body;
+        const { title, slug, videoUrl, thumbnailUrl, content, order, isFree } = body;
 
         const lesson = await prisma.lesson.update({
             where: { id },
@@ -51,6 +51,7 @@ export async function PUT(
                 title,
                 slug,
                 videoUrl: videoUrl || null,
+                thumbnailUrl: thumbnailUrl || null,
                 content: content || null,
                 order,
                 isFree,
