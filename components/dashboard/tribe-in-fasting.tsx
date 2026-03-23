@@ -15,10 +15,11 @@ function Avatar({ user }: { user: ActiveFaster }) {
     const label   = user.name ?? 'Guerreiro'
 
     return (
-        // Wrapper sem overflow-hidden para o tooltip escapar
-        <div className="group/avatar relative shrink-0">
-            {/* Círculo do avatar */}
-            <div className="w-9 h-9 rounded-full border-2 border-zinc-950 ring-1 ring-zinc-800 overflow-hidden">
+        // group sem nome — funciona em qualquer versão do Tailwind
+        // sem overflow-hidden aqui para o tooltip não ser clipado
+        <div className="group relative shrink-0">
+            {/* Círculo do avatar — relative para o fill do next/image */}
+            <div className="relative w-9 h-9 rounded-full border-2 border-zinc-950 ring-1 ring-zinc-800 overflow-hidden">
                 {user.avatarUrl ? (
                     <Image
                         src={user.avatarUrl}
@@ -34,22 +35,10 @@ function Avatar({ user }: { user: ActiveFaster }) {
                 )}
             </div>
 
-            {/* Tooltip — aparece acima do avatar no hover */}
-            <div
-                className="
-                    pointer-events-none absolute bottom-full left-1/2 z-20
-                    mb-2 -translate-x-1/2
-                    rounded-lg border border-zinc-700 bg-zinc-900
-                    px-2.5 py-1 text-xs font-medium text-zinc-200
-                    whitespace-nowrap shadow-lg
-                    opacity-0 scale-95
-                    group-hover/avatar:opacity-100 group-hover/avatar:scale-100
-                    transition-all duration-150
-                "
-            >
+            {/* Tooltip — absolute em relação ao wrapper externo */}
+            <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 py-1 text-xs font-medium text-zinc-200 whitespace-nowrap shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                 {label}
-                {/* Setinha */}
-                <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
             </div>
         </div>
     )
@@ -87,7 +76,7 @@ export function TribeInFasting({ users, currentUserId }: Props) {
                     {overflow > 0 && (
                         <div
                             className="
-                                relative w-9 h-9 flex-shrink-0
+                                relative w-9 h-9 shrink-0
                                 rounded-full border-2 border-zinc-950
                                 bg-zinc-800 flex items-center justify-center
                                 ring-1 ring-zinc-700
