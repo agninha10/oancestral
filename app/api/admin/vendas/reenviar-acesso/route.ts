@@ -1,31 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { jwtVerify } from 'jose';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { PRODUCT_ACCESS_CONFIG } from '@/lib/product-access.config';
 import ProductAccessEmail from '@/emails/ProductAccessEmail';
+import { auth } from '@/auth';
 
 // ─── Admin auth (same pattern as other admin routes) ──────────────────────────
 
 async function getAdminUser() {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get('auth-token');
-        if (!token) return null;
-
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-        const { payload } = await jwtVerify(token.value, secret);
-
-        const user = await prisma.user.findUnique({
-            where: { id: payload.userId as string },
-            select: { id: true, role: true },
-        });
-
-        return user?.role === 'ADMIN' ? user : null;
-    } catch {
-        return null;
-    }
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== 'ADMIN') return null;
+    return { id: session.user.id };
 }
 
 // ─── POST /api/admin/vendas/reenviar-acesso ───────────────────────────────────

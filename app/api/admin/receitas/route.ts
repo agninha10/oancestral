@@ -1,27 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { jwtVerify } from 'jose';
+import { auth } from '@/auth';
 import { notifyGoogleIndexing } from '@/lib/google-indexing';
 import { broadcastNotification } from '@/app/actions/notifications';
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-
-async function getUserFromToken(request: NextRequest) {
-    const token = request.cookies.get('auth-token')?.value;
-    if (!token) return null;
-
-    try {
-        const { payload } = await jwtVerify(token, secret);
-        if (payload.role !== 'ADMIN') return null;
-        return payload.userId as string;
-    } catch {
-        return null;
-    }
+async function getAdminUserId(): Promise<string | null> {
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== 'ADMIN') return null;
+    return session.user.id;
 }
 
 export async function POST(request: NextRequest) {
     try {
-        const userId = await getUserFromToken(request);
+        const userId = await getAdminUserId();
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -129,7 +120,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
     try {
-        const userId = await getUserFromToken(request);
+        const userId = await getAdminUserId();
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }

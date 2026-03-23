@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { GoogleOneTap } from "@/components/auth/google-one-tap";
 import GoogleAnalytics from "@/components/google-analytics";
+import MetaPixel from "@/components/meta-pixel";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -83,6 +84,7 @@ export default function RootLayout({
         className={`${inter.variable} ${crimsonPro.variable} font-sans antialiased`}
       >
         <GoogleAnalytics gaId="G-ET36Z6XQZZ" />
+        <MetaPixel />
         <SessionProvider>
           <ThemeProvider
             attribute="class"

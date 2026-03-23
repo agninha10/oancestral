@@ -1,36 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { jwtVerify } from 'jose';
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { notifyGoogleIndex } from '@/lib/google-indexing';
 import { broadcastNotification } from '@/app/actions/notifications';
 
 async function getAdminUser() {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get('auth-token');
-
-        if (!token) {
-            return null;
-        }
-
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-        const { payload } = await jwtVerify(token.value, secret);
-
-        const user = await prisma.user.findUnique({
-            where: { id: payload.userId as string },
-            select: { id: true, role: true },
-        });
-
-        if (user?.role !== 'ADMIN') {
-            return null;
-        }
-
-        return user;
-    } catch (error) {
-        console.log('Error in getAdminUser:', error);
-        return null;
-    }
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== 'ADMIN') return null;
+    return { id: session.user.id };
 }
 
 export async function GET(request: NextRequest) {
