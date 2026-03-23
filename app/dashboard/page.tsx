@@ -69,7 +69,7 @@ export default async function DashboardPage() {
 
     logActivity({ userId: session.userId, action: 'DASHBOARD_ACCESS' }).catch(() => {})
 
-    const [user, allCourses, ebookPurchases, enrolledCourses] = await Promise.all([
+    const [user, allCourses, ebookPurchases, enrolledCourses, quote] = await Promise.all([
         // 1. Usuário + badges (para o GamificationHeader)
         prisma.user.findUnique({
             where: { id: session.userId },
@@ -147,6 +147,9 @@ export default async function DashboardPage() {
                 },
             },
         }),
+
+        // 5. Frase estoica aleatória do banco
+        getRandomActiveQuote(),
     ])
 
     if (!user) redirect('/login')
@@ -178,9 +181,6 @@ export default async function DashboardPage() {
         ebookPurchases.map((p) => p.product).filter(Boolean) as string[],
     )
 
-    // ── Frase do dia ──────────────────────────────────────────────────────────
-    const quote = STOIC_QUOTES[new Date().getDay() % STOIC_QUOTES.length]
-
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-16">
             <div className="px-4 sm:px-6 lg:px-8 pt-6 space-y-10">
@@ -194,12 +194,14 @@ export default async function DashboardPage() {
                 />
 
                 {/* ── Frase Estoica ────────────────────────────────────────── */}
-                <blockquote className="border-l-2 border-amber-500/30 pl-4">
-                    <p className="text-sm italic text-zinc-500 leading-relaxed">
-                        &ldquo;{quote.text}&rdquo;
-                    </p>
-                    <footer className="mt-1 text-xs text-zinc-700">— {quote.author}</footer>
-                </blockquote>
+                {quote && (
+                    <blockquote className="border-l-2 border-amber-500/30 pl-4">
+                        <p className="text-sm italic text-zinc-500 leading-relaxed">
+                            &ldquo;{quote.text}&rdquo;
+                        </p>
+                        <footer className="mt-1 text-xs text-zinc-700">— {quote.author}</footer>
+                    </blockquote>
+                )}
 
                 {/* ── Continuar Forjando ───────────────────────────────────── */}
                 {continueWatching.length > 0 && (
