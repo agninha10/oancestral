@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 type CourseCard = {
     id: string
+    slug: string
     title: string
     thumbnailUrl: string | null
     isPremium: boolean
@@ -52,6 +53,7 @@ export async function GET() {
                 where: { published: true },
                 select: {
                     id: true,
+                    slug: true,
                     title: true,
                     coverImage: true,
                     isPremium: true,
@@ -103,6 +105,7 @@ export async function GET() {
 
         const coursesRow: CourseCard[] = courses.map((c) => ({
             id: c.id,
+            slug: c.slug,
             title: c.title,
             thumbnailUrl: c.coverImage ?? null,
             isPremium: c.isPremium,
