@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FastingHistory } from '@/app/dashboard/fasting/actions';
 
@@ -49,54 +49,67 @@ export function FastingHistoryList({ history }: { history: FastingHistory[] }) {
                     <div
                         key={item.id}
                         className={cn(
-                            'flex items-center gap-3 rounded-xl border px-4 py-3',
+                            'rounded-xl border px-4 py-3 space-y-2',
                             isCompleted
                                 ? 'border-emerald-900/40 bg-emerald-950/20'
                                 : 'border-red-900/30 bg-red-950/10',
                         )}
                     >
-                        {/* Status icon */}
-                        {isCompleted ? (
-                            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
-                        ) : (
-                            <XCircle className="h-4 w-4 shrink-0 text-red-700" />
-                        )}
-
-                        {/* Date + target */}
-                        <div className="min-w-0 flex-1">
-                            <div className="flex items-baseline gap-2">
-                                <span className="font-mono text-sm font-bold text-zinc-200">
-                                    {fmtDate(item.startTime)}
-                                </span>
-                                <span className="text-xs text-zinc-600">
-                                    meta {item.targetHours}h
-                                </span>
-                            </div>
-                            {item.durationSeconds !== null && (
-                                <p className="text-[11px] text-zinc-600">
-                                    Duração: {fmtDuration(item.durationSeconds)}
-                                    {' · '}
-                                    <span className={cn(
-                                        'font-semibold',
-                                        reachedGoal ? 'text-emerald-500' : 'text-amber-600',
-                                    )}>
-                                        {metaPct}% da meta
-                                    </span>
-                                </p>
+                        {/* Row principal */}
+                        <div className="flex items-center gap-3">
+                            {/* Status icon */}
+                            {isCompleted ? (
+                                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                            ) : (
+                                <XCircle className="h-4 w-4 shrink-0 text-red-700" />
                             )}
+
+                            {/* Date + target */}
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="font-mono text-sm font-bold text-zinc-200">
+                                        {fmtDate(item.startTime)}
+                                    </span>
+                                    <span className="text-xs text-zinc-600">
+                                        meta {item.targetHours}h
+                                    </span>
+                                </div>
+                                {item.durationSeconds !== null && (
+                                    <p className="text-[11px] text-zinc-600">
+                                        Duração: {fmtDuration(item.durationSeconds)}
+                                        {' · '}
+                                        <span className={cn(
+                                            'font-semibold',
+                                            reachedGoal ? 'text-emerald-500' : 'text-amber-600',
+                                        )}>
+                                            {metaPct}% da meta
+                                        </span>
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Status badge */}
+                            <span
+                                className={cn(
+                                    'shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
+                                    isCompleted
+                                        ? 'bg-emerald-900/40 text-emerald-400'
+                                        : 'bg-red-900/30 text-red-600',
+                                )}
+                            >
+                                {isCompleted ? 'Completo' : 'Quebrado'}
+                            </span>
                         </div>
 
-                        {/* Status badge */}
-                        <span
-                            className={cn(
-                                'shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-                                isCompleted
-                                    ? 'bg-emerald-900/40 text-emerald-400'
-                                    : 'bg-red-900/30 text-red-600',
-                            )}
-                        >
-                            {isCompleted ? 'Completo' : 'Quebrado'}
-                        </span>
+                        {/* Nota do usuário */}
+                        {item.notes && (
+                            <div className="flex items-start gap-1.5 pl-7">
+                                <MessageSquare className="mt-0.5 h-3 w-3 shrink-0 text-zinc-600" />
+                                <p className="text-[11px] italic text-zinc-500 leading-relaxed">
+                                    {item.notes}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 );
             })}

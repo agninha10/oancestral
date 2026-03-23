@@ -44,6 +44,7 @@ export type FastingHistory = {
     targetHours: number;
     status: string;
     durationSeconds: number | null;
+    notes: string | null;
 };
 
 export type UserGameProfile = {
@@ -151,7 +152,7 @@ export async function getFastingHistory(limit = 10): Promise<FastingHistory[]> {
         where: { userId: session.userId, status: { not: 'ONGOING' } },
         orderBy: { startTime: 'desc' },
         take: limit,
-        select: { id: true, startTime: true, endTime: true, targetHours: true, status: true },
+        select: { id: true, startTime: true, endTime: true, targetHours: true, status: true, notes: true },
     });
 
     return rows.map((r) => ({
@@ -159,6 +160,7 @@ export async function getFastingHistory(limit = 10): Promise<FastingHistory[]> {
         durationSeconds: r.endTime
             ? Math.floor((r.endTime.getTime() - r.startTime.getTime()) / 1000)
             : null,
+        notes: r.notes ?? null,
     }));
 }
 
@@ -198,7 +200,7 @@ export async function startFast(
 
 // ─── endFast ──────────────────────────────────────────────────────────────────
 
-export async function endFast(sessionId: string): Promise<
+export async function endFast(sessionId: string, notes?: string): Promise<
     | { success: true;  status: EndedFastStatus; gamification: GamificationResult }
     | { success: false; error: string }
 > {
@@ -227,7 +229,7 @@ export async function endFast(sessionId: string): Promise<
 
     await prisma.fastingSession.update({
         where: { id: sessionId },
-        data:  { endTime, status: newStatus },
+        data:  { endTime, status: newStatus, notes: notes?.trim() || null },
     });
 
     // ── Lê estado do usuário (oldLevel + badges) ──────────────────────────────

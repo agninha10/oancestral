@@ -355,6 +355,9 @@ export function FastingTracker({ initialFast, gameProfile, allBadges, history, t
     const [victoryData,      setVictoryData]      = useState<GamificationResult | null>(null);
     const [victoryDuration,  setVictoryDuration]  = useState('');
 
+    // Note written when breaking the fast
+    const [breakNote, setBreakNote] = useState('');
+
     // Local profile state (updated optimistically after endFast)
     const [localProfile, setLocalProfile] = useState(gameProfile);
     const [localHistory, setLocalHistory] = useState(history);
@@ -404,8 +407,10 @@ export function FastingTracker({ initialFast, gameProfile, allBadges, history, t
     const handleEnd = () => {
         if (!session) return;
         const durationSnapshot = elapsedSeconds;
+        const note = breakNote;
+        setBreakNote('');
         startTransition(async () => {
-            const res = await endFast(session.id);
+            const res = await endFast(session.id, note);
             if (!res.success) {
                 toast.error(res.error);
                 return;
@@ -752,6 +757,16 @@ export function FastingTracker({ initialFast, gameProfile, allBadges, history, t
                                                 </div>
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
+                                        {/* Observação opcional */}
+                                        <textarea
+                                            value={breakNote}
+                                            onChange={(e) => setBreakNote(e.target.value)}
+                                            placeholder="Escreva uma observação sobre esse jejum... (opcional)"
+                                            maxLength={300}
+                                            rows={3}
+                                            className="w-full resize-none rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-zinc-600 focus:outline-none"
+                                        />
+
                                         <AlertDialogFooter className="gap-2">
                                             <AlertDialogCancel className="flex-1 border-zinc-800 bg-transparent text-zinc-300 hover:bg-zinc-900 hover:text-white">
                                                 Continuar o jejum

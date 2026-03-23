@@ -503,6 +503,8 @@ model FastingSession {
   // "ONGOING" | "COMPLETED" | "BROKEN"
   status      String    @default("ONGOING")
 
+  notes       String?   // Observação livre escrita pelo usuário ao encerrar o jejum
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
