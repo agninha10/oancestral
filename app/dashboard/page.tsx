@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BookOpen, PlayCircle, TrendingUp, Award, Download } from 'lucide-react'
 import { FastingSummaryCard } from '@/components/dashboard/fasting-summary-card'
+import { GamificationHeader } from '@/components/dashboard/gamification-header'
 import { getCurrentFast } from '@/app/dashboard/fasting/actions'
 
 export default async function DashboardPage() {
@@ -30,9 +31,19 @@ export default async function DashboardPage() {
             email: true,
             subscriptionStatus: true,
             createdAt: true,
+            xp: true,
+            level: true,
             enrollments: {
+                select: { courseId: true },
+            },
+            userBadges: {
+                orderBy: { unlockedAt: 'desc' },
+                take: 3,
                 select: {
-                    courseId: true,
+                    id: true,
+                    badge: {
+                        select: { name: true, icon: true },
+                    },
                 },
             },
         },
@@ -63,15 +74,13 @@ export default async function DashboardPage() {
 
     return (
         <div className="p-6 lg:p-8 space-y-8">
-            {/* Welcome Section */}
-            <div>
-                <h1 className="text-3xl lg:text-4xl font-bold font-serif">
-                    Olá, {(user.name ?? 'Guerreiro').split(' ')[0]}!
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Bem-vindo de volta ao seu painel de aprendizado
-                </p>
-            </div>
+            {/* Gamification Header */}
+            <GamificationHeader
+                name={user.name}
+                xp={user.xp}
+                level={user.level}
+                badges={user.userBadges}
+            />
 
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
