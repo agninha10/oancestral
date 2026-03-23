@@ -437,6 +437,7 @@ export function FastingTracker({ initialFast, gameProfile, allBadges, history, t
                 targetHours: session.targetHours,
                 status: res.status,
                 durationSeconds: durationSnapshot,
+                notes: note || null,
             }, ...prev]);
 
             if (res.status === 'COMPLETED') {

@@ -5,20 +5,8 @@ import { getSession } from '@/lib/auth/session'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity-log'
 import { GamificationHeader } from '@/components/dashboard/gamification-header'
+import { getRandomActiveQuote } from '@/app/actions/quotes'
 import { Lock, Download, Play, ChevronRight, BookOpen } from 'lucide-react'
-
-// ─── Frases Estoicas ──────────────────────────────────────────────────────────
-// Rotaciona pelo dia da semana (0-6) — determinístico, sem hidratação inconsistente
-
-const STOIC_QUOTES = [
-    { text: 'A verdadeira soberania é o domínio sobre si mesmo.', author: 'Marco Aurélio' },
-    { text: 'Não se cause sofrimento antecipando o sofrimento.', author: 'Sêneca' },
-    { text: 'A maior riqueza é viver com pouco.', author: 'Epiteto' },
-    { text: 'Primeiro diga a si mesmo o que você seria; então faça o que tem que fazer.', author: 'Epiteto' },
-    { text: 'Perde seu tempo quem cuida do corpo e negligencia o espírito.', author: 'Sêneca' },
-    { text: 'O obstáculo no caminho se torna o caminho.', author: 'Marco Aurélio' },
-    { text: 'Você tem poder sobre sua mente — não sobre os eventos externos. Perceba isso e encontrará a força.', author: 'Marco Aurélio' },
-]
 
 // ─── Catálogo de Ebooks ───────────────────────────────────────────────────────
 
@@ -230,7 +218,7 @@ export default async function DashboardPage() {
                                     <Link
                                         key={item.id}
                                         href={href}
-                                        className="group relative flex-shrink-0 w-64 sm:w-72 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 transition-all hover:scale-[1.02]"
+                                        className="group relative shrink-0 w-64 sm:w-72 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 transition-all hover:scale-[1.02]"
                                     >
                                         {/* Thumbnail 16:9 */}
                                         <div className="relative aspect-video w-full bg-zinc-800">
@@ -308,7 +296,7 @@ export default async function DashboardPage() {
                                 <Link
                                     key={course.id}
                                     href={`/dashboard/cursos/${course.slug}`}
-                                    className="group relative flex-shrink-0 w-56 sm:w-64 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 transition-all hover:scale-[1.02]"
+                                    className="group relative shrink-0 w-56 sm:w-64 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 transition-all hover:scale-[1.02]"
                                 >
                                     {/* Cover 16:9 */}
                                     <div className="relative aspect-video w-full bg-zinc-800">
@@ -326,7 +314,7 @@ export default async function DashboardPage() {
                                             </div>
                                         )}
                                         {/* Gradient bottom overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent" />
+                                        <div className="absolute inset-0 bg-linear-to-t from-zinc-950/90 via-transparent to-transparent" />
                                         {course.isPremium && (
                                             <div className="absolute top-2 right-2 rounded-md bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-bold text-zinc-950 uppercase tracking-wide">
                                                 Premium
@@ -367,7 +355,7 @@ export default async function DashboardPage() {
                                 <Link
                                     key={ebook.key}
                                     href={href}
-                                    className="group relative flex-shrink-0 w-36 sm:w-44 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 transition-all hover:scale-[1.02]"
+                                    className="group relative shrink-0 w-36 sm:w-44 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 transition-all hover:scale-[1.02]"
                                 >
                                     {/* Poster vertical 3:4 */}
                                     <div className="relative w-full bg-zinc-800" style={{ aspectRatio: '3/4' }}>
@@ -379,7 +367,7 @@ export default async function DashboardPage() {
                                             className="object-cover"
                                         />
                                         {/* Dark overlay sempre presente */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
+                                        <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
 
                                         {/* Ícone de acesso */}
                                         <div className="absolute top-2 right-2">
@@ -422,7 +410,7 @@ export default async function DashboardPage() {
                         })}
 
                         {/* Card placeholder "em breve" */}
-                        <div className="relative flex-shrink-0 w-36 sm:w-44 rounded-xl overflow-hidden bg-zinc-900/40 border border-dashed border-zinc-800 flex flex-col items-center justify-center p-4 gap-2">
+                        <div className="relative shrink-0 w-36 sm:w-44 rounded-xl overflow-hidden bg-zinc-900/40 border border-dashed border-zinc-800 flex flex-col items-center justify-center p-4 gap-2">
                             <div style={{ aspectRatio: '3/4' }} className="w-full flex flex-col items-center justify-center gap-2">
                                 <BookOpen className="h-8 w-8 text-zinc-700" />
                                 <p className="text-[10px] text-zinc-700 text-center uppercase tracking-widest font-semibold">

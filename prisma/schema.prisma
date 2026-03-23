@@ -660,6 +660,20 @@ model PostLike {
   @@map("post_likes")
 }
 
+// ─── Stoic Quotes ──────────────────────────────────────────────────────────────
+
+model StoicQuote {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  author    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("stoic_quotes")
+}
+
 // ─── Notifications ─────────────────────────────────────────────────────────────
 
 model Notification {

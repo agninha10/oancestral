@@ -20,6 +20,7 @@ import {
     Activity,
     Gift,
     Swords,
+    Quote,
 } from 'lucide-react';
 import { useState } from 'react';
 import { signOut } from 'next-auth/react';
@@ -55,6 +56,7 @@ const groups: { label: string; items: NavItem[] }[] = [
             { name: 'Blog Posts', href: '/admin/blog', icon: FileText },
             { name: 'Receitas', href: '/admin/receitas', icon: ChefHat },
             { name: 'Categorias', href: '/admin/categorias', icon: FolderTree },
+            { name: 'Frases Estoicas', href: '/admin/frases', icon: Quote },
         ],
     },
     {
