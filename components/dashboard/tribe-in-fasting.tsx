@@ -12,30 +12,45 @@ type Props = {
 
 function Avatar({ user }: { user: ActiveFaster }) {
     const initial = (user.name ?? '?')[0].toUpperCase()
+    const label   = user.name ?? 'Guerreiro'
 
     return (
-        <div
-            title={user.name ?? 'Guerreiro'}
-            className="
-                relative w-9 h-9 flex-shrink-0
-                rounded-full border-2 border-zinc-950
-                overflow-hidden
-                ring-1 ring-zinc-800
-            "
-        >
-            {user.avatarUrl ? (
-                <Image
-                    src={user.avatarUrl}
-                    alt={user.name ?? 'Guerreiro'}
-                    fill
-                    sizes="36px"
-                    className="object-cover"
-                />
-            ) : (
-                <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
-                    <span className="text-xs font-bold text-amber-500">{initial}</span>
-                </div>
-            )}
+        // Wrapper sem overflow-hidden para o tooltip escapar
+        <div className="group/avatar relative shrink-0">
+            {/* Círculo do avatar */}
+            <div className="w-9 h-9 rounded-full border-2 border-zinc-950 ring-1 ring-zinc-800 overflow-hidden">
+                {user.avatarUrl ? (
+                    <Image
+                        src={user.avatarUrl}
+                        alt={label}
+                        fill
+                        sizes="36px"
+                        className="object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                        <span className="text-xs font-bold text-amber-500">{initial}</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Tooltip — aparece acima do avatar no hover */}
+            <div
+                className="
+                    pointer-events-none absolute bottom-full left-1/2 z-20
+                    mb-2 -translate-x-1/2
+                    rounded-lg border border-zinc-700 bg-zinc-900
+                    px-2.5 py-1 text-xs font-medium text-zinc-200
+                    whitespace-nowrap shadow-lg
+                    opacity-0 scale-95
+                    group-hover/avatar:opacity-100 group-hover/avatar:scale-100
+                    transition-all duration-150
+                "
+            >
+                {label}
+                {/* Setinha */}
+                <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-zinc-700" />
+            </div>
         </div>
     )
 }
