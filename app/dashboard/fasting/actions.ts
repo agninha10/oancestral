@@ -52,6 +52,48 @@ export type UserGameProfile = {
     userBadges: { badge: BadgeUnlocked; unlockedAt: Date }[];
 };
 
+// ─── Tipos públicos ───────────────────────────────────────────────────────────
+
+export type ActiveFaster = {
+    id:        string;
+    name:      string | null;
+    avatarUrl: string | null;
+};
+
+// ─── getActiveFastingUsers ────────────────────────────────────────────────────
+
+/**
+ * Retorna todos os usuários com um jejum ONGOING neste momento,
+ * filtrando apenas quem optou por perfil público (profilePublic = true).
+ * Unicidade garantida por userId — múltiplas sessões abertas não duplicam.
+ */
+export async function getActiveFastingUsers(): Promise<ActiveFaster[]> {
+    const sessions = await prisma.fastingSession.findMany({
+        where: {
+            status: 'ONGOING',
+            user:   { profilePublic: true },
+        },
+        distinct: ['userId'],
+        select: {
+            user: {
+                select: {
+                    id:        true,
+                    name:      true,
+                    avatarUrl: true,
+                    image:     true,
+                },
+            },
+        },
+    });
+
+    return sessions.map(({ user }) => ({
+        id:        user.id,
+        name:      user.name,
+        // avatarUrl é o campo do app; image é o campo do NextAuth (OAuth)
+        avatarUrl: user.avatarUrl ?? user.image ?? null,
+    }));
+}
+
 // ─── getCurrentFast ───────────────────────────────────────────────────────────
 
 export async function getCurrentFast(): Promise<OngoingFast | null> {

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { useSidebar } from '@/components/dashboard/sidebar-context';
+import { CompactXpBar } from '@/components/dashboard/compact-xp-bar';
 
 interface User {
     id: string;
@@ -27,6 +28,8 @@ interface User {
     role: string;
     subscriptionStatus: string;
     avatarUrl?: string | null;
+    xp: number;
+    level: number;
 }
 
 interface DashboardSidebarProps {
@@ -192,6 +195,7 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
                                                 </span>
                                             </div>
                                         )}
+                                        <CompactXpBar xp={user.xp} level={user.level} />
                                         <LogoutButton
                                             variant="outline"
                                             size="sm"

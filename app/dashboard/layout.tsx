@@ -30,6 +30,8 @@ export default async function DashboardLayout({
             role: true,
             subscriptionStatus: true,
             avatarUrl: true,
+            xp: true,
+            level: true,
         },
     });
 
