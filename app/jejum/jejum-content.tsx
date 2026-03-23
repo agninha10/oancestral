@@ -30,6 +30,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Header } from "@/components/layout/header"
 import { TransformationSection } from "./transformation-section"
+import { trackEvent } from "@/lib/fpixel"
 
 const PRICE = "29,90"
 const OLD_PRICE = "97,90"
@@ -107,7 +108,8 @@ export default function JejumContent() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Erro ao processar pagamento")
-      // Redireciona para o checkout Kiwify
+      // Dispara evento de checkout antes de redirecionar
+      trackEvent('InitiateCheckout')
       window.location.href = data.url
     } catch (err: unknown) {
       setCheckoutError(err instanceof Error ? err.message : "Erro ao processar. Tente novamente.")
