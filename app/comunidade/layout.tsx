@@ -81,7 +81,7 @@ export default async function ComunidadeLayout({
     if (session) {
         const user = await prisma.user.findUnique({
             where: { id: session.userId },
-            select: { id: true, name: true, email: true, role: true, subscriptionStatus: true, avatarUrl: true },
+            select: { id: true, name: true, email: true, role: true, subscriptionStatus: true, avatarUrl: true, xp: true, level: true },
         });
 
         if (user) {
