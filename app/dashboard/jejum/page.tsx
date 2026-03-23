@@ -8,7 +8,6 @@ import {
     getActiveFastingUsers,
 } from '@/app/dashboard/fasting/actions';
 import { FastingTracker } from '@/components/dashboard/fasting-tracker';
-import { TribeInFasting } from '@/components/dashboard/tribe-in-fasting';
 import { CompactXpBar } from '@/components/dashboard/compact-xp-bar';
 import { logActivity } from '@/lib/activity-log';
 
@@ -44,9 +43,7 @@ export default async function JejumPage() {
                 gameProfile={gameProfile}
                 allBadges={allBadges}
                 history={history}
-            />
-            <TribeInFasting
-                users={tribeUsers}
+                tribeUsers={tribeUsers}
                 currentUserId={session.userId}
             />
         </div>

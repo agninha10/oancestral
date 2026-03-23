@@ -46,6 +46,8 @@ import {
 import { VictoryModal } from '@/components/dashboard/fasting-victory-modal';
 import { LevelBar, BadgeGallery } from '@/components/dashboard/fasting-gamification';
 import { FastingHistoryList } from '@/components/dashboard/fasting-history';
+import { TribeInFasting } from '@/components/dashboard/tribe-in-fasting';
+import type { ActiveFaster } from '@/app/dashboard/fasting/actions';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -327,13 +329,15 @@ type Tab = 'forja' | 'jornada';
 // ─── FastingTracker ───────────────────────────────────────────────────────────
 
 type Props = {
-    initialFast:  OngoingFast | null;
-    gameProfile:  UserGameProfile | null;
-    allBadges:    BadgeUnlocked[];
-    history:      FastingHistory[];
+    initialFast:    OngoingFast | null;
+    gameProfile:    UserGameProfile | null;
+    allBadges:      BadgeUnlocked[];
+    history:        FastingHistory[];
+    tribeUsers:     ActiveFaster[];
+    currentUserId:  string;
 };
 
-export function FastingTracker({ initialFast, gameProfile, allBadges, history }: Props) {
+export function FastingTracker({ initialFast, gameProfile, allBadges, history, tribeUsers, currentUserId }: Props) {
     const uid    = useId();
     const glowId = `glow-${uid.replace(/:/g, '')}`;
     const gradId = `grad-${uid.replace(/:/g, '')}`;
@@ -568,6 +572,11 @@ export function FastingTracker({ initialFast, gameProfile, allBadges, history }:
                                     Selecione seu protocolo abaixo e inicie a forja.
                                 </p>
                             )}
+                        </div>
+
+                        {/* Tribe in fasting */}
+                        <div className="mt-10">
+                            <TribeInFasting users={tribeUsers} currentUserId={currentUserId} />
                         </div>
 
                         {/* Biological stages */}
