@@ -21,6 +21,7 @@ import {
     Gift,
     Swords,
     Quote,
+    TrendingUp,
 } from 'lucide-react';
 import { useState } from 'react';
 import { signOut } from 'next-auth/react';
@@ -41,6 +42,7 @@ const groups: { label: string; items: NavItem[] }[] = [
         items: [
             { name: 'Vendas', href: '/admin/vendas', icon: DollarSign },
             { name: 'Cortesias', href: '/admin/cortesias', icon: Gift },
+            { name: 'Tráfego', href: '/admin/trafego', icon: TrendingUp },
         ],
     },
     {
@@ -115,7 +117,7 @@ export function AdminSidebar() {
                 <div className="flex flex-col h-full">
                     {/* Logo */}
                     <div className="flex items-center gap-2 px-6 py-6 border-b border-border shrink-0">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center">
                             <span className="text-white font-bold text-sm">OA</span>
                         </div>
                         <div>

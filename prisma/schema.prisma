@@ -674,6 +674,25 @@ model StoicQuote {
   @@map("stoic_quotes")
 }
 
+// ─── UTM Tracking ───────────────────────────────────────────────────────────────
+
+model UtmVisit {
+  id        String   @id @default(cuid())
+  source    String?  // utm_source
+  medium    String?  // utm_medium
+  campaign  String?  // utm_campaign
+  content   String?  // utm_content
+  term      String?  // utm_term
+  landing   String?  // landing page path
+  userId    String?  // nullable — visitors may not be logged in
+  createdAt DateTime @default(now())
+
+  @@index([campaign])
+  @@index([source])
+  @@index([createdAt])
+  @@map("utm_visits")
+}
+
 // ─── Notifications ─────────────────────────────────────────────────────────────
 
 model Notification {

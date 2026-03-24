@@ -4,7 +4,8 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { GoogleOneTap } from "@/components/auth/google-one-tap";
 import GoogleAnalytics from "@/components/google-analytics";
-import MetaPixel from "@/components/meta-pixel";
+import MetaPixel from "@/components/meta-pixel"
+import UtmTracker from "@/components/utm-tracker";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -85,6 +86,7 @@ export default function RootLayout({
       >
         <GoogleAnalytics gaId="G-ET36Z6XQZZ" />
         <MetaPixel />
+        <UtmTracker />
         <SessionProvider>
           <ThemeProvider
             attribute="class"
