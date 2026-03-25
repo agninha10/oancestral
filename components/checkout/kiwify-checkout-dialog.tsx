@@ -36,7 +36,7 @@ const PRODUCT_LABELS: Record<KiwifyProduct, string> = {
   "livro-ancestral": "Manual da Cozinha Ancestral — R$ 49,00",
   jejum: "Guia Definitivo do Jejum Intermitente — R$ 29,90",
   mensal: "Plano Mensal — R$ 29/mês",
-  anual: "Plano Anual — R$ 190/ano",
+  anual: "Plano Anual — R$ 239/ano",
 };
 
 // ── Props ──────────────────────────────────────────────────────────────────

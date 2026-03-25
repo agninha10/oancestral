@@ -748,7 +748,7 @@ export default function AssinaturaPage() {
                 <h3 className="font-serif text-2xl font-bold text-amber-400">Compromisso máximo</h3>
                 <div className="my-6 border-t border-zinc-800 pt-6">
                   <div className="flex items-baseline gap-1">
-                    <span className="font-serif text-5xl font-black text-amber-500">R$ 238,80</span>
+                    <span className="font-serif text-5xl font-black text-amber-500">R$ 239</span>
                     <span className="text-zinc-500">/ano</span>
                   </div>
                   <p className="mt-1.5 text-sm text-amber-500/70">
