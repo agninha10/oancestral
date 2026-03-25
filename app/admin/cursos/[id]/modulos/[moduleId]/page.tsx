@@ -92,6 +92,9 @@ export default function ModuloPage({
                 const data = await response.json();
                 setModule(data);
                 setLessons(data.lessons || []);
+            } else {
+                const err = await response.json().catch(() => ({}));
+                console.error(`[fetchModule] status=${response.status}`, err);
             }
         } catch (error) {
             console.error('Erro ao buscar módulo:', error);
@@ -245,7 +248,7 @@ export default function ModuloPage({
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center justify-center min-h-100">
                 <p className="text-muted-foreground">Carregando módulo...</p>
             </div>
         );
