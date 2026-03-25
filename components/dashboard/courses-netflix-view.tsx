@@ -73,7 +73,7 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
         if (course.isEnrolled) {
             router.push(`/dashboard/cursos/${course.slug}`);
         } else {
-            router.push(`/cursos/${course.slug}`);
+            router.push('/assinatura');
         }
     };
 
