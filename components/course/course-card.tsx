@@ -22,8 +22,15 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
+    const href =
+        course.isPremium || course.membersOnly
+            ? typeof course.progress === 'number' && course.progress > 0
+                ? `/cursos/${course.slug}`
+                : '/assinatura'
+            : `/cursos/${course.slug}`;
+
     return (
-        <Link href={`/cursos/${course.slug}`}>
+        <Link href={href}>
             <Card className="group h-full overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
                 {/* Cover Image */}
                 <div className="relative aspect-video overflow-hidden bg-muted">
