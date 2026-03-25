@@ -112,6 +112,7 @@ export async function GET(request: NextRequest) {
                     description: course.description,
                     coverImage: course.coverImage,
                     isPremium: course.isPremium,
+                    membersOnly: course.membersOnly,
                     published: course.published,
                     progress: 0,
                 };
