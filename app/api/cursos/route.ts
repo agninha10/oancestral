@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
             description: string;
             coverImage: string | null;
             isPremium: boolean;
+            membersOnly: boolean;
             published: boolean;
             progress: number;
         };
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
                 description: true,
                 coverImage: true,
                 isPremium: true,
+                membersOnly: true,
                 published: true,
                 modules: {
                     select: {
@@ -67,6 +69,7 @@ export async function GET(request: NextRequest) {
                             description: course.description,
                             coverImage: course.coverImage,
                             isPremium: course.isPremium,
+                            membersOnly: course.membersOnly,
                             published: course.published,
                             progress: 0,
                         };
@@ -94,6 +97,7 @@ export async function GET(request: NextRequest) {
                         description: course.description,
                         coverImage: course.coverImage,
                         isPremium: course.isPremium,
+                        membersOnly: course.membersOnly,
                         published: course.published,
                         progress,
                     };

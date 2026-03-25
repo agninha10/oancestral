@@ -21,6 +21,7 @@ export default function NovoCursoPage() {
         description: '',
         coverImage: '',
         isPremium: true,
+        membersOnly: false,
         published: false,
         metaTitle: '',
         metaDescription: '',
@@ -181,6 +182,22 @@ export default function NovoCursoPage() {
                                 />
                                 <Label htmlFor="isPremium" className="font-normal">
                                     Curso Premium (requer assinatura ativa)
+                                </Label>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="membersOnly"
+                                    checked={formData.membersOnly}
+                                    onCheckedChange={(checked) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            membersOnly: checked as boolean,
+                                        }))
+                                    }
+                                />
+                                <Label htmlFor="membersOnly" className="font-normal">
+                                    Somente para membros (exibe badge e redireciona para /assinatura)
                                 </Label>
                             </div>
 

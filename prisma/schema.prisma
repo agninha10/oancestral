@@ -256,6 +256,7 @@ model Course {
   description String  @db.Text
   coverImage  String?
   isPremium   Boolean @default(true)
+  membersOnly Boolean @default(false) // exibe badge "Somente para membros" e redireciona para /assinatura
 
   // Pricing & Payment
   price           Int?    // em centavos (ex: 4900 = R$ 49,00). null = acesso por assinatura

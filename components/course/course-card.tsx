@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Lock, PlayCircle } from 'lucide-react';
+import { Lock, PlayCircle, Star } from 'lucide-react';
 
 interface Course {
     id: string;
@@ -13,6 +13,7 @@ interface Course {
     description: string;
     coverImage: string | null;
     isPremium: boolean;
+    membersOnly?: boolean;
     progress?: number;
 }
 
@@ -39,15 +40,23 @@ export function CourseCard({ course }: CourseCardProps) {
                         </div>
                     )}
                     
-                    {/* Premium Badge */}
-                    {course.isPremium && (
-                        <div className="absolute top-3 right-3">
+                    {/* Badges */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+                        {course.membersOnly && (
+                            <Link href="/assinatura" onClick={(e) => e.stopPropagation()}>
+                                <Badge className="bg-amber-500 hover:bg-amber-600 text-white cursor-pointer">
+                                    <Star className="mr-1 h-3 w-3" />
+                                    Somente para membros
+                                </Badge>
+                            </Link>
+                        )}
+                        {course.isPremium && !course.membersOnly && (
                             <Badge variant="secondary" className="bg-primary/90 text-primary-foreground">
                                 <Lock className="mr-1 h-3 w-3" />
                                 Premium
                             </Badge>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
 
                 <CardHeader className="space-y-2">

@@ -22,6 +22,7 @@ export async function GET(
                 description: true,
                 coverImage: true,
                 isPremium: true,
+                membersOnly: true,
                 price: true,
                 kiwifyUrl: true,
                 waitlistEnabled: true,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -17,6 +18,7 @@ import {
     ChevronDown,
     ChevronUp,
     ShoppingCart,
+    Star,
 } from 'lucide-react';
 
 interface Lesson {
@@ -42,6 +44,7 @@ interface Course {
     description: string;
     coverImage: string | null;
     isPremium: boolean;
+    membersOnly: boolean;
     price: number | null;
     kiwifyUrl: string | null;
     waitlistEnabled: boolean;
@@ -179,8 +182,16 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                             <div className="grid gap-8 lg:grid-cols-2 items-center">
                                 {/* Course Info */}
                                 <div className="space-y-6">
-                                    <div className="flex gap-2">
-                                        {course.isPremium && (
+                                    <div className="flex gap-2 flex-wrap">
+                                        {course.membersOnly && (
+                                            <Link href="/assinatura">
+                                                <Badge className="bg-amber-500 hover:bg-amber-600 text-white cursor-pointer">
+                                                    <Star className="mr-1 h-3 w-3" />
+                                                    Somente para membros
+                                                </Badge>
+                                            </Link>
+                                        )}
+                                        {course.isPremium && !course.membersOnly && (
                                             <Badge variant="secondary" className="bg-primary/90 text-primary-foreground">
                                                 <Lock className="mr-1 h-3 w-3" />
                                                 Premium

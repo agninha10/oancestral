@@ -33,6 +33,7 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
         description: '',
         coverImage: '',
         isPremium: true,
+        membersOnly: false,
         published: false,
         metaTitle: '',
         metaDescription: '',
@@ -68,6 +69,7 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                     description: data.description,
                     coverImage: data.coverImage || '',
                     isPremium: data.isPremium,
+                    membersOnly: data.membersOnly ?? false,
                     published: data.published,
                     metaTitle: data.metaTitle || '',
                     metaDescription: data.metaDescription || '',
@@ -311,6 +313,22 @@ export default function EditarCursoPage({ params }: { params: Promise<{ id: stri
                                 />
                                 <Label htmlFor="isPremium" className="font-normal">
                                     Curso Premium (requer assinatura ativa)
+                                </Label>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="membersOnly"
+                                    checked={formData.membersOnly}
+                                    onCheckedChange={(checked) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            membersOnly: checked as boolean,
+                                        }))
+                                    }
+                                />
+                                <Label htmlFor="membersOnly" className="font-normal">
+                                    Somente para membros (exibe badge e redireciona para /assinatura)
                                 </Label>
                             </div>
 
