@@ -2,9 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Lock, CheckCircle2, ChevronRight, FileDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+
+interface LessonMaterial {
+    label: string;
+    filename: string;
+}
 
 interface Lesson {
     id: string;
@@ -14,6 +19,7 @@ interface Lesson {
     content: string | null;
     isFree: boolean;
     order: number;
+    materials?: unknown;
     module: {
         id: string;
         title: string;
@@ -194,6 +200,44 @@ export function LessonPlayer({
                         <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
                     </div>
                 )}
+
+                {/* Materials / Downloads */}
+                {hasAccess && (() => {
+                    const mats = Array.isArray(lesson.materials)
+                        ? (lesson.materials as LessonMaterial[])
+                        : [];
+                    return mats.length > 0 ? (
+                    <div className="mt-8 rounded-xl border border-border bg-muted/30 p-5">
+                        <div className="mb-4 flex items-center gap-2">
+                            <FileDown className="h-5 w-5 text-primary" />
+                            <h2 className="font-semibold">Materiais desta aula</h2>
+                        </div>
+                        <div className="space-y-2">
+                            {mats.map((material) => (
+                                <a
+                                    key={material.filename}
+                                    href={`/api/download/${encodeURIComponent(material.filename)}`}
+                                    download={material.filename}
+                                    className="group flex items-center justify-between gap-4 rounded-lg border border-border bg-background px-4 py-3 transition-colors hover:bg-muted"
+                                >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                            <FileDown className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <span className="truncate text-sm font-medium">
+                                            {material.label}
+                                        </span>
+                                    </div>
+                                    <div className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                                        <Download className="h-3.5 w-3.5" />
+                                        Baixar
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                    ) : null;
+                })()}
             </div>
         </div>
     );

@@ -21,7 +21,7 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { title, slug, videoUrl, thumbnailUrl, content, order, isFree } = body;
+        const { title, slug, videoUrl, thumbnailUrl, content, order, isFree, materials } = body;
 
         const lesson = await prisma.lesson.update({
             where: { id },
@@ -33,6 +33,7 @@ export async function PUT(
                 content: content || null,
                 order,
                 isFree,
+                materials: materials ?? [],
             },
         });
 

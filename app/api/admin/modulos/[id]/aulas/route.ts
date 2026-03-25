@@ -22,7 +22,7 @@ export async function POST(
     try {
         const { id: moduleId } = await params;
         const body = await request.json();
-        const { title, slug, videoUrl, thumbnailUrl, content, order, isFree } = body;
+        const { title, slug, videoUrl, thumbnailUrl, content, order, isFree, materials } = body;
 
         const lesson = await prisma.lesson.create({
             data: {
@@ -33,6 +33,7 @@ export async function POST(
                 content: content || null,
                 order,
                 isFree: isFree ?? false,
+                materials: materials ?? [],
                 moduleId,
             },
             select: {

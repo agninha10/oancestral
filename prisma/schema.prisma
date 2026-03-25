@@ -316,6 +316,7 @@ model Lesson {
   content      String? @db.Text // Rich text for summaries
   order        Int
   isFree       Boolean @default(false) // Free preview lessons
+  materials    Json?   // Array of {label: string, filename: string} — PDFs/files for download
 
   // SEO
   metaTitle       String?

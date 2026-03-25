@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, FileDown, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/admin/image-upload';
 
+interface LessonMaterial {
+    label: string;
+    filename: string;
+}
+
+interface EbookFile {
+    filename: string;
+    label: string;
+    sizeKb: number;
+}
+
 interface Lesson {
     id: string;
     title: string;
@@ -22,6 +33,7 @@ interface Lesson {
     content: string | null;
     order: number;
     isFree: boolean;
+    materials: LessonMaterial[] | null;
 }
 
 interface Module {
@@ -42,6 +54,7 @@ const emptyLessonForm = {
     thumbnailUrl: '',
     content: '',
     isFree: false,
+    materials: [] as LessonMaterial[],
 };
 
 export default function ModuloPage({
@@ -58,6 +71,7 @@ export default function ModuloPage({
     const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
     const [lessonForm, setLessonForm] = useState(emptyLessonForm);
     const [savingModuleThumbnail, setSavingModuleThumbnail] = useState(false);
+    const [availableEbooks, setAvailableEbooks] = useState<EbookFile[]>([]);
 
     useEffect(() => {
         params.then((p) => {
@@ -65,6 +79,10 @@ export default function ModuloPage({
             setModuleId(p.moduleId);
             fetchModule(p.moduleId);
         });
+        fetch('/api/admin/ebooks')
+            .then((r) => r.json())
+            .then((data) => setAvailableEbooks(Array.isArray(data) ? data : []))
+            .catch(() => {});
     }, []);
 
     const fetchModule = async (id: string) => {
@@ -183,8 +201,24 @@ export default function ModuloPage({
             thumbnailUrl: lesson.thumbnailUrl || '',
             content: lesson.content || '',
             isFree: lesson.isFree,
+            materials: lesson.materials || [],
         });
         setShowLessonForm(true);
+    };
+
+    const addMaterial = (filename: string, label: string) => {
+        if (lessonForm.materials.some((m) => m.filename === filename)) return;
+        setLessonForm((prev) => ({
+            ...prev,
+            materials: [...prev.materials, { filename, label }],
+        }));
+    };
+
+    const removeMaterial = (filename: string) => {
+        setLessonForm((prev) => ({
+            ...prev,
+            materials: prev.materials.filter((m) => m.filename !== filename),
+        }));
     };
 
     const handleDeleteLesson = async (lessonId: string) => {
@@ -370,6 +404,86 @@ export default function ModuloPage({
                                     <Label htmlFor="isFree" className="font-normal">
                                         Aula gratuita (disponível como degustação)
                                     </Label>
+                                </div>
+
+                                {/* ── Materiais para download ── */}
+                                <div className="space-y-3 rounded-lg border border-dashed border-border p-4">
+                                    <div>
+                                        <Label className="text-base font-semibold">
+                                            Materiais para Download
+                                        </Label>
+                                        <p className="mt-0.5 text-xs text-muted-foreground">
+                                            PDFs e arquivos que o aluno poderá baixar nesta aula (somente assinantes).
+                                        </p>
+                                    </div>
+
+                                    {/* Arquivos já anexados */}
+                                    {lessonForm.materials.length > 0 && (
+                                        <div className="space-y-2">
+                                            {lessonForm.materials.map((m) => (
+                                                <div
+                                                    key={m.filename}
+                                                    className="flex items-center justify-between gap-2 rounded-md border border-border bg-muted/40 px-3 py-2"
+                                                >
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <FileDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-medium">{m.label}</p>
+                                                            <p className="truncate text-xs text-muted-foreground">{m.filename}</p>
+                                                        </div>
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-7 w-7 shrink-0"
+                                                        onClick={() => removeMaterial(m.filename)}
+                                                    >
+                                                        <X className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Picker de arquivos disponíveis */}
+                                    {availableEbooks.length > 0 ? (
+                                        <div className="space-y-1.5">
+                                            <p className="text-xs font-medium text-muted-foreground">
+                                                Adicionar arquivo de /private/ebooks:
+                                            </p>
+                                            <div className="grid gap-1.5 sm:grid-cols-2">
+                                                {availableEbooks.map((eb) => {
+                                                    const attached = lessonForm.materials.some(
+                                                        (m) => m.filename === eb.filename
+                                                    );
+                                                    return (
+                                                        <button
+                                                            key={eb.filename}
+                                                            type="button"
+                                                            disabled={attached}
+                                                            onClick={() => addMaterial(eb.filename, eb.label)}
+                                                            className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-left text-sm transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+                                                        >
+                                                            <Plus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                                                            <div className="min-w-0">
+                                                                <p className="truncate font-medium">{eb.label}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {eb.sizeKb > 1024
+                                                                        ? `${(eb.sizeKb / 1024).toFixed(1)} MB`
+                                                                        : `${eb.sizeKb} KB`}
+                                                                </p>
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-muted-foreground">
+                                            Nenhum arquivo encontrado em /private/ebooks. Coloque PDFs lá para aparecerem aqui.
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="flex gap-2">
