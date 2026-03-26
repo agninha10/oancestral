@@ -184,7 +184,7 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                                 <div className="space-y-6">
                                     <div className="flex gap-2 flex-wrap">
                                         {course.membersOnly && (
-                                            <Link href="/assinatura">
+                                            <Link href="/cla-ancestral">
                                                 <Badge className="bg-amber-500 hover:bg-amber-600 text-white cursor-pointer">
                                                     <Star className="mr-1 h-3 w-3" />
                                                     Somente para membros

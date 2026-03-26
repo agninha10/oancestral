@@ -80,7 +80,7 @@ const UPSELL: Record<
     description:
       "Com a assinatura O Ancestral você acessa +200 receitas exclusivas, cursos de culinária ancestral e uma comunidade de pessoas comprometidas com a saúde real. Tudo por menos de R$ 1 por dia.",
     cta: "Ver Planos de Assinatura",
-    href: "/assinatura",
+    href: "/cla-ancestral",
   },
   jejum: {
     badge: "RECOMENDADO",
@@ -96,7 +96,7 @@ const UPSELL: Record<
     description:
       "Você está no mensal. Migrando para o anual você economiza R$ 158 por ano — e garante 12 meses de acesso sem se preocupar com renovação.",
     cta: "Ver Plano Anual",
-    href: "/assinatura",
+    href: "/cla-ancestral",
   },
   anual: null, // No upsell for annual — they're already at the top
 };

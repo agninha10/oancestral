@@ -11,6 +11,15 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  async redirects() {
+    return [
+      {
+        source: '/assinatura',
+        destination: '/cla-ancestral',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {

@@ -4,8 +4,8 @@
  * Base URLs are set as environment variables per product:
  *   KIWIFY_LIVRO_ANCESTRAL_URL   → /livro-de-receitas-ancestrais
  *   KIWIFY_JEJUM_URL             → /jejum
- *   KIWIFY_MENSAL_URL            → /assinatura (mensal)
- *   KIWIFY_ANUAL_URL             → /assinatura (anual)
+ *   KIWIFY_MENSAL_URL            → /cla-ancestral (mensal)
+ *   KIWIFY_ANUAL_URL             → /cla-ancestral (anual)
  *
  * Kiwify accepts customer data via query params so the checkout form
  * is pre-filled — reducing friction and increasing conversion.

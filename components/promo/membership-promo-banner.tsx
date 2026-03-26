@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Star, Crown, Sparkles } from "lucide-react";
 
-const MEMBERSHIP_URL = "/assinatura";
+const MEMBERSHIP_URL = "/cla-ancestral";
 
 interface MembershipPromoBannerProps {
   variant?: "inline" | "sidebar";

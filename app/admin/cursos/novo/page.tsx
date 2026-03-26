@@ -197,7 +197,7 @@ export default function NovoCursoPage() {
                                     }
                                 />
                                 <Label htmlFor="membersOnly" className="font-normal">
-                                    Somente para membros (exibe badge e redireciona para /assinatura)
+                                    Somente para membros (exibe badge e redireciona para /cla-ancestral)
                                 </Label>
                             </div>
 

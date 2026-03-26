@@ -26,7 +26,7 @@ export function CourseCard({ course }: CourseCardProps) {
         course.isPremium || course.membersOnly
             ? typeof course.progress === 'number' && course.progress > 0
                 ? `/cursos/${course.slug}`
-                : '/assinatura'
+                : '/cla-ancestral'
             : `/cursos/${course.slug}`;
 
     return (
@@ -50,7 +50,7 @@ export function CourseCard({ course }: CourseCardProps) {
                     {/* Badges */}
                     <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
                         {course.membersOnly && (
-                            <Link href="/assinatura" onClick={(e) => e.stopPropagation()}>
+                            <Link href="/cla-ancestral" onClick={(e) => e.stopPropagation()}>
                                 <Badge className="bg-amber-500 hover:bg-amber-600 text-white cursor-pointer">
                                     <Star className="mr-1 h-3 w-3" />
                                     Somente para membros
