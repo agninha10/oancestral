@@ -160,22 +160,11 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
 
             {/* Course Lists */}
             <div className="space-y-12 px-6 lg:px-12 mt-8">
-                {/* Continue Watching */}
-                {enrolledCourses.length > 0 && (
-                    <CourseRow
-                        title="Continue Assistindo"
-                        courses={enrolledCourses}
-                        onCourseClick={handleCourseClick}
-                        hoveredCourse={hoveredCourse}
-                        setHoveredCourse={setHoveredCourse}
-                    />
-                )}
-
-                {/* Available Courses */}
-                {availableCourses.length > 0 && (
+                {/* All Courses Combined */}
+                {(enrolledCourses.length > 0 || availableCourses.length > 0) && (
                     <CourseRow
                         title="Cursos Disponíveis"
-                        courses={availableCourses}
+                        courses={[...enrolledCourses, ...availableCourses]}
                         onCourseClick={handleCourseClick}
                         hoveredCourse={hoveredCourse}
                         setHoveredCourse={setHoveredCourse}

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { CourseListClient } from './course-list-client';
+import { CoursesShowcase } from '@/components/course/courses-showcase';
 
 export const metadata: Metadata = {
     title: 'Cursos',
@@ -31,10 +31,10 @@ export default function CursosPage() {
                     </div>
                 </section>
 
-                {/* Courses Grid */}
+                {/* Courses Showcase */}
                 <section className="container px-4 md:px-6 py-12 md:py-16">
                     <div className="mx-auto max-w-7xl">
-                        <CourseListClient />
+                        <CoursesShowcase />
                     </div>
                 </section>
             </main>
