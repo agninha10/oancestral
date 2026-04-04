@@ -92,7 +92,7 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
         <div className="pb-16">
             {/* Hero Section - Featured Course */}
             {enrolledCourses.length > 0 && (
-                <div className="relative h-[60vh] min-h-[500px] w-full">
+                <div className="relative h-[60vh] min-h-125 w-full">
                     <div className="absolute inset-0">
                         {enrolledCourses[0].coverImage ? (
                             <Image
@@ -103,9 +103,9 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
                                 priority
                             />
                         ) : (
-                            <div className="h-full w-full bg-gradient-to-br from-primary/20 via-background to-accent/20" />
+                            <div className="h-full w-full bg-linear-to-br from-primary/20 via-background to-accent/20" />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-transparent" />
                     </div>
 
                     <div className="relative h-full flex items-end">
