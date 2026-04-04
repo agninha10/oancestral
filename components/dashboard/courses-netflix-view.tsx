@@ -217,7 +217,7 @@ function CourseRow({
                 {/* Scroll Buttons */}
                 <button
                     onClick={scrollRight}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     aria-label="Rolar cursos para a direita"
                 >
                     <ChevronRight className="h-6 w-6" />
