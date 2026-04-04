@@ -292,6 +292,7 @@ export default function ModuloPage({
                         onChange={handleModuleThumbnail}
                         onRemove={handleRemoveModuleThumbnail}
                         className="max-w-sm"
+                        aspectClassName="aspect-9/16"
                     />
                 </div>
             </Card>
@@ -515,7 +516,7 @@ export default function ModuloPage({
 
                                         {/* Thumbnail preview */}
                                         {lesson.thumbnailUrl ? (
-                                            <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded border border-border">
+                                            <div className="relative h-16 w-9 shrink-0 overflow-hidden rounded border border-border">
                                                 <Image
                                                     src={lesson.thumbnailUrl}
                                                     alt={lesson.title}

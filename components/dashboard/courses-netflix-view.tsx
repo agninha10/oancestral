@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ import {
     Lock,
     CheckCircle,
     Info,
-    ChevronLeft,
     ChevronRight,
 } from 'lucide-react';
 
@@ -205,47 +204,32 @@ function CourseRow({
     hoveredCourse,
     setHoveredCourse,
 }: CourseRowProps) {
-    const [scrollPosition, setScrollPosition] = useState(0);
-    const rowRef = useState<HTMLDivElement | null>(null);
+    const rowRef = useRef<HTMLDivElement | null>(null);
 
-    const scroll = (direction: 'left' | 'right') => {
-        const scrollAmount = 400;
-        const newPosition =
-            direction === 'left'
-                ? Math.max(0, scrollPosition - scrollAmount)
-                : scrollPosition + scrollAmount;
-        setScrollPosition(newPosition);
+    const scrollRight = () => {
+        rowRef.current?.scrollBy({ left: 420, behavior: 'smooth' });
     };
 
     return (
         <div className="space-y-4">
             <h2 className="text-2xl font-bold font-serif">{title}</h2>
-            <div className="relative group">
+            <div className="relative group max-w-full overflow-hidden">
                 {/* Scroll Buttons */}
-                {scrollPosition > 0 && (
-                    <button
-                        onClick={() => scroll('left')}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </button>
-                )}
                 <button
-                    onClick={() => scroll('right')}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={scrollRight}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Rolar cursos para a direita"
                 >
                     <ChevronRight className="h-6 w-6" />
                 </button>
 
                 {/* Course Cards */}
                 <div
-                    className="overflow-x-auto scrollbar-hide scroll-smooth"
+                    ref={rowRef}
+                    className="overflow-x-auto scrollbar-hide scroll-smooth overscroll-x-contain pr-12"
                     style={{ scrollBehavior: 'smooth' }}
                 >
-                    <div
-                        className="flex gap-5"
-                        style={{ transform: `translateX(-${scrollPosition}px)` }}
-                    >
+                    <div className="flex gap-5 w-max pb-2">
                         {courses.map((course) => (
                             <div
                                 key={course.id}
@@ -270,7 +254,7 @@ function CourseRow({
 
                                     {/* Overlay on hover */}
                                     {hoveredCourse === course.id && (
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4">
+                                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-4">
                                             <h3 className="font-semibold text-white mb-2 line-clamp-2">
                                                 {course.title}
                                             </h3>

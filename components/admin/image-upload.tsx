@@ -11,9 +11,10 @@ interface ImageUploadProps {
     onChange: (url: string) => void;
     onRemove?: () => void;
     className?: string;
+    aspectClassName?: string;
 }
 
-export function ImageUpload({ value, onChange, onRemove, className }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, onRemove, className, aspectClassName = 'aspect-video' }: ImageUploadProps) {
     const [uploading, setUploading] = useState(false);
     const [dragActive, setDragActive] = useState(false);
 
@@ -88,7 +89,7 @@ export function ImageUpload({ value, onChange, onRemove, className }: ImageUploa
     if (value) {
         return (
             <div className={cn('relative group', className)}>
-                <div className="relative aspect-video rounded-lg overflow-hidden border border-border bg-muted">
+                <div className={cn('relative rounded-lg overflow-hidden border border-border bg-muted', aspectClassName)}>
                     <Image
                         src={value}
                         alt="Upload preview"

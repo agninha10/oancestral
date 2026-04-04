@@ -234,7 +234,7 @@ function ModuleCard({
     return (
         <Link href={href} className="group block">
             {/* Thumbnail */}
-            <div className="relative aspect-video rounded-xl overflow-hidden bg-muted shadow-md shadow-black/30 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-black/50">
+            <div className="relative aspect-9/16 rounded-xl overflow-hidden bg-muted shadow-md shadow-black/30 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-black/50">
                 {thumbnailUrl ? (
                     <Image
                         src={thumbnailUrl}
