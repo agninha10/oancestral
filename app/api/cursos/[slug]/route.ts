@@ -62,22 +62,42 @@ export async function GET(
             );
         }
 
-        // Verificar se o usuário está matriculado
+        // Verificar se o usuário está matriculado e tem acesso
         let isEnrolled = false;
         let totalLessons = 0;
         let completedLessons = 0;
 
         if (session?.userId) {
-            const enrollment = await prisma.courseEnrollment.findUnique({
-                where: {
-                    userId_courseId: {
-                        userId: session.userId,
-                        courseId: course.id,
-                    },
-                },
-            });
+            const isAdmin = session.role === 'ADMIN';
 
-            isEnrolled = !!enrollment;
+            if (isAdmin) {
+                // ADMIN sempre tem acesso a todos os cursos
+                isEnrolled = true;
+            } else {
+                // Verificar matrícula direta
+                const enrollment = await prisma.courseEnrollment.findUnique({
+                    where: {
+                        userId_courseId: {
+                            userId: session.userId,
+                            courseId: course.id,
+                        },
+                    },
+                });
+
+                if (enrollment) {
+                    isEnrolled = true;
+                } else if (course.membersOnly) {
+                    // Curso membersOnly: checar assinatura ativa
+                    const user = await prisma.user.findUnique({
+                        where: { id: session.userId },
+                        select: { subscriptionStatus: true, subscriptionEndDate: true },
+                    });
+                    const hasActiveSub =
+                        user?.subscriptionStatus === 'ACTIVE' &&
+                        (!user.subscriptionEndDate || new Date(user.subscriptionEndDate) > new Date());
+                    isEnrolled = hasActiveSub;
+                }
+            }
 
             // Calcular progresso
             totalLessons = course.modules.reduce(

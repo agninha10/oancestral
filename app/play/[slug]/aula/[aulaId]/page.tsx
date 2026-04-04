@@ -24,6 +24,7 @@ export default async function AulaPage({
                 id: true,
                 title: true,
                 slug: true,
+                membersOnly: true,
                 modules: {
                     orderBy: { order: 'asc' },
                     select: {
@@ -61,12 +62,35 @@ export default async function AulaPage({
     if (!course) notFound();
     if (!currentUser) redirect('/login');
 
-    // Verify enrollment
-    const enrollment = await prisma.courseEnrollment.findUnique({
-        where: { userId_courseId: { userId: session.userId, courseId: course.id } },
-        select: { id: true },
-    });
-    if (!enrollment) redirect(`/cursos/${slug}`);
+    // ── Verificar acesso ──────────────────────────────────────────────────────
+    const isAdmin = session.role === 'ADMIN';
+
+    if (!isAdmin) {
+        // Verificar matrícula direta
+        const enrollment = await prisma.courseEnrollment.findUnique({
+            where: { userId_courseId: { userId: session.userId, courseId: course.id } },
+            select: { id: true },
+        });
+
+        if (!enrollment) {
+            // Sem matrícula: verificar se é membersOnly e user tem assinatura
+            if (course.membersOnly) {
+                const user = await prisma.user.findUnique({
+                    where: { id: session.userId },
+                    select: { subscriptionStatus: true, subscriptionEndDate: true },
+                });
+                const hasActiveSub =
+                    user?.subscriptionStatus === 'ACTIVE' &&
+                    (!user.subscriptionEndDate || new Date(user.subscriptionEndDate) > new Date());
+
+                if (!hasActiveSub) redirect('/cla-ancestral');
+                // Assinante ACTIVE → acesso liberado
+            } else {
+                redirect(`/cursos/${slug}`);
+            }
+        }
+    }
+
 
     // Resolve current lesson
     const allLessons = course.modules.flatMap((m) => m.lessons);

@@ -92,6 +92,12 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
     const handleEnroll = async () => {
         if (!course) return;
 
+        // Cursos membersOnly sem checkout individual → vai para página de assinatura
+        if (course.membersOnly && !course.kiwifyUrl) {
+            router.push('/cla-ancestral');
+            return;
+        }
+
         setEnrolling(true);
         try {
             const response = await fetch(`/api/cursos/${course.slug}/enroll`, {
@@ -101,14 +107,14 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
             const data = await response.json();
 
             if (response.ok) {
-                // Redirecionar para o dashboard
-                router.push('/dashboard');
+                // Redirecionar para o player
+                router.push(`/play/${course.slug}`);
             } else if (response.status === 401) {
                 // Redirecionar para login
                 router.push(`/login?redirect=/cursos/${course.slug}`);
             } else if (response.status === 403) {
-                // Mostrar mensagem de assinatura necessária
-                alert('Este curso requer uma assinatura premium ativa.');
+                // Assinatura necessária
+                router.push('/cla-ancestral');
             } else {
                 alert(data.error || 'Erro ao se inscrever no curso');
             }
@@ -299,11 +305,11 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                                     {/* CTA Buttons */}
                                     <div className="flex flex-col gap-3">
                                         {course.isEnrolled ? (
-                                            <Button size="lg" onClick={() => router.push('/dashboard')}>
+                                            <Button size="lg" onClick={() => router.push(`/play/${course.slug}`)}>
                                                 <PlayCircle className="mr-2 h-5 w-5" />
                                                 Continuar Assistindo
                                             </Button>
-                                        ) : course.kiwifyUrl ? (
+                                        ) : course.waitlistEnabled ? null : course.kiwifyUrl ? (
                                             // Curso pago — redireciona para checkout Kiwify
                                             <div className="space-y-2">
                                                 {course.price && (
@@ -313,7 +319,7 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                                                             currency: 'BRL',
                                                         })}
                                                         <span className="text-sm font-normal text-muted-foreground ml-2">
-                                                            acesso vitalício
+                                                            acesso vitálicio
                                                         </span>
                                                     </p>
                                                 )}
@@ -328,8 +334,16 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                                                     Comprar Curso
                                                 </Button>
                                             </div>
+                                        ) : course.membersOnly ? (
+                                            // Curso exclusivo para membros — redireciona para assinar
+                                            <Button
+                                                size="lg"
+                                                onClick={() => router.push('/cla-ancestral')}
+                                            >
+                                                Assinar o Clã Ancestral
+                                            </Button>
                                         ) : (
-                                            // Curso por assinatura
+                                            // Curso por assinatura genérico
                                             <Button
                                                 size="lg"
                                                 onClick={handleEnroll}
