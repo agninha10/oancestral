@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { DashboardAnalytics } from "@/components/admin/dashboard-analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Mail, UserCheck, UserX, TrendingUp } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +29,8 @@ export default async function AdminDashboardPage() {
 
             {/* Internal Metrics */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-                <Card>
+                <Link href="/admin/usuarios" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                    <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
                             Total de Usuários
@@ -41,8 +43,10 @@ export default async function AdminDashboardPage() {
                             Usuários cadastrados
                         </p>
                     </CardContent>
-                </Card>
-                <Card>
+                    </Card>
+                </Link>
+                <Link href="/admin/newsletter?status=all" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                    <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
                             Assinantes
@@ -51,10 +55,12 @@ export default async function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{subscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Total na newsletter</p>
+                        <p className="text-xs text-muted-foreground">Clique para ver a lista</p>
                     </CardContent>
-                </Card>
-                <Card>
+                    </Card>
+                </Link>
+                <Link href="/admin/newsletter?status=active" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                    <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
                             Assinantes Ativos
@@ -63,10 +69,12 @@ export default async function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{activeSubscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Inscrições ativas</p>
+                        <p className="text-xs text-muted-foreground">Clique para ver ativos</p>
                     </CardContent>
-                </Card>
-                <Card>
+                    </Card>
+                </Link>
+                <Link href="/admin/newsletter?status=inactive" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                    <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
                             Assinantes Inativos
@@ -75,10 +83,12 @@ export default async function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{inactiveSubscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Cancelados ou desativados</p>
+                        <p className="text-xs text-muted-foreground">Clique para ver inativos</p>
                     </CardContent>
-                </Card>
-                <Card>
+                    </Card>
+                </Link>
+                <Link href="/admin/newsletter?status=recent" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                    <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
                             Novos em 30 dias
@@ -87,9 +97,10 @@ export default async function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{recentSubscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Entradas recentes</p>
+                        <p className="text-xs text-muted-foreground">Clique para ver recentes</p>
                     </CardContent>
-                </Card>
+                    </Card>
+                </Link>
             </div>
 
             {/* Analytics Dashboard */}
