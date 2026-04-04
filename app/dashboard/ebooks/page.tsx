@@ -17,6 +17,9 @@ const EBOOK_CATALOG: Record<
     cover:       string;
     pages:       string;
     format:      string;
+    accessType?: 'purchase' | 'clan';
+    filename?:   string;
+    buyHref?:    string;
   }
 > = {
   "livro-ancestral": {
@@ -35,11 +38,31 @@ const EBOOK_CATALOG: Record<
     pages:       "+120 páginas",
     format:      "PDF",
   },
+  "nutricao-degeneracao-fisica": {
+    title:       "Nutrição e Degeneração Física",
+    subtitle:    "Weston A. Price (traduzido)",
+    description: "Clássico da nutrição ancestral com observações de populações tradicionais e o impacto da alimentação moderna na saúde.",
+    cover:       "/images/capa-livro-de-receitas.png",
+    pages:       "Edição completa",
+    format:      "PDF",
+    accessType:  "clan",
+    filename:    "Livro_Nutrição_e_Degeneração_Física_Weston_Price_traduzido.pdf",
+    buyHref:     "/cla-ancestral",
+  },
 };
 
 export default async function EbooksPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { role: true, subscriptionStatus: true },
+  });
+
+  if (!user) redirect('/login');
+
+  const hasClanAccess = user.subscriptionStatus === 'ACTIVE' || user.role === 'ADMIN';
 
   // Busca todas as transações PAID de ebooks deste usuário
   const purchases = await prisma.transaction.findMany({
@@ -53,6 +76,10 @@ export default async function EbooksPage() {
   });
 
   const purchasedProducts = new Set(purchases.map((p) => p.product).filter(Boolean) as string[]);
+  const hasAnyOwnedEbook = Object.entries(EBOOK_CATALOG).some(([productKey, ebook]) => {
+    const isClanEbook = ebook.accessType === 'clan';
+    return isClanEbook ? hasClanAccess : purchasedProducts.has(productKey);
+  });
 
   return (
     <div className="p-6 lg:p-8 space-y-8">
@@ -64,7 +91,7 @@ export default async function EbooksPage() {
         </p>
       </div>
 
-      {purchasedProducts.size === 0 ? (
+      {!hasAnyOwnedEbook ? (
         /* Empty state */
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 py-20 text-center px-6">
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -85,8 +112,13 @@ export default async function EbooksPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Object.entries(EBOOK_CATALOG).map(([productKey, ebook]) => {
-            const owned = purchasedProducts.has(productKey);
+            const isClanEbook = ebook.accessType === 'clan';
+            const owned = isClanEbook ? hasClanAccess : purchasedProducts.has(productKey);
             const purchase = purchases.find((p) => p.product === productKey);
+            const downloadHref = isClanEbook
+              ? `/api/download/${ebook.filename}`
+              : `/api/download/ebook?product=${productKey}`;
+            const buyHref = ebook.buyHref ?? (productKey === 'livro-ancestral' ? '/livro-de-receitas-ancestrais' : '/jejum');
 
             return (
               <div
@@ -98,7 +130,7 @@ export default async function EbooksPage() {
                 }`}
               >
                 {/* Cover */}
-                <div className="relative w-full aspect-[3/4] bg-zinc-900">
+                <div className="relative w-full aspect-3/4 bg-zinc-900">
                   <Image
                     src={ebook.cover}
                     alt={ebook.title}
@@ -152,22 +184,16 @@ export default async function EbooksPage() {
 
                   {owned ? (
                     <Button asChild className="w-full gap-2 mt-2">
-                      <a href={`/api/download/ebook?product=${productKey}`}>
+                      <a href={downloadHref}>
                         <Download className="h-4 w-4" />
                         Baixar PDF
                       </a>
                     </Button>
                   ) : (
                     <Button asChild variant="outline" className="w-full mt-2">
-                      <Link
-                        href={
-                          productKey === "livro-ancestral"
-                            ? "/livro-de-receitas-ancestrais"
-                            : "/jejum"
-                        }
-                      >
+                      <Link href={buyHref}>
                         <ShoppingBag className="h-4 w-4 mr-2" />
-                        Adquirir
+                        {isClanEbook ? 'Assinar Clã' : 'Adquirir'}
                       </Link>
                     </Button>
                   )}

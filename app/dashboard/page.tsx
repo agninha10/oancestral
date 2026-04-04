@@ -25,6 +25,15 @@ const EBOOK_CATALOG = [
         cover: '/images/capa-livro-de-receitas.png',
         buyHref: '/jejum',
     },
+    {
+        key: 'nutricao-degeneracao-fisica',
+        title: 'Nutrição e Degeneração Física',
+        subtitle: 'Weston A. Price (traduzido)',
+        cover: '/images/capa-livro-de-receitas.png',
+        buyHref: '/cla-ancestral',
+        clanOnly: true,
+        filename: 'Livro_Nutrição_e_Degeneração_Física_Weston_Price_traduzido.pdf',
+    },
 ] as const
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -180,6 +189,7 @@ export default async function DashboardPage() {
     const purchasedSet = new Set(
         ebookPurchases.map((p) => p.product).filter(Boolean) as string[],
     )
+    const hasClanAccess = user.subscriptionStatus === 'ACTIVE' || user.role === 'ADMIN'
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-16">
@@ -348,9 +358,11 @@ export default async function DashboardPage() {
                     />
                     <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                         {EBOOK_CATALOG.map((ebook) => {
-                            const owned = purchasedSet.has(ebook.key)
+                            const owned = ebook.clanOnly ? hasClanAccess : purchasedSet.has(ebook.key)
                             const href = owned
-                                ? `/api/download/ebook?product=${ebook.key}`
+                                ? (ebook.clanOnly
+                                    ? `/api/download/${ebook.filename}`
+                                    : `/api/download/ebook?product=${ebook.key}`)
                                 : ebook.buyHref
 
                             return (
