@@ -26,6 +26,7 @@ export default async function CourseStorefrontPage({
 }) {
     const session = await getSession();
     if (!session) redirect('/login');
+    const isAdmin = session.role === 'ADMIN';
 
     const { slug } = await params;
 
@@ -62,7 +63,7 @@ export default async function CourseStorefrontPage({
     if (!course) notFound();
 
     // Only enrolled users reach this page
-    if (course.enrollments.length === 0) {
+    if (course.enrollments.length === 0 && !isAdmin) {
         redirect(`/cursos/${slug}`);
     }
 
@@ -112,7 +113,7 @@ export default async function CourseStorefrontPage({
     return (
         <div className="min-h-screen bg-background pb-20">
             {/* ── Hero ───────────────────────────────────────────────────── */}
-            <div className="relative h-[55vh] min-h-[420px] w-full">
+            <div className="relative h-[55vh] min-h-105 w-full">
                 <div className="absolute inset-0">
                     {course.coverImage ? (
                         <Image
@@ -123,9 +124,9 @@ export default async function CourseStorefrontPage({
                             priority
                         />
                     ) : (
-                        <div className="h-full w-full bg-gradient-to-br from-primary/30 via-background to-accent/20" />
+                        <div className="h-full w-full bg-linear-to-br from-primary/30 via-background to-accent/20" />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-background via-background/50 to-transparent" />
                 </div>
 
                 {/* Back button */}
@@ -242,7 +243,7 @@ function ModuleCard({
                         className="object-cover"
                     />
                 ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+                    <div className="flex h-full items-center justify-center bg-linear-to-br from-primary/20 to-accent/20">
                         <BookOpen className="h-10 w-10 text-muted-foreground/40" />
                     </div>
                 )}

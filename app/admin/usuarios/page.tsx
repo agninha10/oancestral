@@ -14,17 +14,57 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DeleteUserButton } from "@/components/admin/delete-user-button";
+import { SubscriptionStatus } from "@prisma/client";
 
 export const dynamic = 'force-dynamic';
 
-async function getUsers() {
+type SubscriptionFilter = 'all' | 'active' | 'expired';
+
+function getSubscriptionFilter(value?: string): SubscriptionFilter {
+    if (value === 'active' || value === 'expired') return value;
+    return 'all';
+}
+
+function getSubscriptionWhere(filter: SubscriptionFilter) {
+    const now = new Date();
+
+    if (filter === 'active') {
+        return {
+            subscriptionStatus: SubscriptionStatus.ACTIVE,
+            OR: [
+                { subscriptionEndDate: null },
+                { subscriptionEndDate: { gt: now } },
+            ],
+        };
+    }
+
+    if (filter === 'expired') {
+        return {
+            OR: [
+                { subscriptionStatus: SubscriptionStatus.FREE, subscriptionEndDate: { not: null } },
+                { subscriptionStatus: SubscriptionStatus.ACTIVE, subscriptionEndDate: { lte: now } },
+            ],
+        };
+    }
+
+    return undefined;
+}
+
+async function getUsers(filter: SubscriptionFilter) {
     return await prisma.user.findMany({
+        where: getSubscriptionWhere(filter),
         orderBy: { createdAt: 'desc' },
     });
 }
 
-export default async function UsersPage() {
-    const users = await getUsers();
+export default async function UsersPage({ searchParams }: { searchParams?: { subscription?: string } }) {
+    const filter = getSubscriptionFilter(searchParams?.subscription);
+    const users = await getUsers(filter);
+
+    const filterLabel =
+        filter === 'active' ? 'assinantes ativos do Clã'
+        : filter === 'expired' ? 'assinantes vencidos'
+        : 'todos os usuários';
 
     return (
         <div className="space-y-6">
@@ -33,6 +73,22 @@ export default async function UsersPage() {
                 <p className="text-muted-foreground mt-2">
                     Gerencie os usuários, permissões e status de assinatura.
                 </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+                <Link href="/admin/usuarios">
+                    <Badge variant={filter === 'all' ? 'default' : 'outline'}>Todos</Badge>
+                </Link>
+                <Link href="/admin/usuarios?subscription=active">
+                    <Badge variant={filter === 'active' ? 'default' : 'outline'}>Assinantes ativos</Badge>
+                </Link>
+                <Link href="/admin/usuarios?subscription=expired">
+                    <Badge variant={filter === 'expired' ? 'default' : 'outline'}>Vencidos</Badge>
+                </Link>
+            </div>
+
+            <div className="text-sm text-muted-foreground">
+                Mostrando {filterLabel}: {users.length}
             </div>
 
             <div className="border border-border rounded-lg overflow-hidden">
@@ -99,9 +155,6 @@ export default async function UsersPage() {
                         )}
                     </TableBody>
                 </Table>
-            </div>
-            <div className="text-sm text-muted-foreground">
-                Total: {users.length} usuários
             </div>
         </div>
     );

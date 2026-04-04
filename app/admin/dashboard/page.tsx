@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { DashboardAnalytics } from "@/components/admin/dashboard-analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Mail, UserCheck, UserX, TrendingUp } from "lucide-react";
+import { Users, Crown, UserX, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -9,13 +9,33 @@ export const dynamic = 'force-dynamic';
 export default async function AdminDashboardPage() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const now = new Date();
 
-    const [userCount, subscriberCount, activeSubscriberCount, inactiveSubscriberCount, recentSubscriberCount] = await Promise.all([
+    const activeSubscriberWhere = {
+        subscriptionStatus: 'ACTIVE' as const,
+        OR: [
+            { subscriptionEndDate: null },
+            { subscriptionEndDate: { gt: now } },
+        ],
+    };
+
+    const expiredSubscriberWhere = {
+        OR: [
+            { subscriptionStatus: 'FREE' as const, subscriptionEndDate: { not: null } },
+            { subscriptionStatus: 'ACTIVE' as const, subscriptionEndDate: { lte: now } },
+        ],
+    };
+
+    const [userCount, activeSubscriberCount, expiredSubscriberCount, recentSubscriberCount] = await Promise.all([
         prisma.user.count(),
-        prisma.newsletterSubscriber.count(),
-        prisma.newsletterSubscriber.count({ where: { active: true } }),
-        prisma.newsletterSubscriber.count({ where: { active: false } }),
-        prisma.newsletterSubscriber.count({ where: { subscribedAt: { gte: thirtyDaysAgo } } }),
+        prisma.user.count({ where: activeSubscriberWhere }),
+        prisma.user.count({ where: expiredSubscriberWhere }),
+        prisma.user.count({
+            where: {
+                ...activeSubscriberWhere,
+                createdAt: { gte: thirtyDaysAgo },
+            },
+        }),
     ]);
 
     return (
@@ -45,59 +65,45 @@ export default async function AdminDashboardPage() {
                     </CardContent>
                     </Card>
                 </Link>
-                <Link href="/admin/newsletter?status=all" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                <Link href="/admin/usuarios" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
                     <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Assinantes
+                            Assinantes do Clã
                         </CardTitle>
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{subscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Clique para ver a lista</p>
-                    </CardContent>
-                    </Card>
-                </Link>
-                <Link href="/admin/newsletter?status=active" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
-                    <Card className="h-full transition-colors hover:border-orange-500/50">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Assinantes Ativos
-                        </CardTitle>
-                        <UserCheck className="h-4 w-4 text-muted-foreground" />
+                        <Crown className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{activeSubscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Clique para ver ativos</p>
+                        <p className="text-xs text-muted-foreground">Clique para ver os membros ativos</p>
                     </CardContent>
                     </Card>
                 </Link>
-                <Link href="/admin/newsletter?status=inactive" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                <Link href="/admin/usuarios?subscription=expired" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
                     <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Assinantes Inativos
+                            Assinantes Vencidos
                         </CardTitle>
                         <UserX className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{inactiveSubscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Clique para ver inativos</p>
+                        <div className="text-2xl font-bold">{expiredSubscriberCount}</div>
+                        <p className="text-xs text-muted-foreground">Clique para ver os membros expirados</p>
                     </CardContent>
                     </Card>
                 </Link>
-                <Link href="/admin/newsletter?status=recent" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
+                <Link href="/admin/usuarios?subscription=recent" className="block h-full rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50">
                     <Card className="h-full transition-colors hover:border-orange-500/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Novos em 30 dias
+                            Novas Assinaturas 30 dias
                         </CardTitle>
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{recentSubscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">Clique para ver recentes</p>
+                        <p className="text-xs text-muted-foreground">Assinantes novos no período</p>
                     </CardContent>
                     </Card>
                 </Link>

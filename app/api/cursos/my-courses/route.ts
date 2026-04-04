@@ -13,6 +13,87 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        const isAdmin = session.role === 'ADMIN';
+
+        if (isAdmin) {
+            const allCoursesData = await prisma.course.findMany({
+                where: {
+                    published: true,
+                },
+                orderBy: [
+                    { featured: 'desc' },
+                    { createdAt: 'desc' },
+                ],
+                select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    description: true,
+                    coverImage: true,
+                    isPremium: true,
+                    published: true,
+                    modules: {
+                        orderBy: {
+                            order: 'asc',
+                        },
+                        select: {
+                            id: true,
+                            title: true,
+                            lessons: {
+                                orderBy: {
+                                    order: 'asc',
+                                },
+                                select: {
+                                    id: true,
+                                    title: true,
+                                    slug: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            const enrolledCourses = await Promise.all(
+                allCoursesData.map(async (course) => {
+                    const totalLessons = course.modules.reduce(
+                        (acc, module) => acc + module.lessons.length,
+                        0
+                    );
+
+                    let progress = 0;
+                    if (totalLessons > 0) {
+                        const lessonIds = course.modules.flatMap((module) =>
+                            module.lessons.map((lesson) => lesson.id)
+                        );
+
+                        const completedLessons = await prisma.userProgress.count({
+                            where: {
+                                userId: session.userId,
+                                lessonId: {
+                                    in: lessonIds,
+                                },
+                                isCompleted: true,
+                            },
+                        });
+
+                        progress = (completedLessons / totalLessons) * 100;
+                    }
+
+                    return {
+                        ...course,
+                        isEnrolled: true,
+                        progress,
+                    };
+                })
+            );
+
+            return NextResponse.json({
+                enrolledCourses,
+                availableCourses: [],
+            });
+        }
+
         // Buscar matrículas do usuário
         const enrollments = await prisma.courseEnrollment.findMany({
             where: {
