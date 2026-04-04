@@ -11,6 +11,7 @@ import {
     Lock,
     CheckCircle,
     Info,
+    ChevronLeft,
     ChevronRight,
 } from 'lucide-react';
 
@@ -205,6 +206,37 @@ function CourseRow({
     setHoveredCourse,
 }: CourseRowProps) {
     const rowRef = useRef<HTMLDivElement | null>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+
+    const updateScrollButtons = () => {
+        const el = rowRef.current;
+        if (!el) return;
+
+        const left = el.scrollLeft > 8;
+        const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 8;
+
+        setCanScrollLeft(left);
+        setCanScrollRight(right);
+    };
+
+    useEffect(() => {
+        const el = rowRef.current;
+        if (!el) return;
+
+        updateScrollButtons();
+        el.addEventListener('scroll', updateScrollButtons);
+        window.addEventListener('resize', updateScrollButtons);
+
+        return () => {
+            el.removeEventListener('scroll', updateScrollButtons);
+            window.removeEventListener('resize', updateScrollButtons);
+        };
+    }, [courses.length]);
+
+    const scrollLeft = () => {
+        rowRef.current?.scrollBy({ left: -420, behavior: 'smooth' });
+    };
 
     const scrollRight = () => {
         rowRef.current?.scrollBy({ left: 420, behavior: 'smooth' });
@@ -215,10 +247,21 @@ function CourseRow({
             <h2 className="text-2xl font-bold font-serif">{title}</h2>
             <div className="relative group max-w-full overflow-hidden">
                 {/* Scroll Buttons */}
+                {canScrollLeft && (
+                    <button
+                        onClick={scrollLeft}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                        aria-label="Rolar cursos para a esquerda"
+                    >
+                        <ChevronLeft className="h-6 w-6" />
+                    </button>
+                )}
+
                 <button
                     onClick={scrollRight}
                     className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 hover:bg-background p-2 rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     aria-label="Rolar cursos para a direita"
+                    disabled={!canScrollRight}
                 >
                     <ChevronRight className="h-6 w-6" />
                 </button>
@@ -226,7 +269,7 @@ function CourseRow({
                 {/* Course Cards */}
                 <div
                     ref={rowRef}
-                    className="overflow-x-auto scrollbar-hide scroll-smooth overscroll-x-contain pr-12"
+                    className="overflow-x-auto scrollbar-hide scroll-smooth overscroll-x-contain px-12"
                     style={{ scrollBehavior: 'smooth' }}
                 >
                     <div className="flex gap-5 w-max pb-2">
