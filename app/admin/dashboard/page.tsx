@@ -1,13 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import { DashboardAnalytics } from "@/components/admin/dashboard-analytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Mail } from "lucide-react";
+import { Users, Mail, UserCheck, UserX, TrendingUp } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-    const userCount = await prisma.user.count();
-    const subscriberCount = await prisma.newsletterSubscriber.count();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [userCount, subscriberCount, activeSubscriberCount, inactiveSubscriberCount, recentSubscriberCount] = await Promise.all([
+        prisma.user.count(),
+        prisma.newsletterSubscriber.count(),
+        prisma.newsletterSubscriber.count({ where: { active: true } }),
+        prisma.newsletterSubscriber.count({ where: { active: false } }),
+        prisma.newsletterSubscriber.count({ where: { subscribedAt: { gte: thirtyDaysAgo } } }),
+    ]);
 
     return (
         <div className="space-y-8">
@@ -19,7 +27,7 @@ export default async function AdminDashboardPage() {
             </div>
 
             {/* Internal Metrics */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
@@ -37,15 +45,49 @@ export default async function AdminDashboardPage() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Newsletter
+                            Assinantes
                         </CardTitle>
                         <Mail className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{subscriberCount}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Inscritos totais
-                        </p>
+                        <p className="text-xs text-muted-foreground">Total na newsletter</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Assinantes Ativos
+                        </CardTitle>
+                        <UserCheck className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{activeSubscriberCount}</div>
+                        <p className="text-xs text-muted-foreground">Inscrições ativas</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Assinantes Inativos
+                        </CardTitle>
+                        <UserX className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{inactiveSubscriberCount}</div>
+                        <p className="text-xs text-muted-foreground">Cancelados ou desativados</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">
+                            Novos em 30 dias
+                        </CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{recentSubscriberCount}</div>
+                        <p className="text-xs text-muted-foreground">Entradas recentes</p>
                     </CardContent>
                 </Card>
             </div>
