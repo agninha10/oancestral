@@ -23,7 +23,7 @@ export default async function DashboardCursosPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background overflow-x-hidden">
             <CoursesNetflixView userId={session.userId} />
         </div>
     );

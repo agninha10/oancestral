@@ -89,7 +89,7 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
     }
 
     return (
-        <div className="pb-16">
+        <div className="pb-16 w-full max-w-full overflow-x-hidden">
             {/* Hero Section - Featured Course */}
             {enrolledCourses.length > 0 && (
                 <div className="relative h-[60vh] min-h-125 w-full">
@@ -158,7 +158,7 @@ export function CoursesNetflixView({ userId }: CoursesNetflixViewProps) {
             )}
 
             {/* Course Lists */}
-            <div className="space-y-12 px-6 lg:px-12 mt-8">
+            <div className="space-y-12 px-6 lg:px-12 mt-8 w-full max-w-full">
                 {/* All Courses Combined */}
                 {(enrolledCourses.length > 0 || availableCourses.length > 0) && (
                     <CourseRow
@@ -211,7 +211,7 @@ function CourseRow({
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full min-w-0">
             <h2 className="text-2xl font-bold font-serif">{title}</h2>
             <div className="relative group max-w-full overflow-hidden">
                 {/* Scroll Buttons */}
