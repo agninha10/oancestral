@@ -14,6 +14,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DeleteUserButton } from "@/components/admin/delete-user-button";
+import { ResendVerificationButton } from "@/components/admin/resend-verification-button";
 import { SubscriptionStatus } from "@prisma/client";
 
 export const dynamic = 'force-dynamic';
@@ -138,6 +139,12 @@ export default async function UsersPage({ searchParams }: { searchParams?: { sub
                                                 Editar
                                             </Button>
                                         </Link>
+                                        {!user.emailVerified && (
+                                            <ResendVerificationButton
+                                                userId={user.id}
+                                                userEmail={user.email}
+                                            />
+                                        )}
                                         <DeleteUserButton
                                             userId={user.id}
                                             userName={user.name ?? user.email}

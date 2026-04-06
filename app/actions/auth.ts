@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { generateVerificationCode, sendVerificationEmail } from '@/lib/auth/email';
 
 const registerSchema = z.object({
     name:     z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres.'),
@@ -34,14 +35,24 @@ export async function registerUser(
     }
 
     const hash = await bcrypt.hash(parsed.data.password, 10);
+    const verificationCode = generateVerificationCode();
 
     await prisma.user.create({
         data: {
             name:     parsed.data.name,
             email:    parsed.data.email,
             password: hash,
+            verificationToken: verificationCode,
+            verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
     });
+
+    try {
+        await sendVerificationEmail(parsed.data.email, verificationCode, parsed.data.name);
+    } catch (error) {
+        console.error('[registerUser] falha ao enviar e-mail de confirmação:', error);
+        // A conta já foi criada; o admin pode reenviar depois.
+    }
 
     return { success: true };
 }

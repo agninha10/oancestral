@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { Role, SubscriptionStatus } from '@prisma/client';
 import { z } from 'zod';
+import { generateVerificationCode, sendVerificationEmail } from '@/lib/auth/email';
 
 async function getAdminUser() {
     try {
@@ -85,5 +86,47 @@ export async function deleteUser(id: string) {
     } catch (error) {
         console.error('Failed to delete user:', error);
         return { success: false, error: 'Falha ao excluir usuário' };
+    }
+}
+
+export async function resendVerificationEmail(id: string) {
+    const admin = await getAdminUser();
+    if (!admin) {
+        return { success: false, error: 'Não autorizado' };
+    }
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id },
+            select: { id: true, name: true, email: true, emailVerified: true },
+        });
+
+        if (!user) {
+            return { success: false, error: 'Usuário não encontrado' };
+        }
+
+        if (user.emailVerified) {
+            return { success: false, error: 'Usuário já está verificado' };
+        }
+
+        const code = generateVerificationCode();
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                verificationToken: code,
+                verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            },
+        });
+
+        await sendVerificationEmail(user.email, code, user.name ?? undefined);
+
+        revalidatePath('/admin/usuarios');
+        revalidatePath(`/admin/usuarios/${id}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to resend verification email:', error);
+        return { success: false, error: 'Falha ao reenviar e-mail de verificação' };
     }
 }
