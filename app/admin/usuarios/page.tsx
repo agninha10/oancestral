@@ -54,8 +54,40 @@ function getSubscriptionWhere(filter: SubscriptionFilter) {
 async function getUsers(filter: SubscriptionFilter) {
     return await prisma.user.findMany({
         where: getSubscriptionWhere(filter),
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            emailVerified: true,
+            subscriptionStatus: true,
+            createdAt: true,
+            password: true,
+            verificationToken: true,
+            accounts: {
+                select: { provider: true },
+            },
+        },
         orderBy: { createdAt: 'desc' },
     });
+}
+
+function getAccountOrigin(user: {
+    password: string | null;
+    verificationToken: string | null;
+    accounts: { provider: string }[];
+}) {
+    const providers = new Set(user.accounts.map((account) => account.provider));
+
+    if (providers.has('google')) return 'Google';
+    if (providers.has('apple')) return 'Apple';
+
+    // Usuários criados no checkout recebem token de verificação e senha gerada automaticamente.
+    if (user.verificationToken && user.password) return 'Checkout';
+
+    if (user.password) return 'E-mail/Senha';
+
+    return 'Manual/Outro';
 }
 
 export default async function UsersPage({ searchParams }: { searchParams?: { subscription?: string } }) {
@@ -98,6 +130,7 @@ export default async function UsersPage({ searchParams }: { searchParams?: { sub
                         <TableRow>
                             <TableHead>Nome / Email</TableHead>
                             <TableHead>Função</TableHead>
+                            <TableHead>Origem</TableHead>
                             <TableHead>E-mail</TableHead>
                             <TableHead>Status Assinatura</TableHead>
                             <TableHead>Data Cadastro</TableHead>
@@ -116,6 +149,11 @@ export default async function UsersPage({ searchParams }: { searchParams?: { sub
                                 <TableCell>
                                     <Badge variant={user.role === 'ADMIN' ? 'destructive' : 'secondary'}>
                                         {user.role}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">
+                                        {getAccountOrigin(user)}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
@@ -153,7 +191,7 @@ export default async function UsersPage({ searchParams }: { searchParams?: { sub
                         ))}
                         {users.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                                     Nenhum usuário encontrado.
                                 </TableCell>
                             </TableRow>

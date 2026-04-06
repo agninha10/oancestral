@@ -1,24 +1,19 @@
 'use server';
 
+import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
-import { jwtVerify } from 'jose';
 import { Role, SubscriptionStatus } from '@prisma/client';
 import { z } from 'zod';
 import { generateVerificationCode, sendVerificationEmail } from '@/lib/auth/email';
 
 async function getAdminUser() {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get('auth-token');
-        if (!token) return null;
-
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-        const { payload } = await jwtVerify(token.value, secret);
+        const session = await auth();
+        if (!session?.user?.id || session.user.role !== 'ADMIN') return null;
 
         const user = await prisma.user.findUnique({
-            where: { id: payload.userId as string },
+            where: { id: session.user.id },
             select: { id: true, role: true },
         });
 
