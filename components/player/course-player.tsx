@@ -191,9 +191,11 @@ export function CoursePlayer({
                                 dangerouslySetInnerHTML={{ __html: lessonContent }}
                             />
                         ) : (
-                            <ReactMarkdown className={proseClassName}>
-                                {lessonContent}
-                            </ReactMarkdown>
+                            <div className={proseClassName}>
+                                <ReactMarkdown>
+                                    {lessonContent}
+                                </ReactMarkdown>
+                            </div>
                         )
                     )}
 

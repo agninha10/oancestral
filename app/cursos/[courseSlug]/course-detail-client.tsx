@@ -14,10 +14,10 @@ import {
     Lock,
     PlayCircle,
     CheckCircle,
+    Crown,
     BookOpen,
     ChevronDown,
     ChevronUp,
-    ShoppingCart,
     Star,
 } from 'lucide-react';
 
@@ -176,13 +176,27 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
         return null;
     }
 
+    const coursePriceText = course.price
+        ? (course.price / 100).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        })
+        : null;
+
+    const clanAnnualPriceText = (190).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+    });
+
+    const showDualOffer = !course.isEnrolled && !course.waitlistEnabled && Boolean(course.kiwifyUrl);
+
     return (
         <div className="flex min-h-screen flex-col">
             <Header />
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="border-b border-border/40 bg-gradient-to-br from-primary/10 via-background to-accent/10">
+                <section className="border-b border-border/40 bg-linear-to-br from-primary/10 via-background to-accent/10">
                     <div className="container px-4 md:px-6 py-12">
                         <div className="mx-auto max-w-6xl">
                             <div className="grid gap-8 lg:grid-cols-2 items-center">
@@ -309,38 +323,26 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                                                 <PlayCircle className="mr-2 h-5 w-5" />
                                                 Continuar Assistindo
                                             </Button>
-                                        ) : course.waitlistEnabled ? null : course.kiwifyUrl ? (
-                                            // Curso pago — redireciona para checkout Kiwify
-                                            <div className="space-y-2">
-                                                {course.price && (
-                                                    <p className="text-2xl font-bold">
-                                                        {(course.price / 100).toLocaleString('pt-BR', {
-                                                            style: 'currency',
-                                                            currency: 'BRL',
-                                                        })}
-                                                        <span className="text-sm font-normal text-muted-foreground ml-2">
-                                                            acesso vitálicio
-                                                        </span>
-                                                    </p>
-                                                )}
-                                                <Button
-                                                    size="lg"
-                                                    className="w-full sm:w-auto"
-                                                    onClick={() => {
-                                                        window.location.href = course.kiwifyUrl!;
-                                                    }}
-                                                >
-                                                    <ShoppingCart className="mr-2 h-5 w-5" />
-                                                    Comprar Curso
-                                                </Button>
-                                            </div>
-                                        ) : course.membersOnly ? (
+                                        ) : course.waitlistEnabled ? null : course.membersOnly ? (
                                             // Curso exclusivo para membros — redireciona para assinar
                                             <Button
                                                 size="lg"
                                                 onClick={() => router.push('/cla-ancestral')}
                                             >
                                                 Assinar o Clã Ancestral
+                                            </Button>
+                                        ) : showDualOffer ? (
+                                            <Button
+                                                size="lg"
+                                                className="w-full sm:w-auto"
+                                                onClick={() => {
+                                                    const section = document.getElementById('oferta');
+                                                    if (section) {
+                                                        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                    }
+                                                }}
+                                            >
+                                                Ver opções de acesso
                                             </Button>
                                         ) : (
                                             // Curso por assinatura genérico
@@ -443,6 +445,112 @@ export default function CourseDetailClient({ courseSlug }: { courseSlug: string 
                         </div>
                     </div>
                 </section>
+
+                {/* Oferta Dupla */}
+                {showDualOffer && (
+                    <section id="oferta" className="container px-4 md:px-6 pb-16">
+                        <div className="mx-auto max-w-5xl space-y-4">
+                            <div className="text-center space-y-2">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-500">
+                                    Escolha seu acesso
+                                </p>
+                                <h2 className="font-serif text-3xl md:text-4xl font-bold">
+                                    A Oferta Mais Inteligente para Evoluir Mais Rápido
+                                </h2>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-4">
+                                {/* Card Esquerdo - Acesso Individual */}
+                                <Card className="order-last md:order-first border-zinc-800 bg-zinc-900">
+                                    <CardHeader className="space-y-2">
+                                        <CardTitle className="text-2xl font-serif">Acesso Individual</CardTitle>
+                                        <p className="text-sm text-zinc-400">Apenas este curso</p>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="text-4xl font-bold text-zinc-100">
+                                            {coursePriceText ?? 'Consulte'}
+                                        </p>
+
+                                        <ul className="mt-6 space-y-3">
+                                            {[
+                                                'Acesso vitalício a este curso.',
+                                                'Atualizações deste material.',
+                                                'Suporte básico.',
+                                            ].map((item) => (
+                                                <li key={item} className="flex items-start gap-2 text-zinc-400">
+                                                    <CheckCircle className="mt-0.5 h-4 w-4 text-zinc-500" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                        <Button
+                                            variant="outline"
+                                            className="mt-7 w-full border-amber-500 bg-transparent text-amber-500 hover:bg-amber-500/10 hover:text-amber-400"
+                                            onClick={() => {
+                                                window.location.href = course.kiwifyUrl!;
+                                            }}
+                                        >
+                                            Comprar Curso Individual
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Card Direito - Clã Ancestral */}
+                                <Card className="order-first md:order-last relative border-amber-500 bg-linear-to-br from-amber-500/10 to-zinc-900 shadow-2xl shadow-amber-500/20 overflow-visible">
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                                        <Badge className="border border-amber-400/60 bg-amber-500 text-zinc-950 uppercase tracking-wider text-[10px] font-extrabold px-3 py-1">
+                                            A Escolha Mais Inteligente
+                                        </Badge>
+                                    </div>
+
+                                    <CardHeader className="space-y-2 pt-8">
+                                        <CardTitle className="text-2xl font-serif flex items-center gap-2 text-zinc-50">
+                                            <Crown className="h-5 w-5 text-amber-500" />
+                                            O Clã Ancestral
+                                        </CardTitle>
+                                        <p className="text-sm text-zinc-200">Acesso a TUDO</p>
+                                    </CardHeader>
+
+                                    <CardContent>
+                                        <p className="text-4xl font-bold text-zinc-50">
+                                            {clanAnnualPriceText}
+                                            <span className="ml-1 text-lg font-medium text-zinc-300">/ano</span>
+                                        </p>
+                                        <p className="mt-2 text-sm font-medium text-amber-400">
+                                            Mais barato que um curso individual
+                                        </p>
+
+                                        <ul className="mt-6 space-y-3">
+                                            {[
+                                                'Este curso completo.',
+                                                'TODOS os outros cursos e masterclasses já lançados.',
+                                                'Acesso VIP ao Fórum Ancestral.',
+                                                'Ferramentas exclusivas (Rastreador de Jejum, Gamificação).',
+                                                'Manuais e E-books bônus.',
+                                            ].map((item) => (
+                                                <li key={item} className="flex items-start gap-2 text-zinc-100">
+                                                    <CheckCircle className="mt-0.5 h-4 w-4 text-amber-500" />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                        <div className="relative mt-7">
+                                            <span className="pointer-events-none absolute inset-0 rounded-md bg-amber-500/40 animate-ping" />
+                                            <Button
+                                                asChild
+                                                className="relative w-full bg-amber-500 text-zinc-950 font-bold hover:bg-amber-400"
+                                            >
+                                                <Link href="/assinatura">Entrar para o Clã</Link>
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </div>
+                    </section>
+                )}
             </main>
 
             <Footer />
