@@ -96,29 +96,44 @@ export function CoursePlayer({
         });
     };
 
+    // ── Lesson type detection ────────────────────────────────────────────────
+    const hasVideo = Boolean(currentLesson.videoUrl);
+    const hasContent = Boolean(currentLesson.content);
+    const isManifesto = !hasVideo && hasContent;   // 100% text
+    const isHybrid = hasVideo && hasContent;        // video + text
+
     return (
         <div className="flex min-h-[calc(100vh-3.5rem)] flex-col lg:flex-row">
-            {/* ── Video + controls (70%) ──────────────────────────────────── */}
+            {/* ── Main content area (70%) ─────────────────────────────────── */}
             <main className="flex flex-col lg:w-[70%] lg:border-r lg:border-zinc-800">
-                {/* Video area */}
-                <div className="relative aspect-video w-full bg-black">
-                    {currentLesson.videoUrl ? (
+
+                {/* ── Video area: only shown if there is a videoUrl ─────────── */}
+                {hasVideo && (
+                    <div className="relative aspect-video w-full bg-black">
                         <iframe
-                            src={currentLesson.videoUrl}
+                            src={currentLesson.videoUrl!}
                             title={currentLesson.title}
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                             allowFullScreen
                             className="absolute inset-0 h-full w-full"
                         />
-                    ) : (
-                        <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-zinc-600">
-                            <PlayCircle className="h-16 w-16" />
-                            <p className="text-sm">Vídeo em breve</p>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
 
-                {/* Lesson info + actions */}
+                {/* ── Manifesto hero label (text-only lessons) ─────────────── */}
+                {isManifesto && (
+                    <div className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-950 px-6 py-4">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-amber-400">
+                            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            Aula Manifesto
+                        </span>
+                        <span className="text-xs text-zinc-500">Leitura longa · mergulhe fundo</span>
+                    </div>
+                )}
+
+                {/* ── Lesson info + actions ─────────────────────────────────── */}
                 <div className="flex flex-1 flex-col gap-4 p-5 lg:p-7">
                     <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                         <h1 className="text-xl font-bold text-white lg:text-2xl">
@@ -141,8 +156,42 @@ export function CoursePlayer({
                         />
                     </div>
 
-                    {/* Mark complete button */}
-                    <div className="flex items-center gap-3 pt-1">
+                    {/* ── Hybrid label (video + text) shown inline ──────────── */}
+                    {isHybrid && (
+                        <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-700 bg-zinc-800/60 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-widest text-zinc-400">
+                                <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                Material de apoio abaixo
+                            </span>
+                        </div>
+                    )}
+
+                    {/* ── Manifesto / Hybrid prose content ─────────────────── */}
+                    {hasContent && (
+                        <div
+                            className={cn(
+                                'prose prose-invert prose-amber max-w-3xl mx-auto',
+                                'prose-headings:font-serif prose-headings:text-zinc-50',
+                                'prose-p:text-zinc-300 prose-p:leading-relaxed',
+                                'prose-a:text-amber-500 hover:prose-a:text-amber-400',
+                                'prose-strong:text-white',
+                                'prose-blockquote:border-amber-500 prose-blockquote:text-zinc-400',
+                                'prose-code:text-amber-300 prose-code:bg-zinc-900 prose-code:rounded prose-code:px-1',
+                                'prose-hr:border-zinc-800',
+                                'prose-li:marker:text-amber-500',
+                                isManifesto ? 'mt-2 pb-8' : 'mt-6 border-t border-zinc-800 pt-6',
+                            )}
+                            dangerouslySetInnerHTML={{ __html: currentLesson.content! }}
+                        />
+                    )}
+
+                    {/* ── Mark complete button — always at the bottom ───────── */}
+                    <div className={cn(
+                        'flex items-center gap-3',
+                        hasContent ? 'pt-4 border-t border-zinc-800' : 'pt-1',
+                    )}>
                         {isCurrentCompleted ? (
                             <div className="flex items-center gap-2 text-sm font-medium text-emerald-400">
                                 <CheckCircle2 className="h-5 w-5" />
@@ -181,14 +230,6 @@ export function CoursePlayer({
                             </Button>
                         )}
                     </div>
-
-                    {/* Lesson content / notes */}
-                    {currentLesson.content && (
-                        <div
-                            className="prose prose-invert prose-sm max-w-none pt-2 text-zinc-400"
-                            dangerouslySetInnerHTML={{ __html: currentLesson.content }}
-                        />
-                    )}
 
                     {/* Comments slot — rendered by the server page */}
                     {commentsSlot}

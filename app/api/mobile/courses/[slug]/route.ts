@@ -57,6 +57,7 @@ export async function GET(
                             slug: true,
                             videoUrl: true,
                             thumbnailUrl: true,
+                            content: true,
                             isFree: true,
                             order: true,
                         },
@@ -108,8 +109,9 @@ export async function GET(
                 thumbnailUrl: lesson.thumbnailUrl,
                 isFree: lesson.isFree,
                 order: lesson.order,
-                // videoUrl presente apenas se autorizado ou aula gratuita
+                // videoUrl e content: entregues apenas se autorizado ou aula gratuita
                 ...(canWatch && lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}),
+                ...(canWatch && lesson.content ? { content: lesson.content } : {}),
             }
         }),
     }))

@@ -381,16 +381,43 @@ export default function ModuloPage({
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="content">Conteúdo (Rich Text/HTML)</Label>
+                                {/* ── Conteúdo Manifesto / Texto de Apoio ─── */}
+                                <div className="space-y-2 rounded-xl border border-zinc-700 bg-zinc-900 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <svg className="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                            <Label htmlFor="content" className="text-sm font-semibold text-zinc-200">
+                                                Conteúdo da Aula
+                                            </Label>
+                                        </div>
+                                        <span className="text-xs text-zinc-500">
+                                            {lessonForm.content.length > 0
+                                                ? `${lessonForm.content.length} chars`
+                                                : 'vazio'}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-zinc-500 leading-relaxed">
+                                        <span className="font-semibold text-amber-400">Aula Manifesto</span> — sem vídeo + texto longo =
+                                        artigo imersivo. <span className="font-semibold text-zinc-400">Aula Híbrida</span> — vídeo +
+                                        texto = material de apoio rico. Aceita HTML (negrito, listas, citações…).
+                                    </p>
                                     <Textarea
                                         id="content"
                                         value={lessonForm.content}
                                         onChange={(e) =>
                                             setLessonForm((prev) => ({ ...prev, content: e.target.value }))
                                         }
-                                        rows={6}
-                                        placeholder="Resumo ou material complementar da aula..."
+                                        rows={14}
+                                        placeholder={`Escreva aqui o conteúdo completo da aula…
+
+Exemplos de HTML suportado:
+<h2>Título de seção</h2>
+<p>Parágrafo com <strong>negrito</strong> e <em>itálico</em>.</p>
+<blockquote>Uma citação marcante do Mestre Liu.</blockquote>
+<ul><li>Item da lista</li></ul>`}
+                                        className="min-h-[280px] resize-y border-zinc-700 bg-zinc-950 font-mono text-sm text-zinc-300 placeholder:text-zinc-700 focus-visible:ring-amber-500/50"
                                     />
                                 </div>
 
@@ -538,8 +565,14 @@ export default function ModuloPage({
                                                 )}
                                             </div>
                                             <p className="text-sm text-muted-foreground truncate">
-                                                {lesson.videoUrl ? 'Com vídeo' : 'Sem vídeo'} •{' '}
-                                                {lesson.slug}
+                                                {lesson.videoUrl && lesson.content
+                                                    ? '🎬 Vídeo + 📝 Manifesto (Híbrida)'
+                                                    : lesson.videoUrl
+                                                      ? '🎬 Com vídeo'
+                                                      : lesson.content
+                                                        ? '📝 Aula Manifesto'
+                                                        : 'Sem conteúdo'}{' '}
+                                                • {lesson.slug}
                                             </p>
                                         </div>
 

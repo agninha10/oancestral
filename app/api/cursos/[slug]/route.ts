@@ -46,6 +46,7 @@ export async function GET(
                                 title: true,
                                 slug: true,
                                 videoUrl: true,
+                                content: true,
                                 isFree: true,
                                 order: true,
                             },
@@ -134,9 +135,23 @@ export async function GET(
             }
         }
 
+        // Sanitizar conteúdo protegido (videoUrl e content) para não-assinantes
+        const sanitizedModules = course.modules.map((module) => ({
+            ...module,
+            lessons: module.lessons.map((lesson) => {
+                const canAccess = isEnrolled || lesson.isFree;
+                return {
+                    ...lesson,
+                    videoUrl: canAccess ? lesson.videoUrl : null,
+                    content: canAccess ? lesson.content : null,
+                };
+            }),
+        }));
+
         return NextResponse.json({
             course: {
                 ...course,
+                modules: sanitizedModules,
                 isEnrolled,
                 progress,
                 totalLessons,

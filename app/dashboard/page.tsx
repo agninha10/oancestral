@@ -10,7 +10,17 @@ import { Lock, Download, Play, ChevronRight, BookOpen } from 'lucide-react'
 
 // ─── Catálogo de Ebooks ───────────────────────────────────────────────────────
 
-const EBOOK_CATALOG = [
+type EbookItem = {
+    key: string;
+    title: string;
+    subtitle: string;
+    cover: string;
+    buyHref: string;
+    clanOnly?: boolean;
+    filename?: string;
+};
+
+const EBOOK_CATALOG: EbookItem[] = [
     {
         key: 'livro-ancestral',
         title: 'Manual da Cozinha Ancestral',
@@ -34,7 +44,7 @@ const EBOOK_CATALOG = [
         clanOnly: true,
         filename: 'Livro_Nutrição_e_Degeneração_Física_Weston_Price_traduzido.pdf',
     },
-] as const
+]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
