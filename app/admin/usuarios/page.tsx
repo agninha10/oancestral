@@ -139,12 +139,10 @@ export default async function UsersPage({ searchParams }: { searchParams?: { sub
                                                 Editar
                                             </Button>
                                         </Link>
-                                        {!user.emailVerified && (
-                                            <ResendVerificationButton
-                                                userId={user.id}
-                                                userEmail={user.email}
-                                            />
-                                        )}
+                                        <ResendVerificationButton
+                                            userId={user.id}
+                                            userEmail={user.email}
+                                        />
                                         <DeleteUserButton
                                             userId={user.id}
                                             userName={user.name ?? user.email}
