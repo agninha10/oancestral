@@ -109,9 +109,9 @@ export async function GET(
                 thumbnailUrl: lesson.thumbnailUrl,
                 isFree: lesson.isFree,
                 order: lesson.order,
-                // videoUrl e content: entregues apenas se autorizado ou aula gratuita
-                ...(canWatch && lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}),
-                ...(canWatch && lesson.content ? { content: lesson.content } : {}),
+                // videoUrl e content: retornam null quando sem acesso (ou sem valor)
+                videoUrl: canWatch ? lesson.videoUrl : null,
+                content: canWatch ? lesson.content : null,
             }
         }),
     }))

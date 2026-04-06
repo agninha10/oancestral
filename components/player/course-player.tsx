@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import {
     CheckCircle2,
@@ -98,9 +99,23 @@ export function CoursePlayer({
 
     // ── Lesson type detection ────────────────────────────────────────────────
     const hasVideo = Boolean(currentLesson.videoUrl);
-    const hasContent = Boolean(currentLesson.content);
+    const lessonContent = currentLesson.content?.trim() ?? '';
+    const hasContent = lessonContent.length > 0;
+    const contentLooksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(lessonContent);
     const isManifesto = !hasVideo && hasContent;   // 100% text
     const isHybrid = hasVideo && hasContent;        // video + text
+    const proseClassName = cn(
+        'prose prose-invert prose-amber max-w-3xl mx-auto mt-8',
+        'prose-headings:font-serif prose-headings:text-zinc-50',
+        'prose-p:text-zinc-300 prose-p:leading-relaxed',
+        'prose-a:text-amber-500 hover:prose-a:text-amber-400',
+        'prose-strong:text-white',
+        'prose-blockquote:border-amber-500 prose-blockquote:text-zinc-400',
+        'prose-code:text-amber-300 prose-code:bg-zinc-900 prose-code:rounded prose-code:px-1',
+        'prose-hr:border-zinc-800',
+        'prose-li:marker:text-amber-500',
+        isManifesto ? 'pb-8' : 'border-t border-zinc-800 pt-6',
+    );
 
     return (
         <div className="flex min-h-[calc(100vh-3.5rem)] flex-col lg:flex-row">
@@ -141,7 +156,7 @@ export function CoursePlayer({
                         </h1>
 
                         {/* Progress pill */}
-                        <span className="flex-shrink-0 text-xs text-zinc-500">
+                        <span className="shrink-0 text-xs text-zinc-500">
                             {totalCompleted}/{totalLessons} aulas
                         </span>
                     </div>
@@ -170,21 +185,16 @@ export function CoursePlayer({
 
                     {/* ── Manifesto / Hybrid prose content ─────────────────── */}
                     {hasContent && (
-                        <div
-                            className={cn(
-                                'prose prose-invert prose-amber max-w-3xl mx-auto',
-                                'prose-headings:font-serif prose-headings:text-zinc-50',
-                                'prose-p:text-zinc-300 prose-p:leading-relaxed',
-                                'prose-a:text-amber-500 hover:prose-a:text-amber-400',
-                                'prose-strong:text-white',
-                                'prose-blockquote:border-amber-500 prose-blockquote:text-zinc-400',
-                                'prose-code:text-amber-300 prose-code:bg-zinc-900 prose-code:rounded prose-code:px-1',
-                                'prose-hr:border-zinc-800',
-                                'prose-li:marker:text-amber-500',
-                                isManifesto ? 'mt-2 pb-8' : 'mt-6 border-t border-zinc-800 pt-6',
-                            )}
-                            dangerouslySetInnerHTML={{ __html: currentLesson.content! }}
-                        />
+                        contentLooksLikeHtml ? (
+                            <div
+                                className={proseClassName}
+                                dangerouslySetInnerHTML={{ __html: lessonContent }}
+                            />
+                        ) : (
+                            <ReactMarkdown className={proseClassName}>
+                                {lessonContent}
+                            </ReactMarkdown>
+                        )
                     )}
 
                     {/* ── Mark complete button — always at the bottom ───────── */}
@@ -268,9 +278,9 @@ export function CoursePlayer({
                                         </span>
                                     </div>
                                     {isOpen ? (
-                                        <ChevronUp className="h-4 w-4 flex-shrink-0 text-zinc-500" />
+                                        <ChevronUp className="h-4 w-4 shrink-0 text-zinc-500" />
                                     ) : (
-                                        <ChevronDown className="h-4 w-4 flex-shrink-0 text-zinc-500" />
+                                        <ChevronDown className="h-4 w-4 shrink-0 text-zinc-500" />
                                     )}
                                 </button>
 
@@ -299,7 +309,7 @@ export function CoursePlayer({
                                                         )}
                                                     >
                                                         {/* Status icon */}
-                                                        <span className="flex-shrink-0">
+                                                        <span className="shrink-0">
                                                             {isDone ? (
                                                                 <CheckCircle2
                                                                     className={cn(
