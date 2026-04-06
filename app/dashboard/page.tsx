@@ -39,7 +39,7 @@ const EBOOK_CATALOG: EbookItem[] = [
         key: 'nutricao-degeneracao-fisica',
         title: 'Nutrição e Degeneração Física',
         subtitle: 'Weston A. Price (traduzido)',
-        cover: '/images/capa-livro-de-receitas.png',
+        cover: '/images/capa-livro-nutricao-westonprice.jpg',
         buyHref: '/cla-ancestral',
         clanOnly: true,
         filename: 'Livro_Nutrição_e_Degeneração_Física_Weston_Price_traduzido.pdf',
