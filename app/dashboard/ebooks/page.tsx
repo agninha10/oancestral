@@ -49,6 +49,17 @@ const EBOOK_CATALOG: Record<
     filename:    "Livro_Nutrição_e_Degeneração_Física_Weston_Price_traduzido.pdf",
     buyHref:     "/cla-ancestral",
   },
+  "repelentes-naturais": {
+    title:       "Repelentes Naturais",
+    subtitle:    "Guia prático do Clã",
+    description: "Receitas e formulações naturais para proteger sua casa e sua família sem depender de químicos agressivos.",
+    cover:       "/images/capa-livro-repelente.png",
+    pages:       "Edição completa",
+    format:      "PDF",
+    accessType:  "clan",
+    filename:    "repelentes-naturais-ebook.pdf",
+    buyHref:     "/cla-ancestral",
+  },
 };
 
 export default async function EbooksPage() {
