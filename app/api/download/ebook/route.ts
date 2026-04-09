@@ -1,10 +1,10 @@
 /**
- * GET /api/download/ebook?product=livro-ancestral
+ * GET /api/download/ebook?product=<slug>
  *
  * Rota protegida para download de ebooks.
- * Verifica autenticação + compra confirmada antes de servir o arquivo.
+ * Verifica autenticação + acesso (compra, clã ou gratuito) antes de servir o arquivo.
  *
- * Arquivos ficam em: /private/ebooks/<product>.pdf
+ * Arquivos ficam em: /privates/<filename>
  * (fora de /public — não acessíveis diretamente via URL)
  */
 
@@ -14,16 +14,6 @@ import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-log";
 import { readFile } from "fs/promises";
 import path from "path";
-
-const EBOOK_FILES: Record<string, string> = {
-  "livro-ancestral": "livro-ancestral.pdf",
-  "jejum":           "jejum.pdf",
-};
-
-const EBOOK_NAMES: Record<string, string> = {
-  "livro-ancestral": "Manual da Cozinha Ancestral.pdf",
-  "jejum":           "Guia do Jejum Intermitente.pdf",
-};
 
 export async function GET(req: Request) {
   // 1. Auth check
@@ -36,32 +26,54 @@ export async function GET(req: Request) {
 
   // 2. Parse product param
   const { searchParams } = new URL(req.url);
-  const product = searchParams.get("product") ?? "";
+  const slug = searchParams.get("product") ?? "";
 
-  if (!EBOOK_FILES[product]) {
+  if (!slug) {
     return NextResponse.json({ error: "Produto inválido" }, { status: 400 });
   }
 
-  // 3. Check paid transaction
-  const transaction = await prisma.transaction.findFirst({
-    where: { userId: session.userId, product, status: "PAID" },
+  // 3. Find ebook in DB
+  const ebook = await prisma.ebook.findUnique({
+    where: { slug, published: true },
   });
 
-  if (!transaction) {
-    return NextResponse.json(
-      { error: "Você não possui esse produto." },
-      { status: 403 }
-    );
+  if (!ebook || !ebook.filename) {
+    return NextResponse.json({ error: "Ebook não encontrado" }, { status: 404 });
   }
 
-  // 4. Read file from private/ebooks/
-  const filePath = path.join(process.cwd(), "private", "ebooks", EBOOK_FILES[product]);
+  // 4. Check access
+  if (ebook.access === 'PURCHASE') {
+    const transaction = await prisma.transaction.findFirst({
+      where: { userId: session.userId, product: slug, status: "PAID" },
+    });
+    if (!transaction) {
+      return NextResponse.json(
+        { error: "Você não possui esse produto." },
+        { status: 403 }
+      );
+    }
+  } else if (ebook.access === 'CLAN') {
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { subscriptionStatus: true, role: true },
+    });
+    if (!user || (user.subscriptionStatus !== 'ACTIVE' && user.role !== 'ADMIN')) {
+      return NextResponse.json(
+        { error: "Acesso ao Clã necessário para baixar este ebook." },
+        { status: 403 }
+      );
+    }
+  }
+  // FREE: sem verificação adicional
+
+  // 5. Read file from /privates/
+  const safeFilename = path.basename(ebook.filename);
+  const filePath = path.join(process.cwd(), "privates", safeFilename);
 
   let fileBuffer: Buffer;
   try {
     fileBuffer = await readFile(filePath);
   } catch {
-    // File not uploaded yet — return friendly message
     return new NextResponse(
       "O arquivo ainda não está disponível. Entre em contato pelo suporte.",
       {
@@ -75,20 +87,22 @@ export async function GET(req: Request) {
   await logActivity({
     userId: session.userId,
     action: 'EBOOK_DOWNLOAD',
-    resource: `ebook-${product}`,
+    resource: `ebook-${slug}`,
     metadata: {
       downloadSize: fileBuffer.byteLength,
-      filename: EBOOK_FILES[product],
+      filename: safeFilename,
     },
-  })
+  });
 
-  // 5. Serve file with download headers
-  const filename = encodeURIComponent(EBOOK_NAMES[product]);
+  // 6. Serve file with download headers
+  const displayName = ebook.title + ".pdf";
+  const encodedName = encodeURIComponent(displayName);
+
   return new NextResponse(new Uint8Array(fileBuffer), {
     status: 200,
     headers: {
       "Content-Type":        "application/pdf",
-      "Content-Disposition": `attachment; filename="${EBOOK_NAMES[product]}"; filename*=UTF-8''${filename}`,
+      "Content-Disposition": `attachment; filename="${displayName}"; filename*=UTF-8''${encodedName}`,
       "Content-Length":      fileBuffer.byteLength.toString(),
       "Cache-Control":       "private, no-store",
       "X-Robots-Tag":        "noindex",

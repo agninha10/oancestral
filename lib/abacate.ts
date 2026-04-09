@@ -1,8 +1,3 @@
-import AbacatePay from "abacatepay-nodejs-sdk";
-
-// Inicializa o SDK com a chave do .env
-export const abacate = AbacatePay(process.env.ABACATE_API_KEY!);
-
 /**
  * Função helper para criar o cliente e a cobrança em um passo só (Vibe Code)
  */

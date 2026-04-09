@@ -22,6 +22,7 @@ import {
     Swords,
     Quote,
     TrendingUp,
+    BookMarked,
 } from 'lucide-react';
 import { useState } from 'react';
 import { signOut } from 'next-auth/react';
@@ -49,6 +50,7 @@ const groups: { label: string; items: NavItem[] }[] = [
         label: 'Acadêmico',
         items: [
             { name: 'Cursos', href: '/admin/cursos', icon: GraduationCap },
+            { name: 'Ebooks', href: '/admin/ebooks', icon: BookMarked },
             { name: 'Comentários', href: '/admin/comentarios', icon: MessageCircle },
         ],
     },

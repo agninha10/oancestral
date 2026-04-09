@@ -248,6 +248,42 @@ model BlogPost {
   @@map("blog_posts")
 }
 
+// Ebook access type
+enum EbookAccess {
+  PURCHASE // acesso por compra (transação PAID)
+  CLAN     // acesso por assinatura ativa
+  FREE     // acesso livre para todos os logados
+}
+
+// Ebook model
+model Ebook {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String       @unique // usado como product key nas transações
+  subtitle    String?
+  description String       @db.Text
+  coverImage  String?
+  pages       String?      // ex: "+180 páginas"
+  filename    String?      // nome do arquivo PDF em /privates/
+  access      EbookAccess  @default(PURCHASE)
+
+  // Pricing & Payment
+  price           Int?    // em centavos (ex: 4900 = R$ 49,00)
+  kiwifyUrl       String?
+  kiwifyProductId String?
+  buyHref         String? // URL de compra customizada
+
+  // Metadata
+  published Boolean  @default(false)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@index([access])
+  @@map("ebooks")
+}
+
 // Course model
 model Course {
   id          String  @id @default(cuid())

@@ -8,60 +8,6 @@ import { Download, BookOpen, Lock, ShoppingBag } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-const EBOOK_CATALOG: Record<
-  string,
-  {
-    title:       string;
-    subtitle:    string;
-    description: string;
-    cover:       string;
-    pages:       string;
-    format:      string;
-    accessType?: 'purchase' | 'clan';
-    filename?:   string;
-    buyHref?:    string;
-  }
-> = {
-  "livro-ancestral": {
-    title:       "Manual da Cozinha Ancestral",
-    subtitle:    "+100 Receitas Ancestrais",
-    description: "Um guia completo com receitas baseadas na alimentação ancestral humana — sem ultra-processados, sem inflamação, com sabor real.",
-    cover:       "/images/capa-livro-de-receitas.png",
-    pages:       "+180 páginas",
-    format:      "PDF",
-  },
-  "jejum": {
-    title:       "Guia Definitivo do Jejum Intermitente",
-    subtitle:    "Protocolo completo para emagrecer e regenerar",
-    description: "Do iniciante ao avançado: protocolos de jejum, benefícios, como quebrar o jejum corretamente e erros mais comuns.",
-    cover:       "/images/capa-livro-de-receitas.png", // substituir pela capa correta
-    pages:       "+120 páginas",
-    format:      "PDF",
-  },
-  "nutricao-degeneracao-fisica": {
-    title:       "Nutrição e Degeneração Física",
-    subtitle:    "Weston A. Price (traduzido)",
-    description: "Clássico da nutrição ancestral com observações de populações tradicionais e o impacto da alimentação moderna na saúde.",
-    cover:       "/images/capa-livro-de-receitas.png",
-    pages:       "Edição completa",
-    format:      "PDF",
-    accessType:  "clan",
-    filename:    "Livro_Nutrição_e_Degeneração_Física_Weston_Price_traduzido.pdf",
-    buyHref:     "/cla-ancestral",
-  },
-  "repelentes-naturais": {
-    title:       "Repelentes Naturais",
-    subtitle:    "Guia prático do Clã",
-    description: "Receitas e formulações naturais para proteger sua casa e sua família sem depender de químicos agressivos.",
-    cover:       "/images/capa-livro-repelente.png",
-    pages:       "Edição completa",
-    format:      "PDF",
-    accessType:  "clan",
-    filename:    "repelentes-naturais-ebook.pdf",
-    buyHref:     "/cla-ancestral",
-  },
-};
-
 export default async function EbooksPage() {
   const session = await getSession();
   if (!session) redirect("/login");
@@ -75,21 +21,37 @@ export default async function EbooksPage() {
 
   const hasClanAccess = user.subscriptionStatus === 'ACTIVE' || user.role === 'ADMIN';
 
-  // Busca todas as transações PAID de ebooks deste usuário
-  const purchases = await prisma.transaction.findMany({
-    where: {
-      userId:  session.userId,
-      status:  "PAID",
-      product: { in: ["livro-ancestral", "jejum"] },
-    },
-    select: { product: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
+  // Busca todos os ebooks publicados
+  const ebooks = await prisma.ebook.findMany({
+    where: { published: true },
+    orderBy: [{ featured: 'desc' }, { createdAt: 'asc' }],
   });
 
-  const purchasedProducts = new Set(purchases.map((p) => p.product).filter(Boolean) as string[]);
-  const hasAnyOwnedEbook = Object.entries(EBOOK_CATALOG).some(([productKey, ebook]) => {
-    const isClanEbook = ebook.accessType === 'clan';
-    return isClanEbook ? hasClanAccess : purchasedProducts.has(productKey);
+  // Busca transações PAID de ebooks com tipo PURCHASE
+  const purchaseSlugs = ebooks
+    .filter((e) => e.access === 'PURCHASE')
+    .map((e) => e.slug);
+
+  const purchases = purchaseSlugs.length > 0
+    ? await prisma.transaction.findMany({
+        where: {
+          userId: session.userId,
+          status: "PAID",
+          product: { in: purchaseSlugs },
+        },
+        select: { product: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
+
+  const purchasedSlugs = new Set(
+    purchases.map((p) => p.product).filter(Boolean) as string[]
+  );
+
+  const hasAnyOwnedEbook = ebooks.some((ebook) => {
+    if (ebook.access === 'FREE') return true;
+    if (ebook.access === 'CLAN') return hasClanAccess;
+    return purchasedSlugs.has(ebook.slug);
   });
 
   return (
@@ -122,18 +84,27 @@ export default async function EbooksPage() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(EBOOK_CATALOG).map(([productKey, ebook]) => {
-            const isClanEbook = ebook.accessType === 'clan';
-            const owned = isClanEbook ? hasClanAccess : purchasedProducts.has(productKey);
-            const purchase = purchases.find((p) => p.product === productKey);
-            const downloadHref = isClanEbook
-              ? `/api/download/${ebook.filename}`
-              : `/api/download/ebook?product=${productKey}`;
-            const buyHref = ebook.buyHref ?? (productKey === 'livro-ancestral' ? '/livro-de-receitas-ancestrais' : '/jejum');
+          {ebooks.map((ebook) => {
+            const owned =
+              ebook.access === 'FREE'
+                ? true
+                : ebook.access === 'CLAN'
+                ? hasClanAccess
+                : purchasedSlugs.has(ebook.slug);
+
+            const purchase = purchases.find((p) => p.product === ebook.slug);
+
+            const downloadHref = `/api/download/ebook?product=${ebook.slug}`;
+
+            const buyHref =
+              ebook.buyHref ??
+              (ebook.access === 'CLAN'
+                ? '/cla-ancestral'
+                : '/livro-de-receitas-ancestrais');
 
             return (
               <div
-                key={productKey}
+                key={ebook.id}
                 className={`rounded-2xl border overflow-hidden flex flex-col transition-shadow ${
                   owned
                     ? "border-primary/30 bg-card shadow-md hover:shadow-lg"
@@ -142,14 +113,19 @@ export default async function EbooksPage() {
               >
                 {/* Cover */}
                 <div className="relative w-full aspect-3/4 bg-zinc-900">
-                  <Image
-                    src={ebook.cover}
-                    alt={ebook.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                  />
-                  {/* Owned badge */}
+                  {ebook.coverImage ? (
+                    <Image
+                      src={ebook.coverImage}
+                      alt={ebook.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <BookOpen className="h-16 w-16 text-white/20" />
+                    </div>
+                  )}
                   {owned && (
                     <div className="absolute top-3 right-3 bg-primary text-primary-foreground text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
                       ADQUIRIDO
@@ -165,9 +141,11 @@ export default async function EbooksPage() {
                 {/* Info */}
                 <div className="flex flex-col flex-1 p-5 gap-3">
                   <div>
-                    <p className="text-xs text-primary font-semibold uppercase tracking-wide mb-1">
-                      {ebook.subtitle}
-                    </p>
+                    {ebook.subtitle && (
+                      <p className="text-xs text-primary font-semibold uppercase tracking-wide mb-1">
+                        {ebook.subtitle}
+                      </p>
+                    )}
                     <h3 className="font-bold text-lg leading-tight">{ebook.title}</h3>
                     <p className="text-muted-foreground text-sm mt-2 leading-relaxed line-clamp-3">
                       {ebook.description}
@@ -175,9 +153,9 @@ export default async function EbooksPage() {
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-auto pt-2 border-t border-border">
-                    <span>{ebook.pages}</span>
-                    <span>·</span>
-                    <span>{ebook.format}</span>
+                    {ebook.pages && <span>{ebook.pages}</span>}
+                    {ebook.pages && <span>·</span>}
+                    <span>PDF</span>
                     {purchase && (
                       <>
                         <span>·</span>
@@ -204,7 +182,7 @@ export default async function EbooksPage() {
                     <Button asChild variant="outline" className="w-full mt-2">
                       <Link href={buyHref}>
                         <ShoppingBag className="h-4 w-4 mr-2" />
-                        {isClanEbook ? 'Assinar Clã' : 'Adquirir'}
+                        {ebook.access === 'CLAN' ? 'Assinar Clã' : 'Adquirir'}
                       </Link>
                     </Button>
                   )}
