@@ -83,6 +83,7 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${crimsonPro.variable} font-sans antialiased`}
+        suppressHydrationWarning
       >
         <GoogleAnalytics gaId="G-ET36Z6XQZZ" />
         <MetaPixel />

@@ -4,7 +4,7 @@
  * Rota protegida para download de ebooks.
  * Verifica autenticação + acesso (compra, clã ou gratuito) antes de servir o arquivo.
  *
- * Arquivos ficam em: /privates/<filename>
+ * Arquivos ficam em: /private/ebooks/<filename>
  * (fora de /public — não acessíveis diretamente via URL)
  */
 
@@ -66,9 +66,9 @@ export async function GET(req: Request) {
   }
   // FREE: sem verificação adicional
 
-  // 5. Read file from /privates/
+  // 5. Read file from /private/ebooks/
   const safeFilename = path.basename(ebook.filename);
-  const filePath = path.join(process.cwd(), "privates", safeFilename);
+  const filePath = path.join(process.cwd(), "private", "ebooks", safeFilename);
 
   let fileBuffer: Buffer;
   try {

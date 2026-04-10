@@ -30,7 +30,7 @@ export async function GET(
 
     // Prevent path traversal
     const safeFilename = path.basename(filename);
-    const filePath = path.join(process.cwd(), 'privates', safeFilename);
+    const filePath = path.join(process.cwd(), 'private', 'ebooks', safeFilename);
 
     if (!fs.existsSync(filePath)) {
         return NextResponse.json({ error: 'Arquivo não encontrado.' }, { status: 404 });
