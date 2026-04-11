@@ -712,6 +712,26 @@ model StoicQuote {
   @@map("stoic_quotes")
 }
 
+// ─── Quick Links (Linktree) ────────────────────────────────────────────────────
+
+model QuickLink {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  imageUrl  String?  // optional thumbnail / icon
+  emoji     String?  // optional emoji shorthand (ex: "🌿")
+  highlight Boolean  @default(false) // pulsing amber badge for featured links
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  clicks    Int      @default(0)    // rastreamento de cliques
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([order])
+  @@map("quick_links")
+}
+
 // ─── UTM Tracking ───────────────────────────────────────────────────────────────
 
 model UtmVisit {

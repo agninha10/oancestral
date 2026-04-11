@@ -23,6 +23,7 @@ import {
     Quote,
     TrendingUp,
     BookMarked,
+    Link2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { signOut } from 'next-auth/react';
@@ -67,6 +68,7 @@ const groups: { label: string; items: NavItem[] }[] = [
         label: 'Comunidade',
         items: [
             { name: 'A Forja', href: '/admin/forum', icon: Swords },
+            { name: 'Links Rápidos', href: '/admin/links', icon: Link2 },
         ],
     },
     {
