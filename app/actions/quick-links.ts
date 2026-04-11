@@ -149,3 +149,12 @@ export async function incrementLinkClicks(id: string) {
         data: { clicks: { increment: 1 } },
     });
 }
+
+/** Retorna o total de visualizações da página /links. */
+export async function getLinksPageViews(): Promise<number> {
+    await requireAdmin();
+    const metric = await prisma.siteMetric.findUnique({
+        where: { key: 'links_page_views' },
+    });
+    return metric?.value ?? 0;
+}

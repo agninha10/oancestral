@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth/session';
-import { getAllLinks } from '@/app/actions/quick-links';
+import { getAllLinks, getLinksPageViews } from '@/app/actions/quick-links';
 import { LinksManager } from './links-manager';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,10 @@ export default async function AdminLinksPage() {
     const session = await getSession();
     if (!session || session.role !== 'ADMIN') redirect('/login');
 
-    const links = await getAllLinks();
+    const [links, pageViews] = await Promise.all([
+        getAllLinks(),
+        getLinksPageViews(),
+    ]);
 
     return (
         <div className="space-y-8">
@@ -24,11 +27,11 @@ export default async function AdminLinksPage() {
                     >
                         oancestral.com.br/links
                     </a>
-                    . Cliques são rastreados automaticamente.
+                    . Visualizações e cliques são rastreados automaticamente.
                 </p>
             </div>
 
-            <LinksManager initialLinks={links} />
+            <LinksManager initialLinks={links} pageViews={pageViews} />
         </div>
     );
 }

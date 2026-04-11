@@ -712,6 +712,16 @@ model StoicQuote {
   @@map("stoic_quotes")
 }
 
+// ─── Site Metrics (contadores genéricos chave/valor) ──────────────────────────
+
+model SiteMetric {
+  key       String   @id          // ex: "links_page_views"
+  value     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@map("site_metrics")
+}
+
 // ─── Quick Links (Linktree) ────────────────────────────────────────────────────
 
 model QuickLink {

@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Playfair_Display } from 'next/font/google';
 import { ExternalLink, ChevronRight } from 'lucide-react';
 import { getActiveLinks } from '@/app/actions/quick-links';
+import { TrackView } from './track-view';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -148,6 +149,7 @@ export default async function LinksPage() {
                 {/* Gradiente radial de profundidade */}
                 <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(120,53,15,0.18)_0%,transparent_55%)] pointer-events-none" aria-hidden="true" />
 
+                <TrackView />
                 <main className="relative z-10 flex flex-col items-center px-4 py-14 sm:py-20 min-h-screen">
                     <div className="w-full max-w-md space-y-4">
 

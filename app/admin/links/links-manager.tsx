@@ -12,6 +12,7 @@ import {
     EyeOff,
     Loader2,
     Check,
+    Users,
 } from 'lucide-react';
 import {
     createLink,
@@ -356,7 +357,13 @@ function LinkRow({
 
 // ─── Manager principal ────────────────────────────────────────────────────────
 
-export function LinksManager({ initialLinks }: { initialLinks: QuickLink[] }) {
+export function LinksManager({
+    initialLinks,
+    pageViews,
+}: {
+    initialLinks: QuickLink[];
+    pageViews: number;
+}) {
     const [links, setLinks] = useState<QuickLink[]>(initialLinks);
 
     const totalClicks = links.reduce((acc, l) => acc + l.clicks, 0);
@@ -390,17 +397,25 @@ export function LinksManager({ initialLinks }: { initialLinks: QuickLink[] }) {
     return (
         <div className="space-y-6">
             {/* ── Sumário ── */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
-                    { label: 'Total de Links', value: links.length },
-                    { label: 'Links Ativos', value: activeCount },
-                    { label: 'Cliques Totais', value: totalClicks.toLocaleString('pt-BR') },
+                    { label: 'Visitas à Página', value: pageViews.toLocaleString('pt-BR'), icon: Users, highlight: true },
+                    { label: 'Cliques Totais', value: totalClicks.toLocaleString('pt-BR'), icon: MousePointerClick, highlight: false },
+                    { label: 'Links Ativos', value: activeCount, icon: Eye, highlight: false },
+                    { label: 'Total de Links', value: links.length, icon: ExternalLink, highlight: false },
                 ].map((s) => (
                     <div
                         key={s.label}
-                        className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-4 text-center"
+                        className={`rounded-xl border px-4 py-4 text-center ${
+                            s.highlight
+                                ? 'border-amber-500/40 bg-amber-950/20'
+                                : 'border-zinc-800 bg-zinc-900/50'
+                        }`}
                     >
-                        <p className="text-2xl font-bold text-amber-400">{s.value}</p>
+                        <s.icon className={`w-4 h-4 mx-auto mb-2 ${s.highlight ? 'text-amber-400' : 'text-zinc-600'}`} />
+                        <p className={`text-2xl font-bold ${s.highlight ? 'text-amber-400' : 'text-zinc-100'}`}>
+                            {s.value}
+                        </p>
                         <p className="text-xs text-zinc-500 mt-1">{s.label}</p>
                     </div>
                 ))}
