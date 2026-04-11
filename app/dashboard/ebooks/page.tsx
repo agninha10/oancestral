@@ -48,11 +48,9 @@ export default async function EbooksPage() {
     purchases.map((p) => p.product).filter(Boolean) as string[]
   );
 
-  const hasAnyOwnedEbook = ebooks.some((ebook) => {
-    if (ebook.access === 'FREE') return true;
-    if (ebook.access === 'CLAN') return hasClanAccess;
-    return purchasedSlugs.has(ebook.slug);
-  });
+  const hasAnyOwnedEbook =
+    hasClanAccess ||
+    ebooks.some((e) => e.access === 'FREE' || purchasedSlugs.has(e.slug));
 
   return (
     <div className="p-6 lg:p-8 space-y-8">
@@ -85,12 +83,11 @@ export default async function EbooksPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {ebooks.map((ebook) => {
+            // Membros do Clã têm acesso a todos os ebooks
             const owned =
-              ebook.access === 'FREE'
-                ? true
-                : ebook.access === 'CLAN'
-                ? hasClanAccess
-                : purchasedSlugs.has(ebook.slug);
+              hasClanAccess ||
+              ebook.access === 'FREE' ||
+              purchasedSlugs.has(ebook.slug);
 
             const purchase = purchases.find((p) => p.product === ebook.slug);
 

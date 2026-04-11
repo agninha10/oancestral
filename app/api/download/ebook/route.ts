@@ -42,22 +42,25 @@ export async function GET(req: Request) {
   }
 
   // 4. Check access
-  if (ebook.access === 'PURCHASE') {
-    const transaction = await prisma.transaction.findFirst({
-      where: { userId: session.userId, product: slug, status: "PAID" },
-    });
-    if (!transaction) {
-      return NextResponse.json(
-        { error: "Você não possui esse produto." },
-        { status: 403 }
-      );
-    }
-  } else if (ebook.access === 'CLAN') {
-    const user = await prisma.user.findUnique({
-      where: { id: session.userId },
-      select: { subscriptionStatus: true, role: true },
-    });
-    if (!user || (user.subscriptionStatus !== 'ACTIVE' && user.role !== 'ADMIN')) {
+  // Membros do Clã têm acesso a todos os ebooks
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { subscriptionStatus: true, role: true },
+  });
+  const hasClanAccess = !!user && (user.subscriptionStatus === 'ACTIVE' || user.role === 'ADMIN');
+
+  if (!hasClanAccess) {
+    if (ebook.access === 'PURCHASE') {
+      const transaction = await prisma.transaction.findFirst({
+        where: { userId: session.userId, product: slug, status: "PAID" },
+      });
+      if (!transaction) {
+        return NextResponse.json(
+          { error: "Você não possui esse produto." },
+          { status: 403 }
+        );
+      }
+    } else if (ebook.access === 'CLAN') {
       return NextResponse.json(
         { error: "Acesso ao Clã necessário para baixar este ebook." },
         { status: 403 }
@@ -65,6 +68,7 @@ export async function GET(req: Request) {
     }
   }
   // FREE: sem verificação adicional
+  // CLAN members: acesso liberado a todos os ebooks
 
   // 5. Read file from /private/ebooks/
   const safeFilename = path.basename(ebook.filename);
