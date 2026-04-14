@@ -50,6 +50,15 @@ async function resolveCourse(productId: string) {
   });
 }
 
+/** Resolve um ebook pelo kiwifyProductId salvo no banco */
+async function resolveEbook(productId: string) {
+  if (!productId) return null;
+  return prisma.ebook.findFirst({
+    where: { kiwifyProductId: productId, published: true },
+    select: { id: true, slug: true, title: true, price: true },
+  });
+}
+
 // ── Kiwify real payload shape (confirmed from test webhook) ───────────────────
 interface KiwifyCharge {
   order_id:         string;
@@ -164,6 +173,32 @@ async function handlePaid(orderId: string, payload: KiwifyPayload, config: Produ
   }
 }
 
+/** Processa pagamento confirmado de um ebook dinâmico (kiwifyProductId no banco) */
+async function handleEbookPaid(
+  orderId: string,
+  payload: KiwifyPayload,
+  ebook: { id: string; slug: string; title: string; price: number | null }
+) {
+  const user   = await findOrCreateUser(payload);
+  const amount = extractAmount(payload, ebook.price ?? 0);
+
+  await prisma.transaction.upsert({
+    where:  { billingId: orderId },
+    update: { status: "PAID", amount },
+    create: {
+      userId:    user.id,
+      billingId: orderId,
+      amount,
+      frequency: "one_time",
+      status:    "PAID",
+      source:    "KIWIFY",
+      product:   ebook.slug,
+    },
+  });
+
+  console.log(`[KIWIFY WEBHOOK] 📖 Ebook purchased by ${user.email} → "${ebook.title}" (slug: ${ebook.slug})`);
+}
+
 /** Processa pagamento confirmado de um curso dinâmico */
 async function handleCoursePaid(
   orderId: string,
@@ -265,16 +300,20 @@ export async function POST(req: Request) {
     const email     = payload.Customer?.email;
     const config    = resolveProduct(productId);
 
-    // Tenta resolver como curso dinâmico quando não é produto fixo
+    // Tenta resolver como curso ou ebook dinâmico quando não é produto fixo
     const dynamicCourse = !config && productId ? await resolveCourse(productId) : null;
+    const dynamicEbook  = !config && !dynamicCourse && productId ? await resolveEbook(productId) : null;
 
-    const resolvedLabel = config?.product ?? (dynamicCourse ? `curso:${dynamicCourse.title}` : "UNKNOWN");
+    const resolvedLabel = config?.product
+      ?? (dynamicCourse ? `curso:${dynamicCourse.title}`  : null)
+      ?? (dynamicEbook  ? `ebook:${dynamicEbook.title}`   : null)
+      ?? "UNKNOWN";
     console.log(`[KIWIFY WEBHOOK] order=${order_id} status=${order_status} email=${email} Product.product_id="${productId}" → ${resolvedLabel}`);
 
-    if (!config && !dynamicCourse && productId) {
+    if (!config && !dynamicCourse && !dynamicEbook && productId) {
       console.warn(
         `[KIWIFY WEBHOOK] ⚠️  Product UUID "${productId}" não mapeado. ` +
-        `Configure o kiwifyProductId no curso correspondente no admin, ou atualize a env var.`
+        `Configure o kiwifyProductId no ebook/curso no admin, ou atualize a env var.`
       );
     }
 
@@ -283,6 +322,8 @@ export async function POST(req: Request) {
       case "paid":
         if (dynamicCourse) {
           await handleCoursePaid(order_id, payload, dynamicCourse);
+        } else if (dynamicEbook) {
+          await handleEbookPaid(order_id, payload, dynamicEbook);
         } else {
           await handlePaid(order_id, payload, config);
         }
