@@ -68,14 +68,14 @@ export const PRODUCT_ACCESS_CONFIG: Record<string, ProductAccessConfig> = {
         type: 'ebook',
         emoji: '📖',
         privateFilePath: 'ebooks/livro-ancestral.pdf',
-        accessUrl: '/dashboard',
+        accessUrl: '/dashboard/ebooks',
         emailSubject: 'Seu Livro de Receitas Ancestrais — Acesso ao Download',
         emailTitle: 'Seu livro está pronto!',
         emailSubtitle: 'Manual da Cozinha Ancestral — Acesso Vitalício',
         emailBody:
-            'Seu ebook já está disponível no portal. Acesse com seu e-mail e senha, ' +
-            'vá até "Meus Downloads" e baixe o PDF a qualquer momento.',
-        emailCTALabel: 'Acessar Meus Downloads',
+            'Seu ebook já está disponível no portal. Acesse com seu e-mail e senha ' +
+            'e vá até "Meus Ebooks" para baixar o PDF a qualquer momento.',
+        emailCTALabel: 'Baixar Meu Ebook',
     },
 
     // ── Guia de Jejum Intermitente ────────────────────────────────────────────
@@ -84,31 +84,47 @@ export const PRODUCT_ACCESS_CONFIG: Record<string, ProductAccessConfig> = {
         type: 'ebook',
         emoji: '⚡',
         privateFilePath: 'ebooks/jejum.pdf',
-        accessUrl: '/dashboard',
+        accessUrl: '/dashboard/ebooks',
         emailSubject: 'Seu Guia de Jejum Intermitente — Acesso ao Download',
         emailTitle: 'Seu guia chegou!',
         emailSubtitle: 'Guia Definitivo do Jejum Intermitente',
         emailBody:
-            'Seu ebook já está disponível no portal. Acesse com seu e-mail e senha, ' +
-            'vá até "Meus Downloads" e baixe o PDF a qualquer momento.',
-        emailCTALabel: 'Acessar Meus Downloads',
+            'Seu ebook já está disponível no portal. Acesse com seu e-mail e senha ' +
+            'e vá até "Meus Ebooks" para baixar o PDF a qualquer momento.',
+        emailCTALabel: 'Baixar Meu Ebook',
+    },
+
+    // ── Repelentes Naturais ───────────────────────────────────────────────────
+    repelente: {
+        label: 'Repelentes Naturais',
+        type: 'ebook',
+        emoji: '🌿',
+        privateFilePath: 'ebooks/repelentes-naturais-ebook.pdf',
+        accessUrl: '/dashboard/ebooks',
+        emailSubject: 'Seu E-book Repelentes Naturais — Acesso ao Download',
+        emailTitle: 'Seu e-book chegou!',
+        emailSubtitle: 'Repelentes Naturais — Proteja Sua Biologia',
+        emailBody:
+            'Seu ebook já está disponível no portal. Acesse com seu e-mail e senha ' +
+            'e vá até "Meus Ebooks" para baixar o PDF a qualquer momento.',
+        emailCTALabel: 'Baixar Meu Ebook',
     },
 
     // ── Testosterona Primal ───────────────────────────────────────────────────
-    'testosterona-primal': {
+    testosterona: {
         label: 'Testosterona Primal',
         type: 'ebook',
         emoji: '🔥',
         privateFilePath: 'ebooks/testo.pdf',
-        accessUrl: '/dashboard',
+        accessUrl: '/dashboard/ebooks',
         emailSubject: 'Seu E-book Testosterona Primal — Acesso ao Download',
         emailTitle: 'O Protocolo chegou!',
         emailSubtitle: 'Testosterona Primal — Dieta da Selva',
         emailBody:
-            'Seu e-book já está disponível no portal. Acesse com seu e-mail e senha, ' +
-            'vá até "Meus Downloads" e baixe o PDF a qualquer momento. ' +
+            'Seu e-book já está disponível no portal. Acesse com seu e-mail e senha ' +
+            'e vá até "Meus Ebooks" para baixar o PDF a qualquer momento. ' +
             'Bons 30 dias de protocolo.',
-        emailCTALabel: 'Acessar Meus Downloads',
+        emailCTALabel: 'Baixar Meu Ebook',
     },
 
     // ── Assinatura Mensal ─────────────────────────────────────────────────────

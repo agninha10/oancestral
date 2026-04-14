@@ -15,6 +15,52 @@ import { prisma } from "@/lib/prisma";
 import { addDays } from "date-fns";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import { Resend } from "resend";
+import ProductAccessEmail from "@/emails/ProductAccessEmail";
+import { PRODUCT_ACCESS_CONFIG } from "@/lib/product-access.config";
+
+// ── Post-purchase email ───────────────────────────────────────────────────────
+
+/** Envia o e-mail de acesso ao produto após pagamento confirmado. Fire-and-forget. */
+async function sendProductAccessEmail(productKey: string, userEmail: string, userName: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("[KIWIFY WEBHOOK] RESEND_API_KEY não configurada — e-mail de acesso não enviado");
+    return;
+  }
+
+  const config = PRODUCT_ACCESS_CONFIG[productKey];
+  if (!config) {
+    console.warn(`[KIWIFY WEBHOOK] Produto "${productKey}" sem config de e-mail — pulando envio`);
+    return;
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://oancestral.com.br";
+  const ctaUrl = config.accessUrl.startsWith("http")
+    ? config.accessUrl
+    : `${baseUrl}${config.accessUrl}`;
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from: "O Ancestral <no-reply@oancestral.com.br>",
+      to: userEmail,
+      subject: config.emailSubject,
+      react: ProductAccessEmail({
+        customerName: userName,
+        productEmoji: config.emoji,
+        title: config.emailTitle,
+        subtitle: config.emailSubtitle,
+        body: config.emailBody,
+        ctaUrl,
+        ctaLabel: config.emailCTALabel,
+      }),
+    });
+    console.log(`[KIWIFY WEBHOOK] 📧 E-mail de acesso enviado → ${userEmail} (${productKey})`);
+  } catch (err) {
+    console.error(`[KIWIFY WEBHOOK] Falha ao enviar e-mail de acesso para ${userEmail}:`, err);
+  }
+}
 
 // ── Product config map ────────────────────────────────────────────────────────
 type ProductConfig = {
@@ -171,6 +217,11 @@ async function handlePaid(orderId: string, payload: KiwifyPayload, config: Produ
   } else {
     console.log(`[KIWIFY WEBHOOK] 📦 Ebook purchased by ${user.email} (${product ?? "unknown product"}) — no portal access change`);
   }
+
+  // Envia e-mail de acesso (fire-and-forget)
+  if (product) {
+    sendProductAccessEmail(product, user.email, user.name ?? "").catch(() => {});
+  }
 }
 
 /** Processa pagamento confirmado de um ebook dinâmico (kiwifyProductId no banco) */
@@ -197,6 +248,9 @@ async function handleEbookPaid(
   });
 
   console.log(`[KIWIFY WEBHOOK] 📖 Ebook purchased by ${user.email} → "${ebook.title}" (slug: ${ebook.slug})`);
+
+  // Envia e-mail de acesso (fire-and-forget)
+  sendProductAccessEmail(ebook.slug, user.email, user.name ?? "").catch(() => {});
 }
 
 /** Processa pagamento confirmado de um curso dinâmico */
