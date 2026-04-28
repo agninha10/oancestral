@@ -2,21 +2,20 @@ import { MetadataRoute } from "next";
 
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 3600; // revalida a cada 1 hora
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://oancestral.com.br").replace(/\/$/, "");
 
     const [posts, recipes] = await Promise.all([
         prisma.blogPost.findMany({
-            select: {
-                slug: true,
-                updatedAt: true,
-            },
+            where: { published: true },
+            select: { slug: true, updatedAt: true },
         }),
         prisma.recipe.findMany({
-            select: {
-                slug: true,
-                updatedAt: true,
-            },
+            where: { published: true },
+            select: { slug: true, updatedAt: true },
         }),
     ]);
 
