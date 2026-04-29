@@ -96,20 +96,21 @@ model User {
   totalFastingHours Float @default(0)
 
   // Relations
-  accounts        Account[]
-  sessions        Session[]
-  recipes         Recipe[]
-  blogPosts       BlogPost[]
-  enrollments     CourseEnrollment[]
-  transactions    Transaction[]
-  activityLogs    ActivityLog[]
-  lessonComments  LessonComment[]
-  fastingSessions FastingSession[]
-  notifications   Notification[]
-  forumPosts      ForumPost[]
-  forumReplies    ForumReply[]
-  postLikes       PostLike[]
-  userBadges      UserBadge[]
+  accounts              Account[]
+  sessions              Session[]
+  recipes               Recipe[]
+  blogPosts             BlogPost[]
+  enrollments           CourseEnrollment[]
+  transactions          Transaction[]
+  activityLogs          ActivityLog[]
+  lessonComments        LessonComment[]
+  fastingSessions       FastingSession[]
+  caffeineDetoxSessions CaffeineDetoxSession[]
+  notifications         Notification[]
+  forumPosts            ForumPost[]
+  forumReplies          ForumReply[]
+  postLikes             PostLike[]
+  userBadges            UserBadge[]
 
   @@map("users")
 }
@@ -549,6 +550,32 @@ model FastingSession {
   @@index([userId])
   @@index([status])
   @@map("fasting_sessions")
+}
+
+// ─── Caffeine Detox — protocolo de desmame de cafeína ─────────────────────────
+
+model CaffeineDetoxSession {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  startTime DateTime
+  endTime   DateTime?
+
+  // "PROGRESSIVE" = desmame gradual | "COLD_TURKEY" = suspensão total
+  protocol  String    @default("PROGRESSIVE")
+
+  // "ONGOING" | "COMPLETED" | "ABANDONED"
+  status    String    @default("ONGOING")
+
+  notes     String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("caffeine_detox_sessions")
 }
 
 // ─── NextAuth (Auth.js) ────────────────────────────────────────────────────────

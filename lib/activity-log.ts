@@ -15,6 +15,7 @@ export type ActivityAction =
   | 'LESSON_ACCESS'
   | 'PROFILE_UPDATE'
   | 'FASTING_ACCESS'
+  | 'CAFEINA_ACCESS'
 
 interface LogActivityParams {
   userId: string

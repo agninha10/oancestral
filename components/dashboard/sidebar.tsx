@@ -16,6 +16,7 @@ import {
     Swords,
     Sun,
     Moon,
+    Coffee,
 } from 'lucide-react';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { useSidebar } from '@/components/dashboard/sidebar-context';
@@ -56,6 +57,11 @@ const navigation = [
         name: 'Protocolo de Jejum',
         href: '/dashboard/jejum',
         icon: Flame,
+    },
+    {
+        name: 'Desmame de Cafeína',
+        href: '/dashboard/cafeina',
+        icon: Coffee,
     },
     {
         name: 'Receitas',

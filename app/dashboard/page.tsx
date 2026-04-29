@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity-log'
 import { GamificationHeader } from '@/components/dashboard/gamification-header'
 import { getRandomActiveQuote } from '@/app/actions/quotes'
-import { Lock, Download, Play, ChevronRight, BookOpen } from 'lucide-react'
+import { Lock, Download, Play, ChevronRight, BookOpen, Coffee, Clock } from 'lucide-react'
 
 // ─── Catálogo de Ebooks ───────────────────────────────────────────────────────
 
@@ -89,6 +89,57 @@ function SectionHeader({
     )
 }
 
+// ─── Caffeine Metric Card ─────────────────────────────────────────────────────
+
+type CaffeineDetoxData = {
+    id: string;
+    startTime: Date;
+    protocol: string;
+} | null;
+
+function CaffeineMetricCard({ detox }: { detox: CaffeineDetoxData }) {
+    const elapsedMs = detox ? Date.now() - new Date(detox.startTime).getTime() : 0;
+    const elapsedH = Math.floor(elapsedMs / 3_600_000);
+    const elapsedD = Math.floor(elapsedH / 24);
+    const remainH = elapsedH % 24;
+
+    const durationLabel = detox
+        ? elapsedD > 0
+            ? `${elapsedD}d ${remainH}h`
+            : `${elapsedH}h`
+        : null;
+
+    return (
+        <Link
+            href="/dashboard/cafeina"
+            className="group flex items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 transition-all hover:border-amber-500/40 hover:bg-zinc-900"
+        >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20 group-hover:border-amber-500/40 transition-colors">
+                <Coffee className="h-5 w-5 text-amber-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+                    Protocolo de Cafeína
+                </p>
+                {detox ? (
+                    <p className="text-sm font-semibold text-zinc-100 mt-0.5">
+                        {detox.protocol === 'COLD_TURKEY' ? 'Cold Turkey' : 'Desmame'} em andamento
+                    </p>
+                ) : (
+                    <p className="text-sm text-zinc-500 mt-0.5">Nenhum protocolo ativo</p>
+                )}
+            </div>
+            {durationLabel && (
+                <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 border border-amber-500/20">
+                    <Clock className="h-3 w-3 text-amber-500" />
+                    <span className="font-mono text-xs font-bold text-amber-400">{durationLabel}</span>
+                </div>
+            )}
+            <ChevronRight className="h-4 w-4 shrink-0 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+        </Link>
+    );
+}
+
 // ─── Dashboard Page ───────────────────────────────────────────────────────────
 
 export default async function DashboardPage() {
@@ -97,7 +148,7 @@ export default async function DashboardPage() {
 
     logActivity({ userId: session.userId, action: 'DASHBOARD_ACCESS' }).catch(() => {})
 
-    const [user, allCourses, ebookPurchases, enrolledCourses, quote] = await Promise.all([
+    const [user, allCourses, ebookPurchases, enrolledCourses, quote, caffeineDetox] = await Promise.all([
         // 1. Usuário + badges (para o GamificationHeader)
         prisma.user.findUnique({
             where: { id: session.userId },
@@ -178,6 +229,12 @@ export default async function DashboardPage() {
 
         // 5. Frase estoica aleatória do banco
         getRandomActiveQuote(),
+
+        // 6. Sessão de detox de cafeína ativa (para card no dashboard)
+        prisma.caffeineDetoxSession.findFirst({
+            where: { userId: session.userId, status: 'ONGOING' },
+            select: { id: true, startTime: true, protocol: true },
+        }),
     ])
 
     if (!user) redirect('/login')
@@ -230,6 +287,11 @@ export default async function DashboardPage() {
                         </p>
                         <footer className="mt-1 text-xs text-zinc-700">— {quote.author}</footer>
                     </blockquote>
+                )}
+
+                {/* ── Métricas de Cafeína ──────────────────────────────────── */}
+                {hasClanAccess && (
+                    <CaffeineMetricCard detox={caffeineDetox} />
                 )}
 
                 {/* ── Continuar Forjando ───────────────────────────────────── */}
